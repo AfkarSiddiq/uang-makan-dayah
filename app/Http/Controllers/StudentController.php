@@ -75,9 +75,22 @@ class StudentController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('santriwan/detail-kelas', [
+        return Inertia::render('santriwati/detail-kelas', [
             'namaKelas' => $kelas,
             'students' => $students
+        ]);
+    }
+
+    public function showSantriwati($id)
+    {
+        // Cari siswa berdasarkan ID, SEKALIGUS ambil data tagihan SPP-nya (relasi hasMany)
+        // Kita urutkan tagihannya berdasarkan tahun dan bulan agar rapi dari Juli - Juni
+        $student = Student::with(['sppPayments' => function ($query) {
+            $query->orderBy('year', 'asc')->orderBy('month', 'asc');
+        }])->findOrFail($id);
+
+        return Inertia::render('santriwati/profil-siswa', [
+            'student' => $student
         ]);
     }
 }

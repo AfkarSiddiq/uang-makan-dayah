@@ -26,12 +26,12 @@ const mainNavItems: NavItem[] = [
         items: [
             {
                 title: 'Santriwan',
-                url: '/santriwan/tuition-fee',
+                url: '/santriwan',
                 icon: Mars,
             },
             {
                 title: 'Santriwati',
-                url: '/santriwati/tuition-fee',
+                url: '/santriwati',
                 icon: Venus,
             },
         ],
