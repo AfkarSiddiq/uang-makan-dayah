@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { AlarmCheck, Banknote, BanknoteIcon, BookCheck, BookOpen, BookText, Folder, History, LayoutGrid, Mars, Venus } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -13,19 +13,52 @@ const mainNavItems: NavItem[] = [
         url: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Pembayaran',
+        url: '/payment',
+        icon: Banknote,
+    },
+    {
+        title: 'Data Uang makan',
+        url: '#', // Gunakan '#' karena ini akan bertindak sebagai tombol pembuka dropdown
+        icon: BookText, // Contoh mengganti icon
+        isActive: false, // (Opsional) jika true, menu akan terbuka secara default
+        items: [
+            {
+                title: 'Santriwan',
+                url: '/santriwan/tuition-fee',
+                icon: Mars,
+            },
+            {
+                title: 'Santriwati',
+                url: '/santriwati/tuition-fee',
+                icon: Venus,
+            },
+        ],
+    },
+    {
+        title: 'Tunggakan',
+        url: '/tuition-arrears',
+        icon: AlarmCheck,
+    },
+    {
+        title: 'Riwayat Pembayaran',
+        url: '/payment-history',
+        icon: History,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
+    // {
+    //     title: 'Repository',
+    //     url: 'https://github.com/laravel/react-starter-kit',
+    //     icon: Folder,
+    // },
+    // {
+    //     title: 'Documentation',
+    //     url: 'https://laravel.com/docs/starter-kits',
+    //     icon: BookOpen,
+    // },
 ];
 
 export function AppSidebar() {
