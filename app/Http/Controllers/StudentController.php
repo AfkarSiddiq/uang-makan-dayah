@@ -9,88 +9,80 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
-    public function indexSantriwan()
+    // pembuatan private function untuk pemisahan gender
+    private function getKelasByGender($gender)
     {
-        // Cari kelas berapa saja yang memiliki Santriwan (Laki-laki) & hitung jumlah siswanya
-        $kelasData = Student::where('gender', 'L')
+        return Student::where('gender', $gender)
             ->where('status', 'aktif')
             ->select('class', DB::raw('count(*) as total_siswa'))
             ->groupBy('class')
             ->orderBy('class')
             ->get();
-
-        return Inertia::render('santriwan/data-kelas', [
-            'kelasData' => $kelasData
-        ]);
     }
 
-    // 2. Halaman Detail: Menampilkan Daftar Siswa saat Kelas Diklik
-    public function detailKelasSantriwan($kelas)
+    private function getStudentsByClassAndGender($kelas, $gender)
     {
-        // Ambil data santriwan hanya berdasarkan kelas yang dipilih
-        $students = Student::where('gender', 'L')
+        return Student::where('gender', $gender)
             ->where('class', $kelas)
             ->orderBy('name')
             ->get();
+    }
 
+    private function getStudentProfile($id, $gender)
+    {
+        // BUG FIX: Ditambah where('gender') agar URL tidak bisa diakali
+        return Student::where('gender', $gender)
+            ->with(['sppPayments' => function ($query) {
+                $query->orderBy('year', 'asc')->orderBy('month', 'asc');
+            }])
+            ->findOrFail($id);
+    }
+
+    //  ROUTE UNTUK SANTRIWAN (Memanggil fungsi bantuan di atas)
+
+    public function indexSantriwan()
+    {
+        return Inertia::render('santriwan/data-kelas', [
+            'kelasData' => $this->getKelasByGender('L')
+        ]);
+    }
+
+    public function detailKelasSantriwan($kelas)
+    {
         return Inertia::render('santriwan/detail-kelas', [
             'namaKelas' => $kelas,
-            'students' => $students
+            'students'  => $this->getStudentsByClassAndGender($kelas, 'L')
         ]);
     }
 
     public function showSantriwan($id)
     {
-        // Cari siswa berdasarkan ID, SEKALIGUS ambil data tagihan SPP-nya (relasi hasMany)
-        // Kita urutkan tagihannya berdasarkan tahun dan bulan agar rapi dari Juli - Juni
-        $student = Student::with(['sppPayments' => function ($query) {
-            $query->orderBy('year', 'asc')->orderBy('month', 'asc');
-        }])->findOrFail($id);
-
         return Inertia::render('santriwan/profil-siswa', [
-            'student' => $student
+            'student' => $this->getStudentProfile($id, 'L')
         ]);
     }
 
-    // =========== SANTRIWATI ==========
+    // ROUTE UNTUK SANTRIWATI (Memanggil fungsi bantuan di atas)
+
     public function indexSantriwati()
     {
-        $kelasData = Student::where('gender', 'P')
-            ->where('status', 'aktif')
-            ->select('class', DB::raw('count(*) as total_siswa'))
-            ->groupBy('class')
-            ->orderBy('class')
-            ->get();
-
         return Inertia::render('santriwati/data-kelas', [
-            'kelasData' => $kelasData
+            'kelasData' => $this->getKelasByGender('P')
         ]);
     }
 
     public function detailKelasSantriwati($kelas)
     {
-        // Ambil data santriwan hanya berdasarkan kelas yang dipilih
-        $students = Student::where('gender', 'P')
-            ->where('class', $kelas)
-            ->orderBy('name')
-            ->get();
-
         return Inertia::render('santriwati/detail-kelas', [
             'namaKelas' => $kelas,
-            'students' => $students
+            'students'  => $this->getStudentsByClassAndGender($kelas, 'P')
         ]);
     }
 
     public function showSantriwati($id)
     {
-        // Cari siswa berdasarkan ID, SEKALIGUS ambil data tagihan SPP-nya (relasi hasMany)
-        // Kita urutkan tagihannya berdasarkan tahun dan bulan agar rapi dari Juli - Juni
-        $student = Student::with(['sppPayments' => function ($query) {
-            $query->orderBy('year', 'asc')->orderBy('month', 'asc');
-        }])->findOrFail($id);
-
         return Inertia::render('santriwati/profil-siswa', [
-            'student' => $student
+            'student' => $this->getStudentProfile($id, 'P')
         ]);
     }
 }
