@@ -40,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
    
     Route::get('santriwati', [StudentController::class, 'indexSantriwati'])->name('santriwati.kelas');
     Route::get('santriwati/class/{kelas}', [StudentController::class, 'detailKelasSantriwati'])->name('santriwati.detail');
-    Route::get('santriwati/santri/{id}', [StudentController::class, 'indexSantriwati'])->name('santriwati.show');
+    Route::get('santriwati/santri/{id}', [StudentController::class, 'showSantriwati'])->name('santriwati.show');
     // tambah route lain
 });
 
