@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
-import { Users } from 'lucide-react';
+import { Users, GraduationCap } from 'lucide-react'; // [DITAMBAHKAN]: Import icon GraduationCap
 
 interface KelasItem {
     class: string;
@@ -17,9 +17,23 @@ export default function DataKelas({ kelasData }: Props) {
             <Head title="Pilih Kelas Santriwan" />
             
             <div className="p-6">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Data Santriwan</h1>
-                    <p className="text-slate-500">Pilih kelas untuk melihat daftar santriwan.</p>
+                
+                {/* [DIPERBAIKI]: Mengubah div menjadi flex agar judul di kiri dan tombol di kanan */}
+                <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Data Santriwan</h1>
+                        <p className="text-slate-500 dark:text-slate-400">Pilih kelas untuk melihat daftar santriwan.</p>
+                    </div>
+                    
+                    {/* [DITAMBAHKAN]: Tombol Kenaikan Kelas */}
+                    {/* Catatan: Nanti Anda perlu membuat route 'santriwan.kenaikan' di web.php */}
+                    <Link 
+                        href={route('santriwan.kenaikan')} 
+                        className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 shadow-sm"
+                    >
+                        <GraduationCap className="mr-2 h-4 w-4" />
+                        Proses Kenaikan Kelas
+                    </Link>
                 </div>
 
                 {/* Grid Kartu Kelas */}

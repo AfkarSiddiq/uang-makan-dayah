@@ -103,7 +103,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                             {/* Input Password */}
                             <div className="space-y-2">
-                                <div className="flex items-center justify-between">
+                                {/* <div className="flex items-center justify-between">
                                     <Label htmlFor="password" className="text-zinc-700 dark:text-zinc-300">Kata Sandi</Label>
                                     {canResetPassword && (
                                         <Link
@@ -113,7 +113,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                             Lupa kata sandi?
                                         </Link>
                                     )}
-                                </div>
+                                </div> */}
                                 <Input
                                     id="password"
                                     type="password"
@@ -127,7 +127,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             </div>
 
                             {/* Remember Me */}
-                            <div className="flex items-center space-x-2 pt-1">
+                            {/* <div className="flex items-center space-x-2 pt-1">
                                 <Checkbox
                                     id="remember"
                                     checked={data.remember}
@@ -139,7 +139,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 >
                                     Ingat sesi saya
                                 </Label>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* Tombol Login */}
@@ -152,12 +152,12 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </form>
 
                     {/* Footer / Info tambahan */}
-                    <p className="px-8 text-center text-sm text-muted-foreground">
+                    {/* <p className="px-8 text-center text-sm text-muted-foreground">
                         Sistem dilindungi oleh enkripsi tingkat lanjut.{' '}
                         <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
                             Ketentuan Layanan
                         </Link>
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </div>

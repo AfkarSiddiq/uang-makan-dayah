@@ -12,12 +12,25 @@ class StudentController extends Controller
     // pembuatan private function untuk pemisahan gender
     private function getKelasByGender($gender)
     {
-        return Student::where('gender', $gender)
+        // 1. Definisikan daftar kelas yang pasti ada (Statis)
+        $daftarKelas = collect(['1', '2', '3', '4', '5', '6']);
+
+        // 2. Ambil data jumlah siswa dari database HANYA SATU KALI
+        // pluck() akan menghasilkan array berpasangan: ['1' => 15, '2' => 20]
+        $dataSiswaDariDb = Student::where('gender', $gender)
             ->where('status', 'aktif')
             ->select('class', DB::raw('count(*) as total_siswa'))
             ->groupBy('class')
-            ->orderBy('class')
-            ->get();
+            ->pluck('total_siswa', 'class');
+
+        // 3. Gabungkan kelas statis dengan data dari database
+        return $daftarKelas->map(function ($kelas) use ($dataSiswaDariDb) {
+            return [
+                'class' => $kelas,
+                // Cari apakah kelas ini ada di database? Jika tidak ada, jadikan 0
+                'total_siswa' => $dataSiswaDariDb->get($kelas, 0) 
+            ];
+        })->values(); // values() memastikan formatnya array rapi untuk React
     }
 
     private function getStudentsByClassAndGender($kelas, $gender)
@@ -85,4 +98,193 @@ class StudentController extends Controller
             'student' => $this->getStudentProfile($id, 'P')
         ]);
     }
+
+    // update kelas bagian detail siswa
+    public function update(Request $request, $id)
+    {
+        // 1. Validasi data yang masuk
+        $validated = $request->validate([
+            'class'  => 'nullable|in:1,2,3,4,5,6',
+            'status' => 'required|in:aktif,lulus,pindah,berhenti',
+        ]);
+
+        // 2. Cari siswa dan update
+        $student = Student::findOrFail($id);
+        $student->update($validated);
+
+        // 3. Kembali ke halaman yang sama dengan pesan sukses
+        if ($student->gender === 'L') {
+            return redirect()->route('santriwan.detail', ['kelas' => $student->class])
+                             ->with('success', 'Data santriwan berhasil diperbarui!');
+        } 
+        
+        // Jika perempuan, kembalikan ke halaman daftar kelas Santriwati
+        return redirect()->route('santriwati.detail', ['kelas' => $student->class])
+                         ->with('success', 'Data santriwati berhasil diperbarui!');
+    }
+
+    //======KENAIKAN KELAS===========
+    public function kenaikanSantriwan()
+    {
+        // Ambil daftar kelas yang memiliki siswa aktif untuk dijadikan pilihan di Dropdown
+        $kelasAktif = Student::where('gender', 'L')
+            ->where('status', 'aktif')
+            ->select('class')
+            ->groupBy('class')
+            ->orderBy('class')
+            ->get();
+
+        return Inertia::render('santriwan/kenaikan-kelas', [
+            'kelasAktif' => $kelasAktif
+        ]);
+    }
+   
+    public function kenaikanSantriwati()
+    {
+        // Ambil daftar kelas yang memiliki siswa aktif untuk dijadikan pilihan di Dropdown
+        $kelasAktif = Student::where('gender', 'P')
+            ->where('status', 'aktif')
+            ->select('class')
+            ->groupBy('class')
+            ->orderBy('class')
+            ->get();
+
+        return Inertia::render('santriwati/kenaikan-kelas', [
+            'kelasAktif' => $kelasAktif
+        ]);
+    }
+
+    public function prosesKenaikanSantriwan(Request $request)
+    {
+        // 1. Validasi Input dari React
+        $request->validate([
+            'old_class' => 'required|in:1,2,3,4,5,6',
+            'is_graduating' => 'boolean',
+            'new_class' => 'nullable|in:1,2,3,4,5,6',
+            'new_spp_amount' => 'required|numeric|min:0',
+            'start_year' => 'required|numeric|min:2020',
+        ]);
+
+        // 2. Eksekusi dengan Transaction agar Aman
+        DB::transaction(function () use ($request) {
+            
+            // Ambil semua santriwan di kelas asal yang masih aktif
+            $students = Student::where('gender', 'L')
+                ->where('class', $request->old_class)
+                ->where('status', 'aktif')
+                ->get();
+
+            foreach ($students as $student) {
+                // A. Jika Lulus, cukup ubah status dan skip pembuatan SPP
+                if ($request->is_graduating) {
+                    $student->update([
+                        'status' => 'lulus',
+                        'exit_year' => $request->start_year,
+                        'exit_month' => 6 // Biasanya lulus bulan Juni
+                    ]);
+                    continue; 
+                }
+
+                // B. Jika Naik Kelas, ubah kelasnya
+                $student->update(['class' => $request->new_class]);
+
+                // C. Generate 12 Bulan Tagihan SPP Baru (Juli s.d Juni)
+                $months = [
+                    ['m' => 7,  'y' => $request->start_year],
+                    ['m' => 8,  'y' => $request->start_year],
+                    ['m' => 9,  'y' => $request->start_year],
+                    ['m' => 10, 'y' => $request->start_year],
+                    ['m' => 11, 'y' => $request->start_year],
+                    ['m' => 12, 'y' => $request->start_year],
+                    ['m' => 1,  'y' => $request->start_year + 1],
+                    ['m' => 2,  'y' => $request->start_year + 1],
+                    ['m' => 3,  'y' => $request->start_year + 1],
+                    ['m' => 4,  'y' => $request->start_year + 1],
+                    ['m' => 5,  'y' => $request->start_year + 1],
+                    ['m' => 6,  'y' => $request->start_year + 1],
+                ];
+
+                foreach ($months as $date) {
+                    \App\Models\SppPayment::create([
+                        'student_id' => $student->id,
+                        'month' => $date['m'],
+                        'year' => $date['y'],
+                        'amount' => $request->new_spp_amount,
+                        'paid_amount' => 0,
+                        'status' => 'unpaid',
+                    ]);
+                }
+            }
+        });
+
+        // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
+        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
+    }
+    
+    public function prosesKenaikanSantriwati(Request $request)
+    {
+        // 1. Validasi Input dari React
+        $request->validate([
+            'old_class' => 'required|in:1,2,3,4,5,6',
+            'is_graduating' => 'boolean',
+            'new_class' => 'nullable|in:1,2,3,4,5,6',
+            'new_spp_amount' => 'required|numeric|min:0',
+            'start_year' => 'required|numeric|min:2020',
+        ]);
+
+        // 2. Eksekusi dengan Transaction agar Aman
+        DB::transaction(function () use ($request) {
+            
+            // Ambil semua santriwan di kelas asal yang masih aktif
+            $students = Student::where('gender', 'P')
+                ->where('class', $request->old_class)
+                ->where('status', 'aktif')
+                ->get();
+
+            foreach ($students as $student) {
+                // A. Jika Lulus, cukup ubah status dan skip pembuatan SPP
+                if ($request->is_graduating) {
+                    $student->update([
+                        'status' => 'lulus',
+                        'exit_year' => $request->start_year,
+                        'exit_month' => 6 // Biasanya lulus bulan Juni
+                    ]);
+                    continue; 
+                }
+
+                // B. Jika Naik Kelas, ubah kelasnya
+                $student->update(['class' => $request->new_class]);
+
+                // C. Generate 12 Bulan Tagihan SPP Baru (Juli s.d Juni)
+                $months = [
+                    ['m' => 7,  'y' => $request->start_year],
+                    ['m' => 8,  'y' => $request->start_year],
+                    ['m' => 9,  'y' => $request->start_year],
+                    ['m' => 10, 'y' => $request->start_year],
+                    ['m' => 11, 'y' => $request->start_year],
+                    ['m' => 12, 'y' => $request->start_year],
+                    ['m' => 1,  'y' => $request->start_year + 1],
+                    ['m' => 2,  'y' => $request->start_year + 1],
+                    ['m' => 3,  'y' => $request->start_year + 1],
+                    ['m' => 4,  'y' => $request->start_year + 1],
+                    ['m' => 5,  'y' => $request->start_year + 1],
+                    ['m' => 6,  'y' => $request->start_year + 1],
+                ];
+
+                foreach ($months as $date) {
+                    \App\Models\SppPayment::create([
+                        'student_id' => $student->id,
+                        'month' => $date['m'],
+                        'year' => $date['y'],
+                        'amount' => $request->new_spp_amount,
+                        'paid_amount' => 0,
+                        'status' => 'unpaid',
+                    ]);
+                }
+            }
+        });
+
+        // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
+        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
+    }   
 }
