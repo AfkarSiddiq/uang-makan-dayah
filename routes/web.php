@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -16,11 +17,11 @@ Route::get('/', function () {
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    
+
     // Halaman Dashboard
     Route::get('/dashboard', function () {
         return Inertia::render('admin/dashboard', [
-            'status' => 'Sukses' 
+            'status' => 'Sukses'
         ]);
     })->name('dashboard');
 
@@ -40,8 +41,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/santriwan/kenaikan', [StudentController::class, 'prosesKenaikanSantriwan'])->name('santriwan.kenaikan.proses');
     Route::get('/santriwan/class/{kelas}', [StudentController::class, 'detailKelasSantriwan'])->name('santriwan.detail');
     Route::get('/santriwan/santri/{id}', [StudentController::class, 'showSantriwan'])->name('santriwan.show');
-   
-    
+
+
     Route::get('/santriwati', [StudentController::class, 'indexSantriwati'])->name('santriwati.kelas');
     Route::get('/santriwati/kenaikan', [StudentController::class, 'kenaikanSantriwati'])->name('santriwati.kenaikan');
     Route::post('/santriwati/kenaikan', [StudentController::class, 'prosesKenaikanSantriwati'])->name('santriwati.kenaikan.proses');
@@ -55,6 +56,8 @@ Route::middleware(['auth'])->group(function () {
     // Update Spp
     Route::get('/tuition-per-month', [SppPaymentController::class, 'pengaturanMassal'])->name('spp.pengaturan');
     Route::post('/spp/bulk-update', [SppPaymentController::class, 'bulkUpdateAmount'])->name('spp.bulk_update');
+
+    Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 });
 
 require __DIR__.'/settings.php';
