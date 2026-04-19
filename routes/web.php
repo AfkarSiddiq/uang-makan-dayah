@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,13 @@ Route::middleware(['auth'])->group(function () {
     // Update Spp
     Route::get('/tuition-per-month', [SppPaymentController::class, 'pengaturanMassal'])->name('spp.pengaturan');
     Route::post('/spp/bulk-update', [SppPaymentController::class, 'bulkUpdateAmount'])->name('spp.bulk_update');
+
+
+    // Route Untuk Alumni
+    Route::prefix('alumni')->name('alumni.')->group(function () {
+        Route::get('/', [AlumniController::class, 'index'])->name('index');
+        Route::get('/tahun/{year}', [AlumniController::class, 'detail'])->name('detail');
+    });
 });
 
 require __DIR__.'/settings.php';
