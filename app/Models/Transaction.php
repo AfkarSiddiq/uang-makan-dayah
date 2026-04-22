@@ -15,7 +15,7 @@ class Transaction extends Model
         'amount',
         'note',
         'transaction_date',
-        'user_id'
+        'user_id',
     ];
 
     protected $casts = [
