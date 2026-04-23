@@ -67,6 +67,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tahun/{year}', [AlumniController::class, 'detail'])->name('detail');
     });
 
+    // Route untuk Payment 
+    Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 });
 
 require __DIR__.'/settings.php';
