@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SppPayment extends Model
 {
     protected $fillable = [
-        'student_id', 
-        'month', 
-        'year', 
-        'amount', 
-        'paid_amount', 
-        'status', 
-        'paid_at'
+        'student_id',
+        'month',
+        'year',
+        'amount',
+        'paid_amount',
+        'status',
+        'paid_at',
     ];
 
     // Casting agar tipe data tanggal otomatis dibaca dengan benar oleh Laravel/React

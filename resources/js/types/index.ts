@@ -48,8 +48,13 @@ export interface Student {
     id: number;
     nisn: string;
     name: string;
+    gender: string;
     class: string;
     status: string;
+    entry_month: number;
+    entry_year: number;
+    exit_month?: number;
+    exit_year?: number;
 }
 
 export interface Transaction {

@@ -53,7 +53,8 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Masukkan siswa Baru',
-        url: '/new-students',
+        // TODO: fix url to /new-students
+        url: '/siswa',
         icon: School,
     },
 ];
