@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\SppPayment;
+use App\Models\SppMonth; // Pastikan Model SppMonth di-import
 use App\Models\Student;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,29 +16,44 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // 1. Buat Akun Admin
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => Hash::make('00000000'),
-            'role' => 'admin'
+            'role' => 'admin' // Pastikan kolom role ada di tabel users Anda
         ]);
 
-        Student::factory(20)->create()->each(function ($student) {
+        // 2. Buat Data Master Bulan (Tahun Ajaran 2025/2026)
+        $bulanAjaran = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
+        $kumpulanBulanId = [];
+
+        foreach ($bulanAjaran as $m) {
+            $year = ($m >= 7) ? 2025 : 2026;
             
-            // 3. Untuk setiap siswa, buatkan tagihan SPP dari Juli 2025 sampai Juni 2026
-            $months = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
-            foreach ($months as $m) {
+            // firstOrCreate memastikan data tidak ganda jika seeder dijalankan 2x
+            $sppMonth = SppMonth::create(
+                ['month' => $m, 'year' => $year, 'amount' => 500000],
+            );
+
+            // Simpan ke array untuk di-looping di tagihan siswa nanti
+            $kumpulanBulanId[] = $sppMonth->id;
+        }
+
+        // 3. Buat 20 Siswa dan Generate Tagihannya
+        // 'use ($kumpulanBulan)' agar variabel array di atas bisa dipakai di dalam function
+        Student::factory(20)->create()->each(function ($student) use ($kumpulanBulanId) {
+            
+            // Untuk setiap siswa, looping 12 bulan yang sudah kita buat tadi
+            foreach ($kumpulanBulanId as $id) {
                 SppPayment::create([
-                    'student_id' => $student->id,
-                    'month' => $m,
-                    'year' => ($m >= 7) ? 2025 : 2026,
-                    'amount' => 500000, // Misal SPP flat 500rb
-                    'paid_amount' => 0,
-                    'status' => 'unpaid',
+                    'student_id'   => $student->id,
+                    'spp_month_id' => $id, // Menggunakan ID relasi (Sesuai database baru)
+                    'paid_amount'  => 0,
+                    'status'       => 'unpaid',
                 ]);
             }
+            
         });
     }
 }

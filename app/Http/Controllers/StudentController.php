@@ -44,12 +44,32 @@ class StudentController extends Controller
 
     private function getStudentProfile($id, $gender)
     {
-        // BUG FIX: Ditambah where('gender') agar URL tidak bisa diakali
-        return Student::where('gender', $gender)
-            ->with(['sppPayments' => function ($query) {
-                $query->orderBy('year', 'asc')->orderBy('month', 'asc');
-            }])
+        // 1. Ambil data siswa dan sertakan relasi bertingkat (sppPayments -> sppMonth)
+        $student = Student::where('gender', $gender)
+            ->with('sppPayments.sppMonth') 
             ->findOrFail($id);
+
+        // 2. Urutkan tagihan menggunakan Collection PHP (Berdasarkan relasi tabel master)
+        $sortedPayments = $student->sppPayments->sortBy(function ($payment) {
+            // Buat format YYYYMM (Contoh: 202507) agar urutannya sempurna
+            return sprintf('%04d%02d', $payment->sppMonth->year, $payment->sppMonth->month);
+        })->values();
+
+        // 3. Suntikkan (Inject) data dari tabel spp_months ke spp_payments 
+        // agar kodingan React (Frontend) Anda tidak perlu diubah sama sekali!
+        $sortedPayments->each(function ($payment) {
+            $payment->month = $payment->sppMonth->month;
+            $payment->year = $payment->sppMonth->year;
+            $payment->amount = $payment->sppMonth->amount; // Harga master
+            
+            // Hapus relasi agar response JSON tetap bersih dan ringan
+            unset($payment->sppMonth);
+        });
+
+        // 4. Timpa relasi sppPayments yang lama dengan yang sudah rapi
+        $student->setRelation('sppPayments', $sortedPayments);
+
+        return $student;
     }
 
     //  ROUTE UNTUK SANTRIWAN (Memanggil fungsi bantuan di atas)

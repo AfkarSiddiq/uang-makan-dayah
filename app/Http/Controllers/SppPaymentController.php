@@ -2,67 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SppMonth;
 use App\Models\SppPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class SppPaymentController extends Controller
 {
     public function pengaturanMassal()
     {
-        // Mengelompokkan data tagihan berdasarkan Bulan dan Tahun
-        // Kita ambil "max(amount)" sebagai perwakilan harga normal bulan tersebut
-        $ringkasanSPP = SppPayment::selectRaw('month, year, max(amount) as current_amount, count(*) as total_siswa')
-            ->groupBy('month', 'year')
+        // KARENA DB BARU: Kita ambil data dari tabel master SppMonth.
+        // withCount('payments') akan otomatis menghitung berapa siswa yang punya tagihan di bulan itu.
+        $ringkasanSPP = SppMonth::withCount('payments as total_siswa')
             ->orderBy('year', 'desc')
             ->orderBy('month', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'month' => $item->month,
+                    'year' => $item->year,
+                    'current_amount' => $item->amount, // Kita ubah namanya agar cocok dengan interface React
+                    'total_siswa' => $item->total_siswa,
+                ];
+            });
 
-        return \Inertia\Inertia::render('spp/pengaturan', [
+        return Inertia::render('spp/pengaturan', [
             'ringkasanSPP' => $ringkasanSPP
         ]);
     }
-    
+
     public function bulkUpdateAmount(Request $request)
     {
-        // 1. Validasi input
+        // 1. Validasi Input
         $request->validate([
-            'month' => 'required|integer|between:1,12',
+            'month' => 'required|integer',
             'year' => 'required|integer',
             'new_amount' => 'required|numeric|min:0',
         ]);
 
-        // 2. Gunakan Transaction agar aman
-        DB::transaction(function () use ($request) {
+        // 2. Cari bulan di tabel master dan ubah harganya (Hanya 1 baris yang diubah!)
+        $month = SppMonth::where('month', $request->month)
+            ->where('year', $request->year)
+            ->firstOrFail();
 
-            // Ambil SEMUA tagihan di bulan dan tahun yang dipilih
-            $spps = SppPayment::where('month', $request->month)
-                ->where('year', $request->year)
-                ->get();
+        $month->update(['amount' => $request->new_amount]);
 
-            // Lakukan perulangan untuk mengubah harga dan cek status
-            foreach ($spps as $spp) {
-                $spp->amount = $request->new_amount;
+        // 3. HITUNG ULANG STATUS SEMUA SISWA DI BULAN TERSEBUT
 
-                // Hitung ulang status (Sangat penting!)
-                if ($spp->amount == 0) {
-                    $spp->status = 'paid'; // Jika digratiskan, otomatis lunas
-                    if (!$spp->paid_at)
-                        $spp->paid_at = now();
-                } elseif ($spp->paid_amount >= $spp->amount) {
-                    $spp->status = 'paid'; // Jika uang yang masuk ternyata cukup/lebih
-                    if (!$spp->paid_at)
-                        $spp->paid_at = now();
-                } elseif ($spp->paid_amount > 0 && $spp->paid_amount < $spp->amount) {
-                    $spp->status = 'partial'; // Masih kurang
-                } else {
-                    $spp->status = 'unpaid'; // Belum bayar sama sekali
-                }
+        // A. Jika uang yang sudah disetor >= harga baru -> LUNAS
+        SppPayment::where('spp_month_id', $month->id)
+            ->where('paid_amount', '>=', $request->new_amount)
+            ->update(['status' => 'paid']);
 
-                $spp->save();
-            }
-        });
+        // B. Jika uang yang sudah disetor > 0 tapi masih kurang dari harga baru -> MENCICIL (PARTIAL)
+        SppPayment::where('spp_month_id', $month->id)
+            ->where('paid_amount', '>', 0)
+            ->where('paid_amount', '<', $request->new_amount)
+            ->update(['status' => 'partial']);
 
-        return back()->with('success', "Berhasil! Tagihan bulan {$request->month}/{$request->year} untuk seluruh siswa telah diubah menjadi Rp " . number_format($request->new_amount, 0, ',', '.'));
+        // C. Jika belum bayar sama sekali (0) -> BELUM BAYAR (UNPAID)
+        SppPayment::where('spp_month_id', $month->id)
+            ->where('paid_amount', 0)
+            ->update(['status' => 'unpaid']);
+
+        return back()->with('success', 'Harga SPP berhasil diperbarui untuk seluruh siswa di bulan tersebut!');
     }
 }

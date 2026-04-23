@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
@@ -60,7 +61,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tuition-per-month', [SppPaymentController::class, 'pengaturanMassal'])->name('spp.pengaturan');
     Route::post('/spp/bulk-update', [SppPaymentController::class, 'bulkUpdateAmount'])->name('spp.bulk_update');
 
-    Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    // Route Untuk Alumni
+    Route::prefix('alumni')->name('alumni.')->group(function () {
+        Route::get('/', [AlumniController::class, 'index'])->name('index');
+        Route::get('/tahun/{year}', [AlumniController::class, 'detail'])->name('detail');
+    });
+
 });
 
 require __DIR__.'/settings.php';

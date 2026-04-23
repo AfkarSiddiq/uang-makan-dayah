@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { AlarmCheck, Banknote, BanknoteIcon, BookCheck, BookOpen, BookText, CalendarArrowUp, Folder, History, LayoutGrid, Mars, School, Venus } from 'lucide-react';
+import { AlarmCheck, Banknote, BanknoteIcon, BookCheck, BookOpen, BookText, CalendarArrowUp, Folder, GraduationCap, History, LayoutGrid, Mars, School, Venus } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -56,6 +56,11 @@ const mainNavItems: NavItem[] = [
         // TODO: fix url to /new-students
         url: '/siswa',
         icon: School,
+    },
+    {
+        title: 'Data Alumni',
+        url: '/graduated-students',
+        icon: GraduationCap,
     },
 ];
 
