@@ -14,6 +14,7 @@ class SppPayment extends Model
         'paid_amount',
         'status',
         'paid_at'
+
     ];
 
     // Casting agar tipe data tanggal otomatis dibaca dengan benar oleh Laravel/React

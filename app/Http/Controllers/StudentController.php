@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SppPayment;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ class StudentController extends Controller
             return [
                 'class' => $kelas,
                 // Cari apakah kelas ini ada di database? Jika tidak ada, jadikan 0
-                'total_siswa' => $dataSiswaDariDb->get($kelas, 0) 
+                'total_siswa' => $dataSiswaDariDb->get($kelas, 0),
             ];
         })->values(); // values() memastikan formatnya array rapi untuk React
     }
@@ -76,7 +77,7 @@ class StudentController extends Controller
     public function indexSantriwan()
     {
         return Inertia::render('santriwan/data-kelas', [
-            'kelasData' => $this->getKelasByGender('L')
+            'kelasData' => $this->getKelasByGender('L'),
         ]);
     }
 
@@ -84,14 +85,14 @@ class StudentController extends Controller
     {
         return Inertia::render('santriwan/detail-kelas', [
             'namaKelas' => $kelas,
-            'students'  => $this->getStudentsByClassAndGender($kelas, 'L')
+            'students' => $this->getStudentsByClassAndGender($kelas, 'L'),
         ]);
     }
 
     public function showSantriwan($id)
     {
         return Inertia::render('santriwan/profil-siswa', [
-            'student' => $this->getStudentProfile($id, 'L')
+            'student' => $this->getStudentProfile($id, 'L'),
         ]);
     }
 
@@ -100,7 +101,7 @@ class StudentController extends Controller
     public function indexSantriwati()
     {
         return Inertia::render('santriwati/data-kelas', [
-            'kelasData' => $this->getKelasByGender('P')
+            'kelasData' => $this->getKelasByGender('P'),
         ]);
     }
 
@@ -108,42 +109,78 @@ class StudentController extends Controller
     {
         return Inertia::render('santriwati/detail-kelas', [
             'namaKelas' => $kelas,
-            'students'  => $this->getStudentsByClassAndGender($kelas, 'P')
+            'students' => $this->getStudentsByClassAndGender($kelas, 'P'),
         ]);
     }
 
     public function showSantriwati($id)
     {
         return Inertia::render('santriwati/profil-siswa', [
-            'student' => $this->getStudentProfile($id, 'P')
+            'student' => $this->getStudentProfile($id, 'P'),
         ]);
     }
 
-    // update kelas bagian detail siswa
     public function update(Request $request, $id)
     {
-        // 1. Validasi data yang masuk
+        $student = Student::findOrFail($id);
+
+        // Check if this is a simple update (from profile page - only class/status)
+        if ($request->has('class') && ! $request->has('nisn')) {
+            $validated = $request->validate([
+                'class' => 'nullable|in:1,2,3,4,5,6,none',
+                'status' => 'required|in:aktif,lulus,pindah,berhenti',
+            ]);
+
+            $student->update($validated);
+
+            if ($student->gender === 'L') {
+                return redirect()->route('santriwan.detail', ['kelas' => $student->class])
+                    ->with('success', 'Data remaja putra berhasil diperbarui!');
+            }
+
+            return redirect()->route('santriwati.detail', ['kelas' => $student->class])
+                ->with('success', 'Data remaja putri berhasil diperbarui!');
+        }
+
+        // Full CRUD update (from edit page)
         $validated = $request->validate([
-            'class'  => 'nullable|in:1,2,3,4,5,6',
-            'status' => 'required|in:aktif,lulus,pindah,berhenti',
+            'nisn' => 'required|string|max:20|unique:students,nisn,'.$id,
+            'name' => 'required|string|max:255',
+            'gender' => 'required|in:L,P',
+            'class' => 'nullable|in:1,2,3,4,5,6',
+            'status' => 'nullable|in:aktif,lulus,pindah,berhenti',
+            'entry_month' => 'required|integer|min:1|max:12',
+            'entry_year' => 'required|integer|min:2020',
+            'exit_month' => 'nullable|integer|min:1|max:12',
+            'exit_year' => 'nullable|integer|min:2020',
         ]);
 
-        // 2. Cari siswa dan update
-        $student = Student::findOrFail($id);
+        // Convert 'none' to null for class
+        if ($validated['class'] === 'none') {
+            $validated['class'] = null;
+        }
+        if (! empty($validated['exit_month']) && $validated['exit_month'] === 'none') {
+            $validated['exit_month'] = null;
+        }
+        if (! empty($validated['exit_year']) && $validated['exit_year'] === 'none') {
+            $validated['exit_year'] = null;
+        }
+        $validated['status'] = $validated['status'] ?? 'aktif';
+
+        if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti'])) {
+            $validated['exit_month'] = $validated['exit_month'] ?: null;
+            $validated['exit_year'] = $validated['exit_year'] ?: null;
+        } else {
+            $validated['exit_month'] = null;
+            $validated['exit_year'] = null;
+        }
+
         $student->update($validated);
 
-        // 3. Kembali ke halaman yang sama dengan pesan sukses
-        if ($student->gender === 'L') {
-            return redirect()->route('santriwan.detail', ['kelas' => $student->class])
-                             ->with('success', 'Data santriwan berhasil diperbarui!');
-        } 
-        
-        // Jika perempuan, kembalikan ke halaman daftar kelas Santriwati
-        return redirect()->route('santriwati.detail', ['kelas' => $student->class])
-                         ->with('success', 'Data santriwati berhasil diperbarui!');
+        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui!');
     }
 
-    //======KENAIKAN KELAS===========
+    // ======KENAIKAN KELAS===========
     public function kenaikanSantriwan()
     {
         // Ambil daftar kelas yang memiliki siswa aktif untuk dijadikan pilihan di Dropdown
@@ -155,10 +192,10 @@ class StudentController extends Controller
             ->get();
 
         return Inertia::render('santriwan/kenaikan-kelas', [
-            'kelasAktif' => $kelasAktif
+            'kelasAktif' => $kelasAktif,
         ]);
     }
-   
+
     public function kenaikanSantriwati()
     {
         // Ambil daftar kelas yang memiliki siswa aktif untuk dijadikan pilihan di Dropdown
@@ -170,7 +207,7 @@ class StudentController extends Controller
             ->get();
 
         return Inertia::render('santriwati/kenaikan-kelas', [
-            'kelasAktif' => $kelasAktif
+            'kelasAktif' => $kelasAktif,
         ]);
     }
 
@@ -187,7 +224,7 @@ class StudentController extends Controller
 
         // 2. Eksekusi dengan Transaction agar Aman
         DB::transaction(function () use ($request) {
-            
+
             // Ambil semua santriwan di kelas asal yang masih aktif
             $students = Student::where('gender', 'L')
                 ->where('class', $request->old_class)
@@ -200,9 +237,10 @@ class StudentController extends Controller
                     $student->update([
                         'status' => 'lulus',
                         'exit_year' => $request->start_year,
-                        'exit_month' => 6 // Biasanya lulus bulan Juni
+                        'exit_month' => 6, // Biasanya lulus bulan Juni
                     ]);
-                    continue; 
+
+                    continue;
                 }
 
                 // B. Jika Naik Kelas, ubah kelasnya
@@ -225,7 +263,7 @@ class StudentController extends Controller
                 ];
 
                 foreach ($months as $date) {
-                    \App\Models\SppPayment::create([
+                    SppPayment::create([
                         'student_id' => $student->id,
                         'month' => $date['m'],
                         'year' => $date['y'],
@@ -240,7 +278,7 @@ class StudentController extends Controller
         // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
         return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
     }
-    
+
     public function prosesKenaikanSantriwati(Request $request)
     {
         // 1. Validasi Input dari React
@@ -254,7 +292,7 @@ class StudentController extends Controller
 
         // 2. Eksekusi dengan Transaction agar Aman
         DB::transaction(function () use ($request) {
-            
+
             // Ambil semua santriwan di kelas asal yang masih aktif
             $students = Student::where('gender', 'P')
                 ->where('class', $request->old_class)
@@ -267,9 +305,10 @@ class StudentController extends Controller
                     $student->update([
                         'status' => 'lulus',
                         'exit_year' => $request->start_year,
-                        'exit_month' => 6 // Biasanya lulus bulan Juni
+                        'exit_month' => 6, // Biasanya lulus bulan Juni
                     ]);
-                    continue; 
+
+                    continue;
                 }
 
                 // B. Jika Naik Kelas, ubah kelasnya
@@ -292,7 +331,7 @@ class StudentController extends Controller
                 ];
 
                 foreach ($months as $date) {
-                    \App\Models\SppPayment::create([
+                    SppPayment::create([
                         'student_id' => $student->id,
                         'month' => $date['m'],
                         'year' => $date['y'],
@@ -306,5 +345,82 @@ class StudentController extends Controller
 
         // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
         return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
-    }   
+    }
+
+    public function index()
+    {
+        $query = Student::query();
+
+        // Search
+        if (request()->has('search') && request()->search) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%'.request()->search.'%')
+                    ->orWhere('nisn', 'like', '%'.request()->search.'%');
+            });
+        }
+
+        // Sorting
+        $sortBy = request()->get('sort_by', 'name');
+        $sortDir = request()->get('sort_dir', 'asc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $perPage = request()->get('per_page', 15);
+        $students = $query->paginate($perPage)->withQueryString();
+
+        return Inertia::render('siswa/index', [
+            'students' => $students,
+            'filters' => [
+                'search' => request()->search,
+                'per_page' => $perPage,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
+            ],
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('siswa/create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nisn' => 'required|string|max:20|unique:students,nisn',
+            'name' => 'required|string|max:255',
+            'gender' => 'required|in:L,P',
+            'class' => 'nullable|in:1,2,3,4,5,6',
+            'status' => 'nullable|in:aktif,lulus,pindah,berhenti',
+            'entry_month' => 'required|integer|min:1|max:12',
+            'entry_year' => 'required|integer|min:2020',
+        ]);
+
+        $validated['status'] = $validated['status'] ?? 'aktif';
+
+        Student::create($validated);
+
+        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil ditambahkan!');
+    }
+
+    public function show($id)
+    {
+        $student = Student::findOrFail($id);
+
+        return Inertia::render('siswa/show', ['student' => $student]);
+    }
+
+    public function edit($id)
+    {
+        $student = Student::findOrFail($id);
+
+        return Inertia::render('siswa/edit', ['student' => $student]);
+    }
+
+    public function destroy($id)
+    {
+        $student = Student::findOrFail($id);
+        $student->delete();
+
+        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus!');
+    }
 }
