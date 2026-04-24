@@ -4,6 +4,7 @@ use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentImportController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -30,6 +31,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('users.index');
 });
 
+// Public template download
+Route::get('/siswa/import/template', [StudentImportController::class, 'template'])->name('siswa.import.template');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -52,6 +56,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/siswa', [StudentController::class, 'index'])->name('siswa.index');
     Route::get('/siswa/create', [StudentController::class, 'create'])->name('siswa.create');
     Route::post('/siswa', [StudentController::class, 'store'])->name('siswa.store');
+    // Import siswa - must come BEFORE /siswa/{id}
+    Route::get('/siswa/import', [StudentImportController::class, 'create'])->name('siswa.import.create');
+    Route::post('/siswa/import', [StudentImportController::class, 'store'])->name('siswa.import.store');
     Route::get('/siswa/{id}', [StudentController::class, 'show'])->name('siswa.show');
     Route::get('/siswa/{id}/edit', [StudentController::class, 'edit'])->name('siswa.edit');
     Route::put('/siswa/{id}', [StudentController::class, 'update'])->name('siswa.update');
