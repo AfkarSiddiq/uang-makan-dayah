@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     // Import siswa - must come BEFORE /siswa/{id}
     Route::get('/siswa/import', [StudentImportController::class, 'create'])->name('siswa.import.create');
     Route::post('/siswa/import', [StudentImportController::class, 'store'])->name('siswa.import.store');
+    Route::get('/siswa/export', [StudentImportController::class, 'export'])->name('siswa.export');
     Route::get('/siswa/{id}', [StudentController::class, 'show'])->name('siswa.show');
     Route::get('/siswa/{id}/edit', [StudentController::class, 'edit'])->name('siswa.edit');
     Route::put('/siswa/{id}', [StudentController::class, 'update'])->name('siswa.update');

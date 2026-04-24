@@ -95,7 +95,7 @@ class StudentImportController extends Controller
     {
         $path = base_path('public/template_import_siswa.xlsx');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return response()->json(['error' => 'Template file not found'], 404);
         }
 
@@ -103,5 +103,44 @@ class StudentImportController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.xlsx',
             'Content-Disposition' => 'attachment; filename="template_import_siswa.xlsx"',
         ]);
+    }
+
+    public function export()
+    {
+        $students = Student::orderBy('name')->get();
+
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = ['NISN', 'Nama', 'Jenis Kelamin', 'Kelas', 'Status', 'Bulan Masuk', 'Tahun Masuk'];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $data = $students->map(function ($student) {
+            return [
+                $student->nisn,
+                $student->name,
+                $student->gender === 'L' ? 'Laki-laki' : 'Perempuan',
+                $student->class ?: '-',
+                ucfirst($student->status),
+                $student->entry_month,
+                $student->entry_year,
+            ];
+        })->toArray();
+
+        $sheet->fromArray($data, null, 'A2');
+
+        foreach (range('A', 'G') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'data_siswa_'.date('Y-m-d').'.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.xlsx');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
     }
 }

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Student } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, Plus, Search, Trash2, Upload } from 'lucide-react';
+import { ArrowDown, ArrowUp, Download, Plus, Search, Trash2, Upload } from 'lucide-react';
 
 interface Props {
     students: {
@@ -68,6 +68,12 @@ export default function Index({ students, filters }: Props) {
                         <p className="text-sm text-slate-500">Kelola data siswa</p>
                     </div>
                     <div className="flex gap-2">
+                        <a href={route('siswa.export')} download>
+                            <Button variant="outline">
+                                <Download className="mr-2 h-4 w-4" />
+                                Export
+                            </Button>
+                        </a>
                         <Link href={route('siswa.import.create')}>
                             <Button variant="outline">
                                 <Upload className="mr-2 h-4 w-4" />
