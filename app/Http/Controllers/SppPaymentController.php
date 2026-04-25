@@ -32,40 +32,67 @@ class SppPaymentController extends Controller
         ]);
     }
 
+    public function generateTahunAjaran(Request $request)
+    {
+        $request->validate([
+            'start_year'  => 'required|integer|min:2000',
+            'base_amount' => 'required|numeric|min:0',
+        ]);
+
+        $tahunMulai = $request->start_year;
+        $hargaDefault = $request->base_amount;
+        
+        // Urutan bulan ajaran baru (Juli s.d. Juni)
+        $bulanAjaran = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
+
+        foreach ($bulanAjaran as $bulan) {
+            // Jika bulannya 7-12, gunakan tahun mulai. Jika 1-6, gunakan tahun depan.
+            $tahunAktual = ($bulan >= 7) ? $tahunMulai : $tahunMulai + 1;
+
+            // firstOrCreate mencegah terjadinya error (duplikat) jika bulan tersebut sudah pernah dibuat
+            SppMonth::firstOrCreate(
+                [
+                    'month' => $bulan,
+                    'year'  => $tahunAktual,
+                ],
+                [
+                    'amount' => $hargaDefault,
+                ]
+            );
+        }
+
+        return back()->with('success', "Tahun Ajaran $tahunMulai/".($tahunMulai+1)." berhasil digenerate ke Master SPP!");
+    }
+
     public function bulkUpdateAmount(Request $request)
     {
-        // 1. Validasi Input
         $request->validate([
-            'month' => 'required|integer',
-            'year' => 'required|integer',
+            'month'      => 'required|integer',
+            'year'       => 'required|integer',
             'new_amount' => 'required|numeric|min:0',
         ]);
 
-        // 2. Cari bulan di tabel master dan ubah harganya (Hanya 1 baris yang diubah!)
+        // 1. Update harga di tabel master
         $month = SppMonth::where('month', $request->month)
-            ->where('year', $request->year)
-            ->firstOrFail();
-
+                         ->where('year', $request->year)
+                         ->firstOrFail();
+        
         $month->update(['amount' => $request->new_amount]);
 
-        // 3. HITUNG ULANG STATUS SEMUA SISWA DI BULAN TERSEBUT
+        // 2. Kalkulasi ulang status bagi siswa yang SUDAH PERNAH BAYAR di bulan tersebut
+        // Karena sistem Virtual Ledger, kita hanya perlu mengupdate baris yang ada di database saja
+        $payments = SppPayment::where('spp_month_id', $month->id)->get();
 
-        // A. Jika uang yang sudah disetor >= harga baru -> LUNAS
-        SppPayment::where('spp_month_id', $month->id)
-            ->where('paid_amount', '>=', $request->new_amount)
-            ->update(['status' => 'paid']);
+        foreach ($payments as $payment) {
+            if ($payment->paid_amount >= $request->new_amount) {
+                // Jika uang yang pernah disetor ternyata masih cukup/lebih dari harga baru
+                $payment->update(['status' => 'paid']);
+            } elseif ($payment->paid_amount > 0) {
+                // Jika uang yang pernah disetor ternyata kurang dari harga baru (Harganya naik)
+                $payment->update(['status' => 'partial']);
+            }
+        }
 
-        // B. Jika uang yang sudah disetor > 0 tapi masih kurang dari harga baru -> MENCICIL (PARTIAL)
-        SppPayment::where('spp_month_id', $month->id)
-            ->where('paid_amount', '>', 0)
-            ->where('paid_amount', '<', $request->new_amount)
-            ->update(['status' => 'partial']);
-
-        // C. Jika belum bayar sama sekali (0) -> BELUM BAYAR (UNPAID)
-        SppPayment::where('spp_month_id', $month->id)
-            ->where('paid_amount', 0)
-            ->update(['status' => 'unpaid']);
-
-        return back()->with('success', 'Harga SPP berhasil diperbarui untuk seluruh siswa di bulan tersebut!');
+        return back()->with('success', 'Harga SPP berhasil diperbarui secara global!');
     }
 }

@@ -68,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Update Spp
     Route::get('/tuition-per-month', [SppPaymentController::class, 'pengaturanMassal'])->name('spp.pengaturan');
     Route::post('/spp/bulk-update', [SppPaymentController::class, 'bulkUpdateAmount'])->name('spp.bulk_update');
+    Route::post('/spp/generate-tahun', [SppPaymentController::class, 'generateTahunAjaran'])->name('spp.generate_tahun');
 
     // Route Untuk Alumni
     Route::prefix('alumni')->name('alumni.')->group(function () {
@@ -77,6 +78,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Route untuk Payment 
     Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+    Route::post('/siswa/{id}/pay', [StudentController::class, 'paySpp'])->name('siswa.pay');
 });
 
 require __DIR__.'/settings.php';

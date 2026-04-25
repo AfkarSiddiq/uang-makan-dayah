@@ -19,7 +19,7 @@ return new class extends Migration
             
             $table->integer('paid_amount')->default(0); 
             
-            $table->enum('status', ['unpaid', 'partial', 'paid'])->default('unpaid');
+            $table->enum('status', ['partial', 'paid']);
             $table->dateTime('paid_at')->nullable(); 
             
             $table->timestamps();

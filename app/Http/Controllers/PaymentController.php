@@ -181,33 +181,75 @@ class PaymentController extends Controller
         return sprintf('TRX-%s-%04d', $year, $sequence);
     }
 
-    private function allocateSppPayment(int $studentId, int $amount, int $transactionId): void
+    private function allocateSppPayment($studentId, $paymentAmount, $transactionId)
     {
-        $remaining = $amount;
-        $unpaidPayments = SppPayment::where('student_id', $studentId)
-            ->whereIn('status', ['unpaid', 'partial'])
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
+        $student = Student::findOrFail($studentId);
+        $sisaUang = $paymentAmount;
 
-        foreach ($unpaidPayments as $payment) {
-            if ($remaining <= 0) {
-                break;
+        // 1. Ambil "Buku Menu" (Semua Bulan Master) dari yang paling lama ke baru
+        $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
+        
+        // 2. Filter: Hanya ambil bulan yang relevan (mulai dari bulan masuk santri)
+        $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
+            $bulanMasterSkor = ($master->year * 12) + $master->month;
+            $bulanMasukSkor = ($student->entry_year * 12) + $student->entry_month;
+            return $bulanMasterSkor >= $bulanMasukSkor;
+        });
+
+        // 3. Looping: Telusuri satu per satu dari bulan tertua
+        foreach ($bulanValid as $master) {
+            
+            // Jika uang di tangan sudah habis, hentikan pencarian!
+            if ($sisaUang <= 0) {
+                break; 
             }
 
-            $dueAmount = $payment->amount - $payment->paid_amount;
+            // Cek apakah bulan ini sudah pernah diangsur/dibayar?
+            $tagihan = SppPayment::where('student_id', $student->id)
+                ->where('spp_month_id', $master->id)
+                ->first();
 
-            if ($remaining >= $dueAmount) {
-                $payment->paid_amount += $dueAmount;
-                $payment->status = 'paid';
-                $payment->paid_at = now();
-                $remaining -= $dueAmount;
-            } else {
-                $payment->paid_amount += $remaining;
-                $payment->status = 'partial';
-                $remaining = 0;
+            $terbayarSebelumnya = $tagihan ? $tagihan->paid_amount : 0;
+            
+            // Jika sudah LUNAS sebelumnya, lewati bulan ini dan cari bulan depannya
+            if ($terbayarSebelumnya >= $master->amount) {
+                continue;
             }
-            $payment->save();
+
+            // Berapa hutang/kekurangan untuk bulan ini?
+            $kekurangan = $master->amount - $terbayarSebelumnya;
+
+            $bayarSekarang = 0;
+            $statusBaru = 'unpaid';
+
+            // Skenario A: Uang CUKUP untuk melunasi bulan ini
+            if ($sisaUang >= $kekurangan) {
+                $bayarSekarang = $terbayarSebelumnya + $kekurangan;
+                $statusBaru = 'paid';
+                $sisaUang -= $kekurangan; // Kurangi sisa dompet
+            } 
+            // Skenario B: Uang KURANG (Hanya bisa menyicil)
+            else {
+                $bayarSekarang = $terbayarSebelumnya + $sisaUang;
+                $statusBaru = 'partial';
+                $sisaUang = 0; // Uang habis
+            }
+
+            // 4. THE MAGIC: UPDATE OR CREATE
+            // Jika data belum ada, buat baris baru (Create). 
+            // Jika data sudah ada (partial), perbarui datanya (Update).
+            SppPayment::updateOrCreate(
+                [
+                    'student_id'   => $student->id,
+                    'spp_month_id' => $master->id
+                ],
+                [
+                    'paid_amount'  => $bayarSekarang,
+                    'status'       => $statusBaru,
+                    'paid_at'      => now(),
+                ]
+            );
         }
+
     }
 }

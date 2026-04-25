@@ -34,6 +34,20 @@ export default function ProfilSiswa({ student }: Props) {
         status: student.status,
     });
 
+    const { data: payData, setData: setPayData, post: payPost, processing: payProcessing, reset: payReset, errors: payErrors } = useForm({
+        amount: '',
+    });
+
+    const submitPayment = (e: React.FormEvent) => {
+        e.preventDefault();
+        payPost(route('siswa.pay', { id: student.id }), {
+            preserveScroll: true, // Agar halaman tidak loncat ke atas saat bayar
+            onSuccess: () => {
+                payReset(); // Kosongkan input setelah sukses
+                alert('Pembayaran berhasil diproses!'); // Opsional: Bisa diganti dengan toast notification
+            }
+        });
+    };
     const submitEdit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -66,7 +80,7 @@ export default function ProfilSiswa({ student }: Props) {
             <div className="p-6 max-w-5xl mx-auto space-y-6">
                 
                 {/* TOMBOL KEMBALI */}
-                <Link href={`/santriwan/kelas/${student.class}`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition">
+                <Link href={`/santriwan/class/${student.class}`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition">
                     <ArrowLeft className="w-4 h-4 mr-1" /> Kembali ke Kelas
                 </Link>
 
@@ -191,20 +205,26 @@ export default function ProfilSiswa({ student }: Props) {
                             Masukkan nominal uang yang diterima. Sistem akan otomatis melunasi tagihan dari bulan tertua (tunggakan) hingga uang habis.
                         </p>
                         
-                        <form className="space-y-4">
+                        <form onSubmit={submitPayment} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nominal Uang (Rp)</label>
-                                <input 
-                                    type="number" 
-                                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Nominal Uang (Rp)</label>
+                                <input
+                                    type="number"
+                                    value={payData.amount}
+                                    onChange={e => setPayData('amount', e.target.value)}
+                                    className={`w-full rounded-md border bg-white px-3 py-2 text-sm focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-white transition ${payErrors.amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-indigo-500'}`}
                                     placeholder="Contoh: 1500000"
+                                    min="1"
+                                    required
                                 />
+                                {payErrors.amount && <p className="text-red-500 text-xs mt-1">{payErrors.amount}</p>}
                             </div>
-                            <button 
-                                type="button" 
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition"
+                            <button
+                                type="submit"
+                                disabled={payProcessing || !payData.amount}
+                                className="w-full flex justify-center items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Terima Pembayaran
+                                {payProcessing ? 'Memproses...' : 'Terima Pembayaran'}
                             </button>
                         </form>
                     </div>
