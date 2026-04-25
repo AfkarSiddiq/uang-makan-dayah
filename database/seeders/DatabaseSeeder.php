@@ -44,15 +44,6 @@ class DatabaseSeeder extends Seeder
         // 'use ($kumpulanBulan)' agar variabel array di atas bisa dipakai di dalam function
         Student::factory(20)->create()->each(function ($student) use ($kumpulanBulanId) {
             
-            // Untuk setiap siswa, looping 12 bulan yang sudah kita buat tadi
-            foreach ($kumpulanBulanId as $id) {
-                SppPayment::create([
-                    'student_id'   => $student->id,
-                    'spp_month_id' => $id, // Menggunakan ID relasi (Sesuai database baru)
-                    'paid_amount'  => 0,
-                    'status'       => 'unpaid',
-                ]);
-            }
             
         });
     }

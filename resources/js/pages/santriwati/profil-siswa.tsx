@@ -74,27 +74,37 @@ export default function ProfilSiswa({ student }: Props) {
     // =========================================================================
 
     const groupedPayments = useMemo(() => {
-        // Kelompokkan data SPP berdasarkan tahun
-        const groups = student.spp_payments.reduce(
-            (acc, payment) => {
-                const year = payment.year;
-                if (!acc[year]) acc[year] = [];
-                acc[year].push(payment);
-                return acc;
-            },
-            {} as Record<number, SppPayment[]>,
-        );
+        const groups: Record<number, any[]> = {};
+        
+        // Ambil tahun saat ini (jika Anda ingin membatasi tampilan hingga tahun sekarang)
+        // Jika Anda ingin menampilkan sampai tahun ajaran depan, Anda bisa pakai: currentYear + 1
+        const currentYear = new Date().getFullYear(); 
+
+        // Karena data dari Backend sudah berupa Virtual Ledger (Mulai dari bulan masuk)
+        // Kita hanya perlu mengelompokkannya ke dalam tahun
+        student.spp_payments.forEach((payment) => {
+            // Batasi tampilan maksimal hanya sampai tahun saat ini
+            if (payment.year <= currentYear) {
+                if (!groups[payment.year]) {
+                    groups[payment.year] = [];
+                }
+                groups[payment.year].push(payment);
+            }
+        });
 
         return groups;
     }, [student.spp_payments]);
 
-    // Ambil daftar tahunnya saja dan urutkan (misal: 2025, lalu 2026)
-    const sortedYears = Object.keys(groupedPayments)
-        .map(Number)
-        .sort((a, b) => a - b); // Ubah jadi (b - a) jika ingin tahun terbaru di atas
+    // Ambil daftar tahun dan urutkan (Tahun terbaru di atas)
+    const sortedYears = useMemo(() => {
+        return Object.keys(groupedPayments)
+            .map(Number)
+            .sort((a, b) => b - a); // Ubah jadi (a - b) jika ingin tahun lama di atas
+    }, [groupedPayments]);
 
+    // State untuk accordion (Otomatis buka tahun terbaru)
     const [expandedYear, setExpandedYear] = useState<number | null>(
-        sortedYears.length > 0 ? sortedYears[sortedYears.length - 1] : null // Default buka tahun terbaru
+        sortedYears.length > 0 ? sortedYears[0] : null
     );
 
     // =========================================================================

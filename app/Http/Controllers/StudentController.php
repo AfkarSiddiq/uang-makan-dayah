@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SppMonth;
 use App\Models\SppPayment;
 use App\Models\Student;
 use App\Models\Transaction;
@@ -46,32 +47,43 @@ class StudentController extends Controller
 
     private function getStudentProfile($id, $gender)
     {
-        // 1. Ambil data siswa dan sertakan relasi bertingkat (sppPayments -> sppMonth)
-        $student = Student::where('gender', $gender)
-            ->with('sppPayments.sppMonth') 
-            ->findOrFail($id);
+        $student = Student::where('gender', $gender)->findOrFail($id);
 
-        // 2. Urutkan tagihan menggunakan Collection PHP (Berdasarkan relasi tabel master)
-        $sortedPayments = $student->sppPayments->sortBy(function ($payment) {
-            // Buat format YYYYMM (Contoh: 202507) agar urutannya sempurna
-            return sprintf('%04d%02d', $payment->sppMonth->year, $payment->sppMonth->month);
+        $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
+
+        $pembayaranAsli = SppPayment::where('student_id', $student->id)
+            ->get()
+            ->keyBy('spp_month_id');
+
+        $virtualLedger = $semuaBulanMaster->filter(function ($master) use ($student) {
+            // Kita bungkus dengan (int) untuk memastikan tipe datanya angka, bukan string
+            $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
+            $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
+            
+            return $bulanMasterSkor >= $bulanMasukSkor;
+
+        })->map(function ($master) use ($pembayaranAsli) {
+            $pembayaran = $pembayaranAsli->get($master->id);
+
+            return [
+                'id'           => $pembayaran ? $pembayaran->id : 'virtual-' . $master->id,
+                'spp_month_id' => $master->id,
+                'month'        => $master->month,
+                'year'         => $master->year,
+                'amount'       => $master->amount,
+                'paid_amount'  => $pembayaran ? $pembayaran->paid_amount : 0,
+                'status'       => $pembayaran ? $pembayaran->status : 'unpaid',
+            ];
         })->values();
 
-        // 3. Suntikkan (Inject) data dari tabel spp_months ke spp_payments 
-        // agar kodingan React (Frontend) Anda tidak perlu diubah sama sekali!
-        $sortedPayments->each(function ($payment) {
-            $payment->month = $payment->sppMonth->month;
-            $payment->year = $payment->sppMonth->year;
-            $payment->amount = $payment->sppMonth->amount; // Harga master
-            
-            // Hapus relasi agar response JSON tetap bersih dan ringan
-            unset($payment->sppMonth);
-        });
+        // =========================================================================
+        // PERBAIKAN: Ubah model jadi array biasa, lalu tempel virtual ledger-nya
+        // =========================================================================
+        $studentData = $student->toArray();
+        $studentData['spp_payments'] = $virtualLedger->toArray();
 
-        // 4. Timpa relasi sppPayments yang lama dengan yang sudah rapi
-        $student->setRelation('sppPayments', $sortedPayments);
-
-        return $student;
+        // Kembalikan dalam bentuk Array murni, bukan Object Model Eloquent
+        return $studentData; 
     }
 
     //  ROUTE UNTUK SANTRIWAN (Memanggil fungsi bantuan di atas)
@@ -439,9 +451,10 @@ class StudentController extends Controller
 
         DB::transaction(function () use ($student, $paymentAmount) {
             
-            // 1. Catat ke tabel Buku Kas (Transactions)
+            // 1. Catat ke tabel Buku Kas Utama (Transactions)
+            // Ini sudah berhasil berjalan di sistem Anda
             Transaction::create([
-                'transaction_id'   => 'TRX-' . strtoupper(uniqid()), // Ganti dengan fungsi generate Anda jika ada
+                'transaction_id'   => 'TRX-' . strtoupper(uniqid()), 
                 'type'             => 'in',
                 'category'         => 'SPP',
                 'amount'           => $paymentAmount,
@@ -451,48 +464,68 @@ class StudentController extends Controller
                 'note'             => 'Pembayaran SPP Otomatis via Profil Siswa',
             ]);
 
-            // 2. Ambil tagihan yang belum lunas (beserta data relasi bulan)
-            $tagihanBelumLunas = SppPayment::with('sppMonth')
-                ->where('student_id', $student->id)
-                ->whereIn('status', ['unpaid', 'partial'])
-                ->get();
-
-            // 3. Urutkan dari yang paling tua (Tahun -> Bulan)
-            $tagihanTertua = $tagihanBelumLunas->sortBy(function ($payment) {
-                return sprintf('%04d%02d', $payment->sppMonth->year, $payment->sppMonth->month);
-            })->values();
+            // 2. LOGIKA BARU: Ambil Buku Menu untuk menghitung Virtual Waterfall
+            $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
+            
+            $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
+                $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
+                $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
+                return $bulanMasterSkor >= $bulanMasukSkor;
+            });
 
             $sisaUang = $paymentAmount;
 
-            // 4. Looping Waterfall: Lunasi dari yang paling tua
-            foreach ($tagihanTertua as $tagihan) {
-                // Jika uang sudah habis dialokasikan, hentikan proses
+            // 3. Looping dari bulan paling lama
+            foreach ($bulanValid as $master) {
+                // Jika dompet kasir sudah kosong, hentikan perulangan
                 if ($sisaUang <= 0) break;
 
-                // Ambil harga asli bulan tersebut dari tabel master
-                $hargaSPP = $tagihan->sppMonth->amount; 
-                $kekurangan = $hargaSPP - $tagihan->paid_amount;
+                // Cek apakah bulan ini sudah pernah diangsur/dibayar di tabel spp_payments?
+                $tagihan = SppPayment::where('student_id', $student->id)
+                    ->where('spp_month_id', $master->id)
+                    ->first();
 
-                // Skenario A: Uang cukup untuk melunasi bulan ini
-                if ($sisaUang >= $kekurangan) {
-                    $tagihan->paid_amount = $hargaSPP;
-                    $tagihan->status = 'paid';
-                    $tagihan->paid_at = now();
-                    
-                    $sisaUang -= $kekurangan; // Kurangi dompet sisa uang
-                } 
-                // Skenario B: Uang tidak cukup, jadi dicicil (Partial)
-                else {
-                    $tagihan->paid_amount += $sisaUang;
-                    $tagihan->status = 'partial';
-                    
-                    $sisaUang = 0; // Uang habis
+                $terbayarSebelumnya = $tagihan ? $tagihan->paid_amount : 0;
+                
+                // Jika bulan ini sudah lunas dari dulu, skip ke bulan depan
+                if ($terbayarSebelumnya >= $master->amount) {
+                    continue;
                 }
 
-                $tagihan->save();
+                // Berapa butuh uang untuk melunasi bulan ini?
+                $kekurangan = $master->amount - $terbayarSebelumnya;
+                $bayarSekarang = 0;
+                $statusBaru = 'unpaid';
+
+                // Skenario A: Uang cukup untuk melunasi
+                if ($sisaUang >= $kekurangan) {
+                    $bayarSekarang = $terbayarSebelumnya + $kekurangan;
+                    $statusBaru = 'paid';
+                    $sisaUang -= $kekurangan;
+                } 
+                // Skenario B: Uang kurang, jadi dicicil (Partial)
+                else {
+                    $bayarSekarang = $terbayarSebelumnya + $sisaUang;
+                    $statusBaru = 'partial';
+                    $sisaUang = 0;
+                }
+
+                // 4. THE MAGIC: Buat Baris Baru atau Perbarui jika sudah ada
+                SppPayment::updateOrCreate(
+                    [
+                        'student_id'   => $student->id,
+                        'spp_month_id' => $master->id
+                    ],
+                    [
+                        'paid_amount'  => $bayarSekarang,
+                        'status'       => $statusBaru,
+                        'paid_at'      => now(),
+                    ]
+                );
             }
         });
 
+        // Karena kita pakai Inertia.js, back() akan otomatis merender ulang data terbaru di layar!
         return back()->with('success', 'Pembayaran sebesar Rp ' . number_format($request->amount, 0, ',', '.') . ' berhasil diproses!');
     }
 }

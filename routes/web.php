@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
     // Update Spp
     Route::get('/tuition-per-month', [SppPaymentController::class, 'pengaturanMassal'])->name('spp.pengaturan');
     Route::post('/spp/bulk-update', [SppPaymentController::class, 'bulkUpdateAmount'])->name('spp.bulk_update');
+    Route::post('/spp/generate-tahun', [SppPaymentController::class, 'generateTahunAjaran'])->name('spp.generate_tahun');
 
     // Route Untuk Alumni
     Route::prefix('alumni')->name('alumni.')->group(function () {
