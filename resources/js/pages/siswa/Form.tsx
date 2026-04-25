@@ -63,35 +63,37 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-                <Label htmlFor="nisn" className="text-slate-700 dark:text-slate-300">
-                    NISN <span className="text-rose-500">*</span>
-                </Label>
-                <Input
-                    id="nisn"
-                    type="text"
-                    placeholder="Masukkan NISN"
-                    value={data.nisn}
-                    onChange={(e) => setData('nisn', e.target.value)}
-                    className="mt-1"
-                />
-                {errors.nisn && <p className="mt-1 text-sm text-rose-600">{errors.nisn}</p>}
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-1 flex flex-col">
+            <div className="flex flex-row space-x-2">
+                <div>
+                    <Label htmlFor="nisn" className="text-slate-700 dark:text-slate-300">
+                        NISN <span className="text-rose-500">*</span>
+                    </Label>
+                    <Input
+                        id="nisn"
+                        type="text"
+                        placeholder="Masukkan NISN"
+                        value={data.nisn}
+                        onChange={(e) => setData('nisn', e.target.value)}
+                        className="mt-1"
+                    />
+                    {errors.nisn && <p className="mt-1 text-sm text-rose-600">{errors.nisn}</p>}
+                </div>
 
-            <div>
-                <Label htmlFor="name" className="text-slate-700 dark:text-slate-300">
-                    Nama Lengkap <span className="text-rose-500">*</span>
-                </Label>
-                <Input
-                    id="name"
-                    type="text"
-                    placeholder="Masukkan nama lengkap"
-                    value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
-                    className="mt-1"
-                />
-                {errors.name && <p className="mt-1 text-sm text-rose-600">{errors.name}</p>}
+                <div>
+                    <Label htmlFor="name" className="text-slate-700 dark:text-slate-300">
+                        Nama Lengkap <span className="text-rose-500">*</span>
+                    </Label>
+                    <Input
+                        id="name"
+                        type="text"
+                        placeholder="Masukkan nama lengkap"
+                        value={data.name}
+                        onChange={(e) => setData('name', e.target.value)}
+                        className="mt-1"
+                    />
+                    {errors.name && <p className="mt-1 text-sm text-rose-600">{errors.name}</p>}
+                </div>
             </div>
 
             <div>
@@ -231,7 +233,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
                 </div>
             )}
 
-            <div className="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+            <div className="flex justify-end gap-3 pt-4">
                 <Button type="submit" disabled={processing}>
                     <Save className="mr-2 h-4 w-4" />
                     {isEdit ? 'Simpan Perubahan' : 'Simpan Siswa'}

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Student } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, Plus, Search, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Download, Plus, Search, Trash2, Upload } from 'lucide-react';
 
 interface Props {
     students: {
@@ -67,12 +67,26 @@ export default function Index({ students, filters }: Props) {
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Data Siswa</h1>
                         <p className="text-sm text-slate-500">Kelola data siswa</p>
                     </div>
-                    <Link href={route('siswa.create')}>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Tambah Siswa
-                        </Button>
-                    </Link>
+                    <div className="flex gap-2">
+                        <a href={route('siswa.export')} download>
+                            <Button variant="outline">
+                                <Download className="mr-2 h-4 w-4" />
+                                Export
+                            </Button>
+                        </a>
+                        <Link href={route('siswa.import.create')}>
+                            <Button variant="outline">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Import
+                            </Button>
+                        </Link>
+                        <Link href={route('siswa.create')}>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Tambah Siswa
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
