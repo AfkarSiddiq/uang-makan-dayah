@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SppPayment;
 use App\Models\Student;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -422,5 +424,75 @@ class StudentController extends Controller
         $student->delete();
 
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus!');
+    }
+
+
+    // Pembayaran dari profil 
+    public function paySpp(Request $request, $id)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+        ]);
+
+        $student = Student::findOrFail($id);
+        $paymentAmount = $request->amount;
+
+        DB::transaction(function () use ($student, $paymentAmount) {
+            
+            // 1. Catat ke tabel Buku Kas (Transactions)
+            Transaction::create([
+                'transaction_id'   => 'TRX-' . strtoupper(uniqid()), // Ganti dengan fungsi generate Anda jika ada
+                'type'             => 'in',
+                'category'         => 'SPP',
+                'amount'           => $paymentAmount,
+                'student_id'       => $student->id,
+                'user_id'          => Auth::id(),
+                'transaction_date' => now(),
+                'note'             => 'Pembayaran SPP Otomatis via Profil Siswa',
+            ]);
+
+            // 2. Ambil tagihan yang belum lunas (beserta data relasi bulan)
+            $tagihanBelumLunas = SppPayment::with('sppMonth')
+                ->where('student_id', $student->id)
+                ->whereIn('status', ['unpaid', 'partial'])
+                ->get();
+
+            // 3. Urutkan dari yang paling tua (Tahun -> Bulan)
+            $tagihanTertua = $tagihanBelumLunas->sortBy(function ($payment) {
+                return sprintf('%04d%02d', $payment->sppMonth->year, $payment->sppMonth->month);
+            })->values();
+
+            $sisaUang = $paymentAmount;
+
+            // 4. Looping Waterfall: Lunasi dari yang paling tua
+            foreach ($tagihanTertua as $tagihan) {
+                // Jika uang sudah habis dialokasikan, hentikan proses
+                if ($sisaUang <= 0) break;
+
+                // Ambil harga asli bulan tersebut dari tabel master
+                $hargaSPP = $tagihan->sppMonth->amount; 
+                $kekurangan = $hargaSPP - $tagihan->paid_amount;
+
+                // Skenario A: Uang cukup untuk melunasi bulan ini
+                if ($sisaUang >= $kekurangan) {
+                    $tagihan->paid_amount = $hargaSPP;
+                    $tagihan->status = 'paid';
+                    $tagihan->paid_at = now();
+                    
+                    $sisaUang -= $kekurangan; // Kurangi dompet sisa uang
+                } 
+                // Skenario B: Uang tidak cukup, jadi dicicil (Partial)
+                else {
+                    $tagihan->paid_amount += $sisaUang;
+                    $tagihan->status = 'partial';
+                    
+                    $sisaUang = 0; // Uang habis
+                }
+
+                $tagihan->save();
+            }
+        });
+
+        return back()->with('success', 'Pembayaran sebesar Rp ' . number_format($request->amount, 0, ',', '.') . ' berhasil diproses!');
     }
 }

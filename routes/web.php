@@ -69,6 +69,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Route untuk Payment 
     Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+    Route::post('/siswa/{id}/pay', [StudentController::class, 'paySpp'])->name('siswa.pay');
 });
 
 require __DIR__.'/settings.php';
