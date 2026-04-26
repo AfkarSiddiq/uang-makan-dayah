@@ -55,12 +55,27 @@ class StudentController extends Controller
             ->get()
             ->keyBy('spp_month_id');
 
-        $virtualLedger = $semuaBulanMaster->filter(function ($master) use ($student) {
-            // Kita bungkus dengan (int) untuk memastikan tipe datanya angka, bukan string
-            $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
-            $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
-            
-            return $bulanMasterSkor >= $bulanMasukSkor;
+            $virtualLedger = $semuaBulanMaster->filter(function ($master) use ($student) {
+                $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
+                $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
+                
+                // 1. Pastikan tidak menagih sebelum bulan masuk
+                if ($bulanMasterSkor < $bulanMasukSkor) {
+                    return false;
+                }
+    
+                // 2. REM OTOMATIS: Jika siswa punya tanggal keluar (exit_year)
+                // (Opsional: Anda juga bisa menambahkan cek status seperti: $student->status !== 'aktif')
+                if ($student->exit_year && $student->exit_month) {
+                    $bulanKeluarSkor = ((int)$student->exit_year * 12) + (int)$student->exit_month;
+                    
+                    // Jika argo bulan master melebihi bulan dia keluar, HENTIKAN (false)
+                    if ($bulanMasterSkor > $bulanKeluarSkor) {
+                        return false;
+                    }
+                }
+                
+                return true;
 
         })->map(function ($master) use ($pembayaranAsli) {
             $pembayaran = $pembayaranAsli->get($master->id);
@@ -470,7 +485,20 @@ class StudentController extends Controller
             $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
                 $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
                 $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
-                return $bulanMasterSkor >= $bulanMasukSkor;
+                
+                if ($bulanMasterSkor < $bulanMasukSkor) {
+                    return false;
+                }
+
+                // REM OTOMATIS WATERFALL
+                if ($student->exit_year && $student->exit_month) {
+                    $bulanKeluarSkor = ((int)$student->exit_year * 12) + (int)$student->exit_month;
+                    if ($bulanMasterSkor > $bulanKeluarSkor) {
+                        return false;
+                    }
+                }
+                
+                return true;
             });
 
             $sisaUang = $paymentAmount;

@@ -59,7 +59,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Data Alumni',
-        url: '/graduated-students',
+        url: '/alumni',
         icon: GraduationCap,
     },
 ];
