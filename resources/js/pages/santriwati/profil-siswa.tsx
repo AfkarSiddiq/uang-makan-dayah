@@ -19,6 +19,8 @@ interface Student {
     name: string;
     class: string;
     status: string;
+    entry_month: number;
+    entry_year: number;
     spp_payments: SppPayment[];
 }
 
@@ -28,14 +30,22 @@ interface Props {
 
 export default function ProfilSiswa({ student }: Props) {
     const [isEditing, setIsEditing] = useState(false);
-    
 
     const { data, setData, put, processing, reset } = useForm({
         class: student.class || '',
         status: student.status,
+        entry_month: student.entry_month,
+        entry_year: student.entry_year,
     });
 
-    const { data: payData, setData: setPayData, post: payPost, processing: payProcessing, reset: payReset, errors: payErrors } = useForm({
+    const {
+        data: payData,
+        setData: setPayData,
+        post: payPost,
+        processing: payProcessing,
+        reset: payReset,
+        errors: payErrors,
+    } = useForm({
         amount: '',
     });
 
@@ -46,7 +56,7 @@ export default function ProfilSiswa({ student }: Props) {
             onSuccess: () => {
                 payReset(); // Kosongkan input setelah sukses
                 alert('Pembayaran berhasil diproses!'); // Opsional: Bisa diganti dengan toast notification
-            }
+            },
         });
     };
 
@@ -69,22 +79,23 @@ export default function ProfilSiswa({ student }: Props) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     };
 
-    // =========================================================================
-    // [DITAMBAHKAN]: LOGIKA PENGELOMPOKAN TAGIHAN PER TAHUN BIASA
-    // =========================================================================
-
     const groupedPayments = useMemo(() => {
         const groups: Record<number, any[]> = {};
-        
-        // Ambil tahun saat ini (jika Anda ingin membatasi tampilan hingga tahun sekarang)
-        // Jika Anda ingin menampilkan sampai tahun ajaran depan, Anda bisa pakai: currentYear + 1
-        const currentYear = new Date().getFullYear(); 
 
-        // Karena data dari Backend sudah berupa Virtual Ledger (Mulai dari bulan masuk)
-        // Kita hanya perlu mengelompokkannya ke dalam tahun
+        // Dapatkan batas waktu saat ini (Skor Bulan)
+        const currentDate = new Date();
+        const currentYearValue = currentDate.getFullYear();
+        const currentMonthValue = currentDate.getMonth() + 1; // getMonth() mulai dari 0
+        const currentScore = currentYearValue * 12 + currentMonthValue;
+
         student.spp_payments.forEach((payment) => {
-            // Batasi tampilan maksimal hanya sampai tahun saat ini
-            if (payment.year <= currentYear) {
+            // Hitung skor bulan untuk tagihan ini
+            const paymentScore = payment.year * 12 + payment.month;
+
+            // SYARAT TAMPIL:
+            // 1. Jika bulannya <= bulan saat ini (Tagihan masa lalu / bulan ini)
+            // 2. ATAU Jika bulannya di masa depan TETAPI statusnya sudah 'paid' atau 'partial'
+            if (paymentScore <= currentScore || payment.status !== 'unpaid') {
                 if (!groups[payment.year]) {
                     groups[payment.year] = [];
                 }
@@ -103,9 +114,7 @@ export default function ProfilSiswa({ student }: Props) {
     }, [groupedPayments]);
 
     // State untuk accordion (Otomatis buka tahun terbaru)
-    const [expandedYear, setExpandedYear] = useState<number | null>(
-        sortedYears.length > 0 ? sortedYears[0] : null
-    );
+    const [expandedYear, setExpandedYear] = useState<number | null>(sortedYears.length > 0 ? sortedYears[0] : null);
 
     // =========================================================================
 
@@ -130,10 +139,11 @@ export default function ProfilSiswa({ student }: Props) {
 
                 {/* KARTU BIODATA SISWA */}
                 <div className="relative flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    {/* Tombol Toggle Edit di Pojok Kanan Atas */}
                     <button
                         onClick={() => {
                             setIsEditing(!isEditing);
-                            reset();
+                            reset(); // Kembalikan ke data asli di database jika batal
                         }}
                         className="absolute top-6 right-6 rounded-md bg-slate-50 p-2 text-slate-500 transition hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
                         title={isEditing ? 'Batal Edit' : 'Edit Biodata'}
@@ -147,12 +157,14 @@ export default function ProfilSiswa({ student }: Props) {
                     <div className="w-full pr-12">
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{student.name}</h1>
 
+                        {/* Logika Jika Sedang Edit vs Sedang Melihat */}
                         {isEditing ? (
                             <form
                                 onSubmit={submitEdit}
                                 className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50"
                             >
-                                <div className="mb-4 grid gap-4 sm:grid-cols-2">
+                                <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                    {/* Input Kelas */}
                                     <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-500">Ubah Kelas</label>
                                         <select
@@ -160,7 +172,7 @@ export default function ProfilSiswa({ student }: Props) {
                                             onChange={(e) => setData('class', e.target.value)}
                                             className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                                         >
-                                            <option value="">-- Pilih Kelas --</option>
+                                            <option value="">-- Pilih --</option>
                                             <option value="1">Kelas 1</option>
                                             <option value="2">Kelas 2</option>
                                             <option value="3">Kelas 3</option>
@@ -169,6 +181,8 @@ export default function ProfilSiswa({ student }: Props) {
                                             <option value="6">Kelas 6</option>
                                         </select>
                                     </div>
+
+                                    {/* Input Status */}
                                     <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-500">Status Siswa</label>
                                         <select
@@ -182,7 +196,36 @@ export default function ProfilSiswa({ student }: Props) {
                                             <option value="berhenti">Berhenti</option>
                                         </select>
                                     </div>
+
+                                    {/* [BARU] Input Bulan Masuk */}
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-500">Argo Tagihan Mulai (Bulan)</label>
+                                        <select
+                                            value={data.entry_month}
+                                            onChange={(e) => setData('entry_month', parseInt(e.target.value))}
+                                            className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                        >
+                                            {/* Loop 1-12 untuk bulan */}
+                                            {[...Array(12)].map((_, i) => (
+                                                <option key={i + 1} value={i + 1}>
+                                                    {getMonthName(i + 1)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* [BARU] Input Tahun Masuk */}
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-500">Tahun Masuk</label>
+                                        <input
+                                            type="number"
+                                            value={data.entry_year}
+                                            onChange={(e) => setData('entry_year', parseInt(e.target.value))}
+                                            className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                        />
+                                    </div>
                                 </div>
+
                                 <div className="flex gap-2">
                                     <button
                                         type="submit"
@@ -202,6 +245,13 @@ export default function ProfilSiswa({ student }: Props) {
                                     <span className="font-medium text-slate-900 dark:text-slate-300">Kelas:</span>{' '}
                                     {student.class || 'Belum ada kelas'}
                                 </p>
+
+                                {/* [BARU] Tampilkan Info Masuk */}
+                                <p>
+                                    <span className="font-medium text-slate-900 dark:text-slate-300">Masuk Sejak:</span>{' '}
+                                    {getMonthName(student.entry_month)} {student.entry_year}
+                                </p>
+
                                 <p>
                                     <span className="font-medium text-slate-900 dark:text-slate-300">Status:</span>
                                     <span
@@ -337,18 +387,18 @@ export default function ProfilSiswa({ student }: Props) {
                                 <input
                                     type="number"
                                     value={payData.amount}
-                                    onChange={e => setPayData('amount', e.target.value)}
-                                    className={`w-full rounded-md border bg-white px-3 py-2 text-sm focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-white transition ${payErrors.amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-indigo-500'}`}
+                                    onChange={(e) => setPayData('amount', e.target.value)}
+                                    className={`w-full rounded-md border bg-white px-3 py-2 text-sm transition focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-white ${payErrors.amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-indigo-500 dark:border-slate-700'}`}
                                     placeholder="Contoh: 1500000"
                                     min="1"
                                     required
                                 />
-                                {payErrors.amount && <p className="text-red-500 text-xs mt-1">{payErrors.amount}</p>}
+                                {payErrors.amount && <p className="mt-1 text-xs text-red-500">{payErrors.amount}</p>}
                             </div>
                             <button
                                 type="submit"
                                 disabled={payProcessing || !payData.amount}
-                                className="w-full flex justify-center items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {payProcessing ? 'Memproses...' : 'Terima Pembayaran'}
                             </button>
