@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SppPayment;
+use App\Models\SppMonth;
 use App\Models\Student;
 use App\Models\Transaction;
-use App\Models\SppPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -80,12 +81,12 @@ class PaymentController extends Controller
 
     public function create()
     {
-        $students = Student::where('status', 'aktif')
+        $studentsByGender = Student::where('status', 'aktif')
             ->orderBy('class')
             ->orderBy('name')
-            ->get(['id', 'nisn', 'name', 'class'])
-            ->groupBy('class')
-            ->map(fn($group) => $group->values());
+            ->get(['id', 'nisn', 'name', 'class', 'gender'])
+            ->groupBy('gender')
+            ->map(fn ($group) => $group->groupBy('class')->map(fn ($cls) => $cls->values()));
 
         $classes = Student::where('status', 'aktif')
             ->distinct()
@@ -93,7 +94,7 @@ class PaymentController extends Controller
             ->pluck('class');
 
         return Inertia::render('payment/Create', [
-            'studentsByClass' => $students,
+            'studentsByGender' => $studentsByGender,
             'classes' => $classes,
             'categories' => [
                 'in' => self::INCOME_CATEGORIES,
@@ -188,20 +189,21 @@ class PaymentController extends Controller
 
         // 1. Ambil "Buku Menu" (Semua Bulan Master) dari yang paling lama ke baru
         $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
-        
+
         // 2. Filter: Hanya ambil bulan yang relevan (mulai dari bulan masuk santri)
         $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
             $bulanMasterSkor = ($master->year * 12) + $master->month;
             $bulanMasukSkor = ($student->entry_year * 12) + $student->entry_month;
+
             return $bulanMasterSkor >= $bulanMasukSkor;
         });
 
         // 3. Looping: Telusuri satu per satu dari bulan tertua
         foreach ($bulanValid as $master) {
-            
+
             // Jika uang di tangan sudah habis, hentikan pencarian!
             if ($sisaUang <= 0) {
-                break; 
+                break;
             }
 
             // Cek apakah bulan ini sudah pernah diangsur/dibayar?
@@ -210,7 +212,7 @@ class PaymentController extends Controller
                 ->first();
 
             $terbayarSebelumnya = $tagihan ? $tagihan->paid_amount : 0;
-            
+
             // Jika sudah LUNAS sebelumnya, lewati bulan ini dan cari bulan depannya
             if ($terbayarSebelumnya >= $master->amount) {
                 continue;
@@ -227,7 +229,7 @@ class PaymentController extends Controller
                 $bayarSekarang = $terbayarSebelumnya + $kekurangan;
                 $statusBaru = 'paid';
                 $sisaUang -= $kekurangan; // Kurangi sisa dompet
-            } 
+            }
             // Skenario B: Uang KURANG (Hanya bisa menyicil)
             else {
                 $bayarSekarang = $terbayarSebelumnya + $sisaUang;
@@ -236,17 +238,17 @@ class PaymentController extends Controller
             }
 
             // 4. THE MAGIC: UPDATE OR CREATE
-            // Jika data belum ada, buat baris baru (Create). 
+            // Jika data belum ada, buat baris baru (Create).
             // Jika data sudah ada (partial), perbarui datanya (Update).
             SppPayment::updateOrCreate(
                 [
-                    'student_id'   => $student->id,
-                    'spp_month_id' => $master->id
+                    'student_id' => $student->id,
+                    'spp_month_id' => $master->id,
                 ],
                 [
-                    'paid_amount'  => $bayarSekarang,
-                    'status'       => $statusBaru,
-                    'paid_at'      => now(),
+                    'paid_amount' => $bayarSekarang,
+                    'status' => $statusBaru,
+                    'paid_at' => now(),
                 ]
             );
         }

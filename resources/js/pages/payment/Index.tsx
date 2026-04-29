@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { Transaction, TransactionSummary } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Filter, Plus, Search, Trash2, X } from 'lucide-react';
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Search, Trash2, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
@@ -63,12 +62,32 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Transaksi</h1>
                         <p className="text-sm text-slate-500">Kelola semua pemasukan dan pengeluaran</p>
                     </div>
-                    <Link href={route('payment.create')}>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Tambah Transaksi
-                        </Button>
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link href={route('transaction.import.create')}>
+                            <Button variant="outline">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Import
+                            </Button>
+                        </Link>
+                        <a
+                            href={route('transaction.export', {
+                                date_from: filters.date_from,
+                                date_to: filters.date_to,
+                            })}
+                            download
+                        >
+                            <Button variant="outline">
+                                <Download className="mr-2 h-4 w-4" />
+                                Export{filters.date_from || filters.date_to ? ' (Filtered)' : ''}
+                            </Button>
+                        </a>
+                        <Link href={route('payment.create')}>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Tambah Transaksi
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -165,17 +184,17 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Semua</SelectItem>
-                                        <DropdownMenuItem disabled className="text-xs text-slate-500">
-                                            Pemasukan
-                                        </DropdownMenuItem>
+                                        <SelectItem value="_income_header" disabled className="text-xs text-slate-500 font-semibold pointer-events-none">
+                                            — Pemasukan —
+                                        </SelectItem>
                                         {categories.in.map((cat) => (
                                             <SelectItem key={cat} value={cat}>
                                                 {cat}
                                             </SelectItem>
                                         ))}
-                                        <DropdownMenuItem disabled className="text-xs text-slate-500">
-                                            Pengeluaran
-                                        </DropdownMenuItem>
+                                        <SelectItem value="_expense_header" disabled className="text-xs text-slate-500 font-semibold pointer-events-none">
+                                            — Pengeluaran —
+                                        </SelectItem>
                                         {categories.out.map((cat) => (
                                             <SelectItem key={cat} value={cat}>
                                                 {cat}

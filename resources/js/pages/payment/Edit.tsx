@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { Student, Transaction } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Save } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
@@ -164,13 +166,37 @@ export default function Edit({ transaction, students, categories }: Props) {
                                 <Label htmlFor="transaction_date" className="text-slate-700 dark:text-slate-300">
                                     Tanggal <span className="text-rose-500">*</span>
                                 </Label>
-                                <Input
-                                    id="transaction_date"
-                                    type="date"
-                                    value={data.transaction_date}
-                                    onChange={(e) => setData('transaction_date', e.target.value)}
-                                    className="mt-1"
-                                />
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`mt-1 w-full justify-start text-left font-normal ${
+                                                !data.transaction_date && 'text-slate-400'
+                                            }`}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {data.transaction_date
+                                                ? new Date(data.transaction_date + 'T00:00:00').toLocaleDateString('id-ID', {
+                                                      day: 'numeric',
+                                                      month: 'long',
+                                                      year: 'numeric',
+                                                  })
+                                                : 'Pilih tanggal'}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={data.transaction_date ? new Date(data.transaction_date + 'T00:00:00') : undefined}
+                                            onSelect={(date) => {
+                                                if (date) {
+                                                    setData('transaction_date', date.toISOString().split('T')[0]);
+                                                }
+                                            }}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                                 {errors.transaction_date && <p className="mt-1 text-sm text-rose-600">{errors.transaction_date}</p>}
                             </div>
                         </div>

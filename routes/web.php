@@ -5,6 +5,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentImportController;
+use App\Http\Controllers\TransactionImportController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -76,8 +77,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tahun/{year}', [AlumniController::class, 'detail'])->name('detail');
     });
 
-    // Route untuk Payment 
+    // Route untuk Payment
     Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    // Transaction import/export
+    Route::get('/transaction/import', [TransactionImportController::class, 'create'])->name('transaction.import.create');
+    Route::post('/transaction/import', [TransactionImportController::class, 'store'])->name('transaction.import.store');
+    Route::get('/transaction/import/template', [TransactionImportController::class, 'template'])->name('transaction.import.template');
+    Route::get('/transaction/export', [TransactionImportController::class, 'export'])->name('transaction.export');
 
     Route::post('/siswa/{id}/pay', [StudentController::class, 'paySpp'])->name('siswa.pay');
 });
