@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
@@ -165,17 +164,17 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Semua</SelectItem>
-                                        <DropdownMenuItem disabled className="text-xs text-slate-500">
-                                            Pemasukan
-                                        </DropdownMenuItem>
+                                        <SelectItem value="_income_header" disabled className="text-xs text-slate-500 font-semibold pointer-events-none">
+                                            — Pemasukan —
+                                        </SelectItem>
                                         {categories.in.map((cat) => (
                                             <SelectItem key={cat} value={cat}>
                                                 {cat}
                                             </SelectItem>
                                         ))}
-                                        <DropdownMenuItem disabled className="text-xs text-slate-500">
-                                            Pengeluaran
-                                        </DropdownMenuItem>
+                                        <SelectItem value="_expense_header" disabled className="text-xs text-slate-500 font-semibold pointer-events-none">
+                                            — Pengeluaran —
+                                        </SelectItem>
                                         {categories.out.map((cat) => (
                                             <SelectItem key={cat} value={cat}>
                                                 {cat}
