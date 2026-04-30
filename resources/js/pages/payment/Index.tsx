@@ -4,8 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Transaction, TransactionSummary } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Filter, Plus, Search, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Search, Trash2, Upload, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface Props {
     transactions: {
@@ -33,13 +33,35 @@ interface Props {
 
 export default function Index({ transactions, summary, filters, categories }: Props) {
     const [showFilters, setShowFilters] = useState(false);
+    const [localFilters, setLocalFilters] = useState({
+        type: filters.type || '',
+        category: filters.category || '',
+        date_from: filters.date_from || '',
+        date_to: filters.date_to || '',
+        search: filters.search || '',
+    });
+
+    useEffect(() => {
+        setLocalFilters({
+            type: filters.type || '',
+            category: filters.category || '',
+            date_from: filters.date_from || '',
+            date_to: filters.date_to || '',
+            search: filters.search || '',
+        });
+    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search]);
 
     const applyFilters = (newFilters: Record<string, string>) => {
-        router.get(route('payment.index'), { ...filters, ...newFilters }, { preserveState: true });
+        router.get(route('payment.index'), newFilters, { replace: true, preserveState: true, only: ['transactions', 'summary'] });
     };
 
     const clearFilters = () => {
+        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '' });
         router.get(route('payment.index'));
+    };
+
+    const applyFilter = () => {
+        applyFilters(localFilters);
     };
 
     const formatRupiah = (angka: number) => {
@@ -62,12 +84,32 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Transaksi</h1>
                         <p className="text-sm text-slate-500">Kelola semua pemasukan dan pengeluaran</p>
                     </div>
-                    <Link href={route('payment.create')}>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Tambah Transaksi
-                        </Button>
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link href={route('transaction.import.create')}>
+                            <Button variant="outline">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Import
+                            </Button>
+                        </Link>
+                        <a
+                            href={route('transaction.export', {
+                                date_from: localFilters.date_from,
+                                date_to: localFilters.date_to,
+                            })}
+                            download
+                        >
+                            <Button variant="outline">
+                                <Download className="mr-2 h-4 w-4" />
+                                Export
+                            </Button>
+                        </a>
+                        <Link href={route('payment.create')}>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Tambah Transaksi
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -115,10 +157,11 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             <Input
                                 placeholder="Cari nomor transaksi, catatan, siswa..."
                                 className="pl-9"
-                                defaultValue={filters.search}
+                                value={localFilters.search}
+                                onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
-                                        applyFilters({ search: (e.target as HTMLInputElement).value });
+                                        applyFilters(localFilters);
                                     }
                                 }}
                             />
@@ -142,7 +185,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Tipe</label>
-                                <Select value={filters.type || 'all'} onValueChange={(value) => applyFilters({ type: value === 'all' ? '' : value })}>
+                                <Select value={localFilters.type || 'all'} onValueChange={(value) => setLocalFilters({ ...localFilters, type: value === 'all' ? '' : value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
@@ -156,8 +199,8 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Kategori</label>
                                 <Select
-                                    value={filters.category || 'all'}
-                                    onValueChange={(value) => applyFilters({ category: value === 'all' ? '' : value })}
+                                    value={localFilters.category || 'all'}
+                                    onValueChange={(value) => setLocalFilters({ ...localFilters, category: value === 'all' ? '' : value })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Semua" />
@@ -185,11 +228,24 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Dari Tanggal</label>
-                                <Input type="date" defaultValue={filters.date_from} onChange={(e) => applyFilters({ date_from: e.target.value })} />
+                                <Input
+                                    type="date"
+                                    value={localFilters.date_from}
+                                    onChange={(e) => setLocalFilters({ ...localFilters, date_from: e.target.value })}
+                                />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Sampai Tanggal</label>
-                                <Input type="date" defaultValue={filters.date_to} onChange={(e) => applyFilters({ date_to: e.target.value })} />
+                                <Input
+                                    type="date"
+                                    value={localFilters.date_to}
+                                    onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
+                                />
+                            </div>
+                            <div className="flex items-end">
+                                <Button onClick={applyFilter} className="w-full">
+                                    Terapkan Filter
+                                </Button>
                             </div>
                         </div>
                     )}
