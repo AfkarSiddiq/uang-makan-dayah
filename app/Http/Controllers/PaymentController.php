@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
-use App\Models\Transaction;
+use App\Models\Category;
 use App\Models\SppMonth;
 use App\Models\SppPayment;
+use App\Models\Student;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +15,15 @@ use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
-    /* TODO: create a way to add category on the website for admin to add on their own */
-    /* but add a default category like spp etc */
-    private const INCOME_CATEGORIES = ['SPP', 'Infaq', 'Sumbangan', 'Lainnya'];
+    private function getCategories(): array
+    {
+        $categories = Category::where('is_active', true)->get();
 
-    private const EXPENSE_CATEGORIES = ['Gaji', 'Operasional', 'Listrik', 'Lainnya'];
+        return [
+            'in' => $categories->whereIn('type', ['in', 'both'])->pluck('name')->toArray(),
+            'out' => $categories->whereIn('type', ['out', 'both'])->pluck('name')->toArray(),
+        ];
+    }
 
     public function index(Request $request)
     {
@@ -72,10 +77,7 @@ class PaymentController extends Controller
             'transactions' => $transactions,
             'summary' => $summary,
             'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search']),
-            'categories' => [
-                'in' => self::INCOME_CATEGORIES,
-                'out' => self::EXPENSE_CATEGORIES,
-            ],
+            'categories' => $this->getCategories(),
         ]);
     }
 
@@ -86,7 +88,7 @@ class PaymentController extends Controller
             ->orderBy('name')
             ->get(['id', 'nisn', 'name', 'class'])
             ->groupBy('class')
-            ->map(fn($group) => $group->values());
+            ->map(fn ($group) => $group->values());
 
         $classes = Student::where('status', 'aktif')
             ->distinct()
@@ -96,10 +98,7 @@ class PaymentController extends Controller
         return Inertia::render('payment/Create', [
             'studentsByClass' => $students,
             'classes' => $classes,
-            'categories' => [
-                'in' => self::INCOME_CATEGORIES,
-                'out' => self::EXPENSE_CATEGORIES,
-            ],
+            'categories' => $this->getCategories(),
         ]);
     }
 
@@ -137,10 +136,7 @@ class PaymentController extends Controller
         return Inertia::render('payment/Edit', [
             'transaction' => $payment,
             'students' => $students,
-            'categories' => [
-                'in' => self::INCOME_CATEGORIES,
-                'out' => self::EXPENSE_CATEGORIES,
-            ],
+            'categories' => $this->getCategories(),
         ]);
     }
 
@@ -194,6 +190,7 @@ class PaymentController extends Controller
         $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
             $bulanMasterSkor = ($master->year * 12) + $master->month;
             $bulanMasukSkor = ($student->entry_year * 12) + $student->entry_month;
+
             return $bulanMasterSkor >= $bulanMasukSkor;
         });
 
@@ -241,13 +238,13 @@ class PaymentController extends Controller
             // Jika data sudah ada (partial), perbarui datanya (Update).
             SppPayment::updateOrCreate(
                 [
-                    'student_id'   => $student->id,
-                    'spp_month_id' => $master->id
+                    'student_id' => $student->id,
+                    'spp_month_id' => $master->id,
                 ],
                 [
-                    'paid_amount'  => $bayarSekarang,
-                    'status'       => $statusBaru,
-                    'paid_at'      => now(),
+                    'paid_amount' => $bayarSekarang,
+                    'status' => $statusBaru,
+                    'paid_at' => now(),
                 ]
             );
         }

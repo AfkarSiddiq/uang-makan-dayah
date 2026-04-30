@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -59,7 +60,7 @@ class TransactionImportController extends Controller
                 continue;
             }
 
-            $validCategories = ['SPP', 'Uang Pangkal', 'Uang Kegiatan', 'Uang Makan', 'Donasi', 'Lainnya', 'Operasional', 'Gaji', 'Pemeliharaan', 'Inventaris', 'Lainnya'];
+            $validCategories = Category::where('is_active', true)->pluck('name')->toArray();
             if (! in_array($category, $validCategories)) {
                 $errors[] = 'Baris '.($index + 1).': Kategori tidak valid';
 

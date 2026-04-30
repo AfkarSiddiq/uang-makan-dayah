@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
@@ -85,6 +86,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transaction/import', [TransactionImportController::class, 'store'])->name('transaction.import.store');
     Route::get('/transaction/import/template', [TransactionImportController::class, 'template'])->name('transaction.import.template');
     Route::get('/transaction/export', [TransactionImportController::class, 'export'])->name('transaction.export');
+
+    // Category management
+    Route::resource('category', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::post('/siswa/{id}/pay', [StudentController::class, 'paySpp'])->name('siswa.pay');
 });
