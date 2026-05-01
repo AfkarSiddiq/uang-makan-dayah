@@ -27,9 +27,29 @@ class PaymentController extends Controller
 
     public function index(Request $request)
     {
-        $query = Transaction::with(['student', 'user'])
-            ->orderBy('transaction_date', 'desc')
-            ->orderBy('created_at', 'desc');
+        $query = Transaction::with(['student', 'user']);
+
+        $sortBy = $request->sort_by ?? 'transaction_date';
+        $sortDir = $request->sort_dir ?? 'desc';
+        $validSortColumns = ['transaction_id', 'transaction_date', 'category', 'amount', 'student_name'];
+        $validSortDirs = ['asc', 'desc'];
+
+        if (! in_array($sortBy, $validSortColumns)) {
+            $sortBy = 'transaction_date';
+        }
+        if (! in_array($sortDir, $validSortDirs)) {
+            $sortDir = 'desc';
+        }
+
+        if ($sortBy === 'student_name') {
+            $query->leftJoin('students', 'transactions.student_id', '=', 'students.id')
+                ->orderBy('students.name', $sortDir);
+        } else {
+            $query->orderBy($sortBy, $sortDir);
+        }
+        if ($sortBy !== 'created_at') {
+            $query->orderBy('transactions.created_at', 'desc');
+        }
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -76,7 +96,7 @@ class PaymentController extends Controller
         return Inertia::render('payment/Index', [
             'transactions' => $transactions,
             'summary' => $summary,
-            'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search']),
+            'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search', 'sort_by', 'sort_dir']),
             'categories' => $this->getCategories(),
         ]);
     }

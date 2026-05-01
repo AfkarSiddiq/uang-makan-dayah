@@ -68,7 +68,10 @@ class TransactionImportController extends Controller
             }
 
             try {
-                $parsedDate = Carbon::parse($transactionDate);
+                $parsedDate = Carbon::createFromFormat('d/m/Y', $transactionDate);
+                if (! $parsedDate) {
+                    throw new \Exception('Invalid date');
+                }
             } catch (\Exception $e) {
                 $errors[] = 'Baris '.($index + 1).': Format tanggal tidak valid';
 
@@ -135,6 +138,26 @@ class TransactionImportController extends Controller
 
         if ($request->filled('date_to')) {
             $query->where('transaction_date', '<=', $request->date_to);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('transaction_id', 'like', "%{$search}%")
+                    ->orWhere('note', 'like', "%{$search}%")
+                    ->orWhereHas('student', function ($sq) use ($search) {
+                        $sq->where('name', 'like', "%{$search}%")
+                            ->orWhere('nisn', 'like', "%{$search}%");
+                    });
+            });
         }
 
         $transactions = $query->orderBy('transaction_date', 'desc')
