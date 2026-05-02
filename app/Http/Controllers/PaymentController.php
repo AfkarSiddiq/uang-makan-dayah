@@ -105,7 +105,7 @@ class PaymentController extends Controller
 
     public function create()
     {
-        $students = Student::where('status', 'aktif')
+        $studentsByGender = Student::where('status', 'aktif')
             ->orderBy('class')
             ->orderBy('name')
             ->get(['id', 'nisn', 'name', 'class'])
@@ -118,7 +118,7 @@ class PaymentController extends Controller
             ->pluck('class');
 
         return Inertia::render('payment/Create', [
-            'studentsByClass' => $students,
+            'studentsByGender' => $studentsByGender,
             'classes' => $classes,
             'categories' => $this->getCategories(),
         ]);

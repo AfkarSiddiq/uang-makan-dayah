@@ -1,15 +1,17 @@
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { Student } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Save } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
-    studentsByClass: Record<string, Student[]>;
+    studentsByGender: Record<string, Record<string, Student[]>>;
     classes: string[];
     categories: {
         in: string[];
@@ -17,7 +19,7 @@ interface Props {
     };
 }
 
-export default function Create({ studentsByClass, classes, categories }: Props) {
+export default function Create({ studentsByGender, classes, categories }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         type: 'in' as 'in' | 'out',
         category: categories.in[0] ?? undefined,
@@ -28,6 +30,7 @@ export default function Create({ studentsByClass, classes, categories }: Props) 
     });
 
     const [type, setType] = useState<'in' | 'out'>('in');
+    const [selectedGender, setSelectedGender] = useState<string>('');
     const [selectedClass, setSelectedClass] = useState<string>('');
 
     const handleTypeChange = (newType: 'in' | 'out') => {
@@ -137,31 +140,55 @@ export default function Create({ studentsByClass, classes, categories }: Props) 
                             </div>
                         </div>
 
-                        {type === 'in' && (
-                            <div>
-                                {data.category === 'SPP' ? (
+{type === 'in' && (
+                            <>
+                                {data.category === 'SPP' && (
                                     <>
-                                        <Label htmlFor="class" className="text-slate-700 dark:text-slate-300">
-                                            Filter Kelas
-                                        </Label>
-<Select value={selectedClass} onValueChange={(value) => {
-                                            setSelectedClass(value === 'all' ? '' : value);
-                                            setData('student_id', '');
-                                        }}>
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Pilih kelas" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">Semua Kelas</SelectItem>
-                                                {classes.map((cls) => (
-                                                    <SelectItem key={cls} value={cls}>
-                                                        Kelas {cls}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <div>
+                                                <Label htmlFor="gender" className="text-slate-700 dark:text-slate-300">
+                                                    Jenis Kelamin
+                                                </Label>
+                                                <Select value={selectedGender} onValueChange={(value) => {
+                                                    setSelectedGender(value === 'all' ? '' : value);
+                                                    setSelectedClass('');
+                                                    setData('student_id', '');
+                                                }}>
+                                                    <SelectTrigger className="mt-1">
+                                                        <SelectValue placeholder="Pilih Jenis Kelamin" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {/* <SelectItem value="all">Semua</SelectItem> */}
+                                                        <SelectItem value="L">Laki-laki</SelectItem>
+                                                        <SelectItem value="P">Perempuan</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div>
+                                                <Label htmlFor="class" className="text-slate-700 dark:text-slate-300">
+                                                    Filter Kelas
+                                                </Label>
+                                                <Select value={selectedClass} onValueChange={(value) => {
+                                                    setSelectedClass(value === 'all' ? '' : value);
+                                                    setData('student_id', '');
+                                                }}>
+                                                    <SelectTrigger className="mt-1">
+                                                        <SelectValue placeholder="Pilih kelas" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">Semua Kelas</SelectItem>
+                                                        {classes.map((cls) => (
+                                                            <SelectItem key={cls} value={cls}>
+                                                                Kelas {cls}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
                                     </>
-                                ) : null}
+                                )}
 
                                 <Label htmlFor="student_id" className="text-slate-700 dark:text-slate-300">
                                     Siswa {data.category === 'SPP' ? 'untuk SPP' : '(opsional)'}
@@ -169,17 +196,31 @@ export default function Create({ studentsByClass, classes, categories }: Props) 
                                 <Select
                                     value={data.student_id}
                                     onValueChange={(value) => setData('student_id', value)}
-                                    disabled={data.category === 'SPP' && !selectedClass}
+                                    disabled={data.category === 'SPP' && !selectedGender}
                                 >
                                     <SelectTrigger className="mt-1">
-                                        <SelectValue placeholder={data.category === 'SPP' && !selectedClass ? "Pilih kelas terlebih dahulu" : "Pilih siswa (jika terkait)"} />
+                                        <SelectValue placeholder={data.category === 'SPP' && !selectedGender ? "Pilih jenis kelamin terlebih dahulu" : "Pilih siswa (jika terkait)"} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {(data.category === 'SPP' ? (selectedClass ? studentsByClass[selectedClass] || [] : Object.values(studentsByClass).flat()) : Object.values(studentsByClass).flat()).filter(Boolean).map((student: Student) => (
-                                            <SelectItem key={student.id} value={String(student.id)}>
-                                                {student.name} - {student.nisn} (Kelas {student.class})
-                                            </SelectItem>
-                                        ))}
+                                        {(() => {
+                                            let filteredStudents: Student[] = [];
+                                            if (data.category !== 'SPP') {
+                                                filteredStudents = Object.values(studentsByGender).flatMap(g => Object.values(g).flat());
+                                            } else {
+                                                const genderKey = selectedGender || Object.keys(studentsByGender)[0];
+                                                const classKey = selectedClass || Object.keys(studentsByGender[genderKey] || {})[0];
+                                                if (genderKey && studentsByGender[genderKey]) {
+                                                    filteredStudents = selectedClass
+                                                        ? studentsByGender[genderKey][selectedClass] || []
+                                                        : Object.values(studentsByGender[genderKey] || {}).flat();
+                                                }
+                                            }
+                                            return filteredStudents.map((student: Student) => (
+                                                <SelectItem key={student.id} value={String(student.id)}>
+                                                    {student.name} - {student.nisn} (Kelas {student.class})
+                                                </SelectItem>
+                                            ));
+                                        })()}
                                     </SelectContent>
                                 </Select>
                                 {data.category === 'SPP' && data.student_id && (
@@ -187,7 +228,7 @@ export default function Create({ studentsByClass, classes, categories }: Props) 
                                         Pembayaran SPP akan otomatis dialokasikan ke tagihan tertunda siswa.
                                     </p>
                                 )}
-                            </div>
+                            </>
                         )}
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -195,13 +236,37 @@ export default function Create({ studentsByClass, classes, categories }: Props) 
                                 <Label htmlFor="transaction_date" className="text-slate-700 dark:text-slate-300">
                                     Tanggal <span className="text-rose-500">*</span>
                                 </Label>
-                                <Input
-                                    id="transaction_date"
-                                    type="date"
-                                    value={data.transaction_date}
-                                    onChange={(e) => setData('transaction_date', e.target.value)}
-                                    className="mt-1"
-                                />
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`mt-1 w-full justify-start text-left font-normal ${
+                                                !data.transaction_date && 'text-slate-400'
+                                            }`}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {data.transaction_date
+                                                ? new Date(data.transaction_date + 'T00:00:00').toLocaleDateString('id-ID', {
+                                                      day: 'numeric',
+                                                      month: 'long',
+                                                      year: 'numeric',
+                                                  })
+                                                : 'Pilih tanggal'}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={data.transaction_date ? new Date(data.transaction_date + 'T00:00:00') : undefined}
+                                            onSelect={(date) => {
+                                                if (date) {
+                                                    setData('transaction_date', date.toISOString().split('T')[0]);
+                                                }
+                                            }}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                                 {errors.transaction_date && <p className="mt-1 text-sm text-rose-600">{errors.transaction_date}</p>}
                             </div>
                         </div>
