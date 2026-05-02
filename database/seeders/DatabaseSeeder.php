@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\SppPayment;
-use App\Models\SppMonth; // Pastikan Model SppMonth di-import
+use App\Models\Category;
+use App\Models\SppMonth;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -21,16 +21,28 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => Hash::make('00000000'),
-            'role' => 'admin' // Pastikan kolom role ada di tabel users Anda
+            'role' => 'admin',
         ]);
 
-        // 2. Buat Data Master Bulan (Tahun Ajaran 2025/2026)
+        // 2. Seed default categories
+        $incomeCategories = ['SPP', 'Infaq', 'Sumbangan', 'Uang Pangkal', 'Uang Kegiatan', 'Uang Makan', 'Donasi', 'Lainnya'];
+        $expenseCategories = ['Gaji', 'Operasional', 'Listrik', 'Pemeliharaan', 'Inventaris', 'Lainnya'];
+
+        foreach ($incomeCategories as $name) {
+            Category::firstOrCreate(['name' => $name], ['type' => 'in', 'is_active' => true]);
+        }
+
+        foreach ($expenseCategories as $name) {
+            Category::firstOrCreate(['name' => $name], ['type' => 'out', 'is_active' => true]);
+        }
+
+        // 3. Buat Data Master Bulan (Tahun Ajaran 2025/2026)
         $bulanAjaran = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
         $kumpulanBulanId = [];
 
         foreach ($bulanAjaran as $m) {
             $year = ($m >= 7) ? 2025 : 2026;
-            
+
             // firstOrCreate memastikan data tidak ganda jika seeder dijalankan 2x
             $sppMonth = SppMonth::create(
                 ['month' => $m, 'year' => $year, 'amount' => 500000],
@@ -40,11 +52,8 @@ class DatabaseSeeder extends Seeder
             $kumpulanBulanId[] = $sppMonth->id;
         }
 
-        // 3. Buat 20 Siswa dan Generate Tagihannya
+        // 4. Buat 20 Siswa dan Generate Tagihannya
         // 'use ($kumpulanBulan)' agar variabel array di atas bisa dipakai di dalam function
-        Student::factory(20)->create()->each(function ($student) use ($kumpulanBulanId) {
-            
-            
-        });
+        Student::factory(20)->create()->each(function ($student) {});
     }
 }

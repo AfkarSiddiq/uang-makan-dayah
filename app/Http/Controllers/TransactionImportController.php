@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class TransactionImportController extends Controller
         $rows = $sheet->toArray();
 
         $errors = [];
+        $skippedIds = [];
         $successCount = 0;
 
         foreach ($rows as $index => $row) {
@@ -58,16 +60,26 @@ class TransactionImportController extends Controller
                 continue;
             }
 
-            if (! in_array($category, ['SPP', 'Uang Pangkal', 'Uang Kegiatan', 'Uang Makan', 'Donasi', 'Lainnya'])) {
+            $validCategories = Category::where('is_active', true)->pluck('name')->toArray();
+            if (! in_array($category, $validCategories)) {
                 $errors[] = 'Baris '.($index + 1).': Kategori tidak valid';
 
                 continue;
             }
 
             try {
-                $parsedDate = Carbon::parse($transactionDate);
+                $parsedDate = Carbon::createFromFormat('d/m/Y', $transactionDate);
+                if (! $parsedDate) {
+                    throw new \Exception('Invalid date');
+                }
             } catch (\Exception $e) {
                 $errors[] = 'Baris '.($index + 1).': Format tanggal tidak valid';
+
+                continue;
+            }
+
+            if (Transaction::where('transaction_id', $transactionId)->exists()) {
+                $skippedIds[] = 'Baris '.($index + 1).': ID '.$transactionId.' sudah ada';
 
                 continue;
             }
@@ -85,11 +97,21 @@ class TransactionImportController extends Controller
             $successCount++;
         }
 
-        if (count($errors) > 0) {
-            return back()->with('errors', $errors)->with('successCount', $successCount);
+        $message = $successCount.' transaksi berhasil diimport';
+        if (! empty($skippedIds)) {
+            $message .= '. '.count($skippedIds).' duplicate: '.implode(', ', array_slice($skippedIds, 0, 3));
+            if (count($skippedIds) > 3) {
+                $message .= '...';
+            }
+        }
+        if (! empty($errors)) {
+            $message .= '. '.count($errors).' error: '.implode(', ', array_slice($errors, 0, 3));
+            if (count($errors) > 3) {
+                $message .= '...';
+            }
         }
 
-        return redirect()->route('payment.index')->with('success', "Berhasil mengimport $successCount transaksi.");
+        return redirect()->route('payment.index')->with('success', $message);
     }
 
     public function template()
@@ -118,6 +140,26 @@ class TransactionImportController extends Controller
             $query->where('transaction_date', '<=', $request->date_to);
         }
 
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('transaction_id', 'like', "%{$search}%")
+                    ->orWhere('note', 'like', "%{$search}%")
+                    ->orWhereHas('student', function ($sq) use ($search) {
+                        $sq->where('name', 'like', "%{$search}%")
+                            ->orWhere('nisn', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         $transactions = $query->orderBy('transaction_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -133,19 +175,17 @@ class TransactionImportController extends Controller
         $sheet->setCellValue('F1', 'Catatan');
         $sheet->setCellValue('G1', 'Siswa');
 
-        $data = $transactions->map(function ($transaction) {
-            return [
-                $transaction->transaction_id,
-                $transaction->type === 'in' ? 'Masuk' : 'Keluar',
-                $transaction->category,
-                $transaction->amount,
-                $transaction->transaction_date->format('d/m/Y'),
-                $transaction->note ?? '',
-                $transaction->student ? $transaction->student->name.' - '.$transaction->student->nisn : '-',
-            ];
-        })->toArray();
-
-        $sheet->fromArray($data, null, 'A2');
+        $row = 2;
+        foreach ($transactions as $transaction) {
+            $sheet->setCellValue('A'.$row, $transaction->transaction_id);
+            $sheet->setCellValue('B'.$row, $transaction->type === 'in' ? 'Masuk' : 'Keluar');
+            $sheet->setCellValue('C'.$row, $transaction->category);
+            $sheet->setCellValue('D'.$row, $transaction->amount);
+            $sheet->setCellValue('E'.$row, $transaction->transaction_date->format('d/m/Y'));
+            $sheet->setCellValue('F'.$row, $transaction->note ?? '');
+            $sheet->setCellValue('G'.$row, $transaction->student ? $transaction->student->name.' - '.$transaction->student->nisn : '-');
+            $row++;
+        }
 
         foreach (range('A', 'G') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);

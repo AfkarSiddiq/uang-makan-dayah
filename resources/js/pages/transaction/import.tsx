@@ -52,7 +52,7 @@ export default function Import() {
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="border-b border-slate-200 p-6 dark:border-slate-800">
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Import Data Transaksi</h2>
-                        <p className="mt-1 text-sm text-slate-500">Import transaksi dari file Excel (.xlsx, .xls, .csv)</p>
+                        <p className="mt-1 text-sm text-slate-500">Import transaksi dari file Excel (.xlsx, .xls)</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 p-6">
@@ -63,7 +63,7 @@ export default function Import() {
                             <Input
                                 id="file"
                                 type="file"
-                                accept=".xlsx,.xls,.csv"
+                                accept=".xlsx,.xls"
                                 onChange={handleFileChange}
                                 className="mt-1"
                             />
@@ -73,11 +73,11 @@ export default function Import() {
                         <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50">
                             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Format Kolom:</h3>
                             <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-slate-600 dark:text-slate-400">
-                                <li><strong>Kolom A:</strong> ID Transaksi (wajib)</li>
+                                <li><strong>Kolom A:</strong> ID Transaksi (wajib, contoh: TRX-001)</li>
                                 <li><strong>Kolom B:</strong> Tipe (masuk/keluar)</li>
-                                <li><strong>Kolom C:</strong> Kategori</li>
-                                <li><strong>Kolom D:</strong> Jumlah (Rp)</li>
-                                <li><strong>Kolom E:</strong> Tanggal (dd/mm/yyyy)</li>
+                                <li><strong>Kolom C:</strong> Kategori (SPP, Uang Pangkal, Uang Kegiatan, Uang Makan, Donasi, Lainnya, Operasional, Gaji, Pemeliharaan, Inventaris)</li>
+                                <li><strong>Kolom D:</strong> Jumlah (Rp, numeric)</li>
+                                <li><strong>Kolom E:</strong> Tanggal (dd/mm/yyyy, contoh: 01/01/2026)</li>
                                 <li><strong>Kolom F:</strong> Catatan (opsional)</li>
                             </ul>
                         </div>

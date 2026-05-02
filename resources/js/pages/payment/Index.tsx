@@ -4,8 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Transaction, TransactionSummary } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Search, Trash2, Upload, X } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowDown, ArrowDownRight, ArrowUp, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Printer, Search, Trash2, Upload, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface Props {
     transactions: {
@@ -33,13 +33,52 @@ interface Props {
 
 export default function Index({ transactions, summary, filters, categories }: Props) {
     const [showFilters, setShowFilters] = useState(false);
+    const [localFilters, setLocalFilters] = useState({
+        type: filters.type || '',
+        category: filters.category || '',
+        date_from: filters.date_from || '',
+        date_to: filters.date_to || '',
+        search: filters.search || '',
+        sort_by: filters.sort_by || 'transaction_date',
+        sort_dir: filters.sort_dir || 'desc',
+    });
 
+    useEffect(() => {
+        setLocalFilters({
+            type: filters.type || '',
+            category: filters.category || '',
+            date_from: filters.date_from || '',
+            date_to: filters.date_to || '',
+            search: filters.search || '',
+            sort_by: filters.sort_by || 'transaction_date',
+            sort_dir: filters.sort_dir || 'desc',
+        });
+    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search, filters.sort_by, filters.sort_dir]);
+
+    // TODO: make the filters button better by not making the whole page reload and making it as one component that other form could use
     const applyFilters = (newFilters: Record<string, string>) => {
-        router.get(route('payment.index'), { ...filters, ...newFilters }, { preserveState: true });
+        router.get(route('payment.index'), { ...localFilters, ...newFilters }, { replace: true, preserveState: true, only: ['transactions', 'summary'] });
+    };
+
+    // TODO: create a better sort button component that could handle things like a null data etc
+    // FIX: whys when the sort button is clicked the link would show the sort parameter
+    const handleSort = (column: string) => {
+        const newDir = localFilters.sort_by === column && localFilters.sort_dir === 'asc' ? 'desc' : 'asc';
+        applyFilters({ sort_by: column, sort_dir: newDir });
+    };
+
+    const getSortIcon = (column: string) => {
+        if (localFilters.sort_by !== column) return <ArrowUpDown className="h-4 w-4 opacity-50" />;
+        return localFilters.sort_dir === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
     };
 
     const clearFilters = () => {
+        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '' });
         router.get(route('payment.index'));
+    };
+
+    const applyFilter = () => {
+        applyFilters(localFilters);
     };
 
     const formatRupiah = (angka: number) => {
@@ -70,15 +109,12 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             </Button>
                         </Link>
                         <a
-                            href={route('transaction.export', {
-                                date_from: filters.date_from,
-                                date_to: filters.date_to,
-                            })}
+                            href={route('transaction.export', localFilters)}
                             download
                         >
                             <Button variant="outline">
                                 <Download className="mr-2 h-4 w-4" />
-                                Export{filters.date_from || filters.date_to ? ' (Filtered)' : ''}
+                                Export{localFilters.date_from || localFilters.date_to || localFilters.type || localFilters.category || localFilters.search ? ' (Filtered)' : ''}
                             </Button>
                         </a>
                         <Link href={route('payment.create')}>
@@ -135,10 +171,11 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             <Input
                                 placeholder="Cari nomor transaksi, catatan, siswa..."
                                 className="pl-9"
-                                defaultValue={filters.search}
+                                value={localFilters.search}
+                                onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
-                                        applyFilters({ search: (e.target as HTMLInputElement).value });
+                                        applyFilters(localFilters);
                                     }
                                 }}
                             />
@@ -162,7 +199,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Tipe</label>
-                                <Select value={filters.type || 'all'} onValueChange={(value) => applyFilters({ type: value === 'all' ? '' : value })}>
+                                <Select value={localFilters.type || 'all'} onValueChange={(value) => setLocalFilters({ ...localFilters, type: value === 'all' ? '' : value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
@@ -176,8 +213,8 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Kategori</label>
                                 <Select
-                                    value={filters.category || 'all'}
-                                    onValueChange={(value) => applyFilters({ category: value === 'all' ? '' : value })}
+                                    value={localFilters.category || 'all'}
+                                    onValueChange={(value) => setLocalFilters({ ...localFilters, category: value === 'all' ? '' : value })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Semua" />
@@ -205,11 +242,24 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Dari Tanggal</label>
-                                <Input type="date" defaultValue={filters.date_from} onChange={(e) => applyFilters({ date_from: e.target.value })} />
+                                <Input
+                                    type="date"
+                                    value={localFilters.date_from}
+                                    onChange={(e) => setLocalFilters({ ...localFilters, date_from: e.target.value })}
+                                />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Sampai Tanggal</label>
-                                <Input type="date" defaultValue={filters.date_to} onChange={(e) => applyFilters({ date_to: e.target.value })} />
+                                <Input
+                                    type="date"
+                                    value={localFilters.date_to}
+                                    onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
+                                />
+                            </div>
+                            <div className="flex items-end">
+                                <Button onClick={applyFilter} className="w-full">
+                                    Terapkan Filter
+                                </Button>
                             </div>
                         </div>
                     )}
@@ -219,13 +269,36 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                                        No. Transaksi
+                                        <button onClick={() => handleSort('transaction_id')} className="flex items-center gap-1 hover:text-slate-700">
+                                            No. Transaksi
+                                            {getSortIcon('transaction_id')}
+                                        </button>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Tanggal</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Kategori</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Siswa</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                        <button onClick={() => handleSort('transaction_date')} className="flex items-center gap-1 hover:text-slate-700">
+                                            Tanggal
+                                            {getSortIcon('transaction_date')}
+                                        </button>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                        <button onClick={() => handleSort('category')} className="flex items-center gap-1 hover:text-slate-700">
+                                            Kategori
+                                            {getSortIcon('category')}
+                                        </button>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                        <button onClick={() => handleSort('student_name')} className="flex items-center gap-1 hover:text-slate-700">
+                                            Siswa
+                                            {getSortIcon('student_name')}
+                                        </button>
+                                    </th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Catatan</th>
-                                    <th className="px-4 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase">Jumlah</th>
+                                    <th className="px-4 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                        <button onClick={() => handleSort('amount')} className="flex items-center gap-1 ml-auto hover:text-slate-700">
+                                            Jumlah
+                                            {getSortIcon('amount')}
+                                        </button>
+                                    </th>
                                     <th className="px-4 py-3 text-center text-xs font-semibold tracking-wider text-slate-500 uppercase">Aksi</th>
                                 </tr>
                             </thead>
@@ -284,16 +357,25 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <Link href={route('payment.edit', transaction.id)}>
-                                                        <Button variant="ghost" size="sm">
-                                                            Edit
-                                                        </Button>
-                                                    </Link>
+                                                    {transaction.id && (
+                                                        <>
+                                                            <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
+                                                                <Button variant="ghost" size="sm">
+                                                                    <Printer className="h-4 w-4" />
+                                                                </Button>
+                                                            </a>
+                                                            <a href={`/payment/${transaction.id}/edit`}>
+                                                                <Button variant="ghost" size="sm">
+                                                                    Edit
+                                                                </Button>
+                                                            </a>
+                                                        </>
+                                                    )}
                                                     <form
                                                         onSubmit={(e) => {
                                                             e.preventDefault();
                                                             if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                                                                router.delete(route('payment.destroy', transaction.id));
+                                                                router.delete({ url: `/payment/${transaction.id}` });
                                                             }
                                                         }}
                                                     >
