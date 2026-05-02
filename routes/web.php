@@ -7,6 +7,7 @@ use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentImportController;
 use App\Http\Controllers\TransactionImportController;
+use App\Http\Controllers\TuitionArrearsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -52,6 +53,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/santriwati/kenaikan', [StudentController::class, 'prosesKenaikanSantriwati'])->name('santriwati.kenaikan.proses');
     Route::get('/santriwati/class/{kelas}', [StudentController::class, 'detailKelasSantriwati'])->name('santriwati.detail');
     Route::get('/santriwati/santri/{id}', [StudentController::class, 'showSantriwati'])->name('santriwati.show');
+
+    // Tuition Arrears
+    Route::get('/tuition-arrears', [TuitionArrearsController::class, 'index'])->name('tuition-arrears.index');
+    Route::get('/tuition-arrears/export-all', [TuitionArrearsController::class, 'exportAll'])->name('tuition-arrears.export-all');
+    Route::get('/tuition-arrears/export-month', [TuitionArrearsController::class, 'exportByMonth'])->name('tuition-arrears.export-month');
+
     // tambah route lain
 
     // siswa CRUD
