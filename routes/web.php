@@ -80,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Route untuk Payment
     Route::resource('payment', PaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::get('/payment/{payment}/print', [PaymentController::class, 'print'])->name('payment.print');
 
     // Transaction import/export
     Route::get('/transaction/import', [TransactionImportController::class, 'create'])->name('transaction.import.create');

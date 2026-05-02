@@ -7,6 +7,8 @@ use App\Models\SppMonth;
 use App\Models\SppPayment;
 use App\Models\Student;
 use App\Models\Transaction;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -181,6 +183,25 @@ class PaymentController extends Controller
         $payment->delete();
 
         return redirect()->route('payment.index')->with('success', 'Transaksi berhasil dihapus.');
+    }
+
+    public function print(Transaction $payment)
+    {
+        $payment->load(['student', 'user']);
+
+        $typeLabel = $payment->type === 'in' ? 'Pemasukan' : 'Pengeluaran';
+        $formattedAmount = number_format($payment->amount, 0, ',', '.');
+
+        $pdf = Pdf::loadView('pdf.transaction', [
+            'transaction' => $payment,
+            'typeLabel' => $typeLabel,
+            'formattedAmount' => $formattedAmount,
+            'transactionDate' => Carbon::parse($payment->transaction_date)->format('d/m/Y'),
+        ]);
+
+        $filename = 'Bukti_Transaksi_'.$payment->transaction_id.'.pdf';
+
+        return $pdf->download($filename);
     }
 
     private function generateTransactionNumber(): string

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Transaction, TransactionSummary } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDown, ArrowDownRight, ArrowUp, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Search, Trash2, Upload, X } from 'lucide-react';
+import { ArrowDown, ArrowDownRight, ArrowUp, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Printer, Search, Trash2, Upload, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface Props {
@@ -358,11 +358,18 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                             <td className="px-4 py-3 text-center">
                                                 <div className="flex items-center justify-center gap-1">
                                                     {transaction.id && (
-                                                        <a href={`/payment/${transaction.id}/edit`}>
-                                                            <Button variant="ghost" size="sm">
-                                                                Edit
-                                                            </Button>
-                                                        </a>
+                                                        <>
+                                                            <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
+                                                                <Button variant="ghost" size="sm">
+                                                                    <Printer className="h-4 w-4" />
+                                                                </Button>
+                                                            </a>
+                                                            <a href={`/payment/${transaction.id}/edit`}>
+                                                                <Button variant="ghost" size="sm">
+                                                                    Edit
+                                                                </Button>
+                                                            </a>
+                                                        </>
                                                     )}
                                                     <form
                                                         onSubmit={(e) => {
