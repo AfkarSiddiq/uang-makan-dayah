@@ -16,6 +16,7 @@ class Student extends Model
         'gender',
         'class',
         'status',
+        'student_type',
         'entry_month',
         'entry_year',
         'exit_month',

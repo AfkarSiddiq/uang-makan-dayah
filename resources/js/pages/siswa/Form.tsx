@@ -39,6 +39,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
         gender: (student?.gender as 'L' | 'P') || ('' as 'L' | 'P' | ''),
         class: student?.class || '',
         status: student?.status || 'aktif',
+        student_type: (student?.student_type as 'umum' | 'yatim' | 'piatu' | 'yatim_piatu') || 'umum',
         entry_month: student ? String(student.entry_month) : '',
         entry_year: student ? String(student.entry_year) : '',
         exit_month: student?.exit_month ? String(student.exit_month) : '',
@@ -149,6 +150,23 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+
+            <div>
+                <Label htmlFor="student_type" className="text-slate-700 dark:text-slate-300">
+                    Jenis Siswa
+                </Label>
+                <Select value={data.student_type} onValueChange={(value) => setData('student_type', value as 'umum' | 'yatim' | 'piatu' | 'yatim_piatu')}>
+                    <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Pilih jenis siswa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="umum">Umum</SelectItem>
+                        <SelectItem value="yatim">Yatim</SelectItem>
+                        <SelectItem value="piatu">Piatu</SelectItem>
+                        <SelectItem value="yatim_piatu">Yatim Piatu</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
