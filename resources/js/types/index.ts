@@ -41,7 +41,8 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    roles?: { id: number; name: string; display_name: string }[];
+    [key: string]: unknown;
 }
 
 export interface Student {
