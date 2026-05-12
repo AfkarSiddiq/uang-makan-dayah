@@ -70,6 +70,7 @@ class StudentImportController extends Controller
                 'gender' => $gender ?: 'L',
                 'class' => isset($row[3]) && is_numeric($row[3]) ? (int) $row[3] : null,
                 'status' => isset($row[4]) ? strtolower(trim($row[4])) : 'aktif',
+                'student_type' => isset($row[7]) ? strtolower(trim($row[7])) : 'umum',
                 'entry_month' => isset($row[5]) && is_numeric($row[5]) ? (int) $row[5] : date('n'),
                 'entry_year' => isset($row[6]) && is_numeric($row[6]) ? (int) $row[6] : date('Y'),
             ]);
@@ -93,16 +94,28 @@ class StudentImportController extends Controller
 
     public function template()
     {
-        $path = base_path('public/template_import_siswa.xlsx');
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
 
-        if (! file_exists($path)) {
-            return response()->json(['error' => 'Template file not found'], 404);
+        $headers = ['NISN', 'Nama', 'Jenis Kelamin (L/P)', 'Kelas (1-6)', 'Status (aktif/lulus/pindah/berhenti)', 'Bulan Masuk (1-12)', 'Tahun Masuk', 'Jenis Siswa (umum/yatim/piatu/yatim_piatu)'];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $data = [
+            ['1234567890', 'Contoh Nama', 'L', '1', 'aktif', '1', '2025', 'umum'],
+        ];
+        $sheet->fromArray($data, null, 'A2');
+
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setWidth(18);
         }
 
-        return response()->download($path, 'template_import_siswa.xlsx', [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.xlsx',
-            'Content-Disposition' => 'attachment; filename="template_import_siswa.xlsx"',
-        ]);
+        header('Cache-Control: max-age=0');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="template_import_siswa.xlsx"');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
     }
 
     public function export()
@@ -112,7 +125,7 @@ class StudentImportController extends Controller
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
-        $headers = ['NISN', 'Nama', 'Jenis Kelamin', 'Kelas', 'Status', 'Bulan Masuk', 'Tahun Masuk'];
+        $headers = ['NISN', 'Nama', 'Jenis Kelamin', 'Kelas', 'Status', 'Bulan Masuk', 'Tahun Masuk', 'Jenis Siswa'];
         $sheet->fromArray($headers, null, 'A1');
 
         $data = $students->map(function ($student) {
@@ -124,6 +137,7 @@ class StudentImportController extends Controller
                 ucfirst($student->status),
                 $student->entry_month,
                 $student->entry_year,
+                ucfirst(str_replace('_', ' ', $student->student_type)),
             ];
         })->toArray();
 
