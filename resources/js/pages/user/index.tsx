@@ -1,3 +1,4 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,6 @@ interface User {
 
 interface PageProps {
     users: User[];
-    flash?: { success?: string; error?: string };
 }
 
 export default function Index() {
@@ -52,10 +52,10 @@ export default function Index() {
     };
 
     return (
-        <div className="space-y-6">
+        <AppLayout>
             <Head title="Manajemen Pengguna" />
 
-            <div className="flex items-center justify-between">
+            <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Manajemen Pengguna</h1>
                     <p className="text-muted-foreground">Kelola akun pengguna dan role mereka</p>
@@ -81,7 +81,7 @@ export default function Index() {
                     <tbody>
                         {users.map((user) => (
                             <tr key={user.id} className="border-b">
-                                <td className="px-4 py-3">{user.name}</td>
+                                <td className="px-4 py-3 font-medium">{user.name}</td>
                                 <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
@@ -153,6 +153,6 @@ export default function Index() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </AppLayout>
     );
 }

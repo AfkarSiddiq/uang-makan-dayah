@@ -1,3 +1,4 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,6 @@ interface Permission {
 
 interface PageProps {
     permissions: Record<string, Permission[]>;
-    flash?: { success?: string; error?: string };
 }
 
 export default function Create() {
@@ -67,7 +67,7 @@ export default function Create() {
     };
 
     return (
-        <div className="space-y-6">
+        <AppLayout>
             <Head title="Tambah Role" />
 
             <Button variant="ghost" asChild>
@@ -77,15 +77,15 @@ export default function Create() {
                 </Link>
             </Button>
 
-            <div className="max-w-2xl">
+            <div className="mb-6">
                 <h1 className="text-2xl font-bold tracking-tight">Tambah Role</h1>
                 <p className="text-muted-foreground">Buat role baru dan atur izin aksesnya</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="rounded-md border bg-card p-6 space-y-6 max-w-2xl">
                 <div className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
-                        <div>
+                        <div className="space-y-2">
                             <Label htmlFor="name">Nama Role *</Label>
                             <Input
                                 id="name"
@@ -93,9 +93,9 @@ export default function Create() {
                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                                 placeholder="Contoh:bendahara"
                             />
-                            {errors.name && <p className="mt-1 text-sm text-rose-500">{errors.name}</p>}
+                            {errors.name && <p className="text-sm text-rose-500">{errors.name}</p>}
                         </div>
-                        <div>
+                        <div className="space-y-2">
                             <Label htmlFor="display_name">Nama Tampilan *</Label>
                             <Input
                                 id="display_name"
@@ -103,11 +103,11 @@ export default function Create() {
                                 onChange={(e) => setForm({ ...form, display_name: e.target.value })}
                                 placeholder="Contoh: Bendahara"
                             />
-                            {errors.display_name && <p className="mt-1 text-sm text-rose-500">{errors.display_name}</p>}
+                            {errors.display_name && <p className="text-sm text-rose-500">{errors.display_name}</p>}
                         </div>
                     </div>
 
-                    <div>
+                    <div className="space-y-2">
                         <Label htmlFor="description">Deskripsi</Label>
                         <Input
                             id="description"
@@ -131,10 +131,10 @@ export default function Create() {
                     <h2 className="text-lg font-semibold">Izin Akses</h2>
                     <p className="text-sm text-muted-foreground">Pilih izin yang akan diberikan kepada role ini</p>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         {Object.entries(permissions).map(([group, perms]) => (
-                            <div key={group} className="space-y-3">
-                                <div className="flex items-center space-x-2 border-b pb-2">
+                            <div key={group} className="rounded-md border p-4 space-y-3">
+                                <div className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
                                         id={`group-${group}`}
@@ -146,7 +146,7 @@ export default function Create() {
                                         {group}
                                     </Label>
                                 </div>
-                                <div className="grid gap-2 md:grid-cols-2">
+                                <div className="grid gap-2 md:grid-cols-2 pl-6">
                                     {perms.map((perm) => (
                                         <div key={perm.id} className="flex items-center space-x-2">
                                             <input
@@ -176,6 +176,6 @@ export default function Create() {
                     </Button>
                 </div>
             </form>
-        </div>
+        </AppLayout>
     );
 }

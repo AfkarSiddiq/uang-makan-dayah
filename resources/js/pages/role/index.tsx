@@ -1,13 +1,7 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -31,7 +25,6 @@ interface Role {
 
 interface PageProps {
     roles: Role[];
-    flash?: { success?: string; error?: string };
 }
 
 export default function Index() {
@@ -55,10 +48,10 @@ export default function Index() {
     };
 
     return (
-        <div className="space-y-6">
+        <AppLayout>
             <Head title="Manajemen Role" />
 
-            <div className="flex items-center justify-between">
+            <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Manajemen Role</h1>
                     <p className="text-muted-foreground">Kelola role dan izin akses pengguna</p>
@@ -71,68 +64,72 @@ export default function Index() {
                 </Button>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {roles.map((role) => (
-                    <Card key={role.id}>
-                        <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <CardTitle>{role.display_name}</CardTitle>
-                                    <CardDescription className="mt-1">
-                                        {role.name}
-                                    </CardDescription>
-                                </div>
-                                {role.is_default && (
-                                    <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                                        Default
-                                    </span>
-                                )}
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <p className="text-sm text-muted-foreground">
-                                {role.description || 'Tidak ada deskripsi'}
-                            </p>
+            <div className="rounded-md border">
+                <table className="w-full">
+                    <thead>
+                        <tr className="border-b bg-muted/50">
+                            <th className="px-4 py-3 text-left text-sm font-medium">Nama Role</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium">Deskripsi</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium">Izin</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium">Pengguna</th>
+                            <th className="px-4 py-3 text-right text-sm font-medium">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {roles.map((role) => (
+                            <tr key={role.id} className="border-b">
+                                <td className="px-4 py-3">
+                                    <div className="font-medium">{role.display_name}</div>
+                                    <div className="text-sm text-muted-foreground">{role.name}</div>
+                                </td>
+                                <td className="px-4 py-3 text-sm text-muted-foreground">
+                                    {role.description || '-'}
+                                </td>
+                                <td className="px-4 py-3">
+                                    <div className="flex flex-wrap gap-1">
+                                        {role.permissions.slice(0, 3).map((perm) => (
+                                            <span
+                                                key={perm.id}
+                                                className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs"
+                                            >
+                                                {perm.display_name}
+                                            </span>
+                                        ))}
+                                        {role.permissions.length > 3 && (
+                                            <span className="text-xs text-muted-foreground">
+                                                +{role.permissions.length - 3}
+                                            </span>
+                                        )}
+                                    </div>
+                                </td>
+                                <td className="px-4 py-3 text-sm">{role.users_count}</td>
+                                <td className="px-4 py-3 text-right">
+                                    <div className="flex justify-end gap-1">
+                                        <Button variant="ghost" size="icon" asChild>
+                                            <Link href={`/role/${role.id}/edit`}>
+                                                <Pencil className="h-4 w-4" />
+                                            </Link>
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setDeleteDialog(role)}
+                                            disabled={role.users_count > 0}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-rose-500" />
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-                            <div className="flex flex-wrap gap-1">
-                                {role.permissions.slice(0, 5).map((perm) => (
-                                    <span
-                                        key={perm.id}
-                                        className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs"
-                                    >
-                                        {perm.display_name}
-                                    </span>
-                                ))}
-                                {role.permissions.length > 5 && (
-                                    <span className="text-xs text-muted-foreground">
-                                        +{role.permissions.length - 5} lainnya
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="flex items-center justify-between pt-2 border-t">
-                                <span className="text-sm text-muted-foreground">
-                                    {role.users_count} pengguna
-                                </span>
-                                <div className="flex gap-1">
-                                    <Button variant="ghost" size="icon" asChild>
-                                        <Link href={`/role/${role.id}/edit`}>
-                                            <Pencil className="h-4 w-4" />
-                                        </Link>
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => setDeleteDialog(role)}
-                                        disabled={role.users_count > 0}
-                                    >
-                                        <Trash2 className="h-4 w-4 text-rose-500" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                {roles.length === 0 && (
+                    <div className="py-12 text-center text-muted-foreground">
+                        Belum ada role
+                    </div>
+                )}
             </div>
 
             <Dialog open={!!deleteDialog} onOpenChange={() => setDeleteDialog(null)}>
@@ -141,7 +138,7 @@ export default function Index() {
                         <DialogTitle>Hapus Role</DialogTitle>
                         <DialogDescription>
                             Apakah Anda yakin ingin menghapus role "{deleteDialog?.display_name}"?
-                            Role ini tidak dapat dihapus karena masih digunakan oleh{' '}
+                            Role tidak dapat dihapus karena masih digunakan oleh{' '}
                             {deleteDialog?.users_count} pengguna.
                         </DialogDescription>
                     </DialogHeader>
@@ -159,6 +156,6 @@ export default function Index() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </AppLayout>
     );
 }
