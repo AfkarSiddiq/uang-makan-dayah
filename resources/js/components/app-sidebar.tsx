@@ -47,7 +47,7 @@ const mainNavItems: NavItem[] = [
         icon: AlarmCheck,
     },
     {
-        title: 'Riwayat Pembayaran',
+        title: 'Riwayat',
         url: '/payment-history',
         icon: History,
     },

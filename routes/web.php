@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SppPaymentController;
 use App\Http\Controllers\StudentController;
@@ -95,10 +96,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transaction/import/template', [TransactionImportController::class, 'template'])->name('transaction.import.template');
     Route::get('/transaction/export', [TransactionImportController::class, 'export'])->name('transaction.export');
 
+    // History
+    Route::get('/payment-history', [HistoryController::class, 'index'])->name('history');
+
     // Category management
     Route::resource('category', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::post('/siswa/{id}/pay', [StudentController::class, 'paySpp'])->name('siswa.pay');
+
+
 });
 
 require __DIR__.'/settings.php';
