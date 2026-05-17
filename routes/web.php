@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SppPaymentController;
@@ -39,9 +40,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/siswa/import/template', [StudentImportController::class, 'template'])->name('siswa.import.template');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/santriwan', [StudentController::class, 'indexSantriwan'])->name('santriwan.kelas');
     Route::get('/santriwan/kenaikan', [StudentController::class, 'kenaikanSantriwan'])->name('santriwan.kenaikan');
