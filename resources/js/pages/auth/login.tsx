@@ -34,21 +34,20 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     };
 
     return (
-        <div className="container relative hidden min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+        // PERBAIKAN: Hapus 'hidden' dan 'md:grid'. Gunakan flex untuk mobile, dan lg:grid untuk desktop.
+        <div className="relative flex min-h-screen flex-col items-center justify-center lg:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
             <Head title="Masuk Sistem" />
 
             {/* --- SISI KIRI: Branding & Visual --- */}
+            {/* Hanya tampil di layar besar (lg:flex), sembunyi di HP (hidden) */}
             <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                {/* Background Image / Warna */}
                 <div className="absolute inset-0 bg-zinc-900" />
                 
-                {/* Logo Instansi */}
                 <div className="relative z-20 flex items-center gap-2 text-lg font-bold tracking-tight">
-                    <WalletCards className="h-6 w-6" />
-                    Sistem Keuangan Terpadu
+                    <img src='/minhajussalam.png' className="h-6 w-6" />
+                    Sistem Keuangan
                 </div>
 
-                {/* Kutipan / Visi Misi */}
                 <div className="relative z-20 mt-auto">
                     <blockquote className="space-y-2">
                         <p className="text-lg font-medium leading-relaxed">
@@ -60,12 +59,18 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             </div>
 
             {/* --- SISI KANAN: Form Login --- */}
-            <div className="lg:p-8">
+            {/* PERBAIKAN: Tambahkan padding untuk layar mobile (p-4 sm:p-8) dan w-full agar rata tengah */}
+            <div className="flex w-full items-center justify-center p-4 sm:p-8 lg:p-8">
                 <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
                     
                     {/* Header Form */}
-                    <div className="flex flex-col space-y-2 text-center">
-                        <h1 className="text-2xl font-semibold tracking-tight">
+                    <div className="flex flex-col space-y-2 text-center lg:text-left">
+                        {/* Munculkan logo di versi mobile karena sisi kiri hilang */}
+                        <div className="mx-auto mb-4 flex items-center gap-2 text-lg font-bold tracking-tight lg:hidden">
+                            <img src='/minhajussalam.png' className="h-6 w-6 text-indigo-600" />
+                            Sistem Keuangan
+                        </div>
+                        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                             Selamat Datang Kembali
                         </h1>
                         <p className="text-sm text-muted-foreground">
@@ -73,14 +78,12 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </p>
                     </div>
 
-                    {/* Alert Status (Jika ada pesan dari server) */}
                     {status && (
                         <div className="rounded-md bg-emerald-50 p-3 text-sm font-medium text-emerald-600 dark:bg-emerald-950/50">
                             {status}
                         </div>
                     )}
 
-                    {/* Form Utama */}
                     <form onSubmit={submit} className="space-y-5">
                         <div className="space-y-4">
                             
@@ -103,17 +106,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                             {/* Input Password */}
                             <div className="space-y-2">
-                                {/* <div className="flex items-center justify-between">
-                                    <Label htmlFor="password" className="text-zinc-700 dark:text-zinc-300">Kata Sandi</Label>
-                                    {canResetPassword && (
-                                        <Link
-                                            href={route('password.request')}
-                                            className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                                        >
-                                            Lupa kata sandi?
-                                        </Link>
-                                    )}
-                                </div> */}
                                 <Input
                                     id="password"
                                     type="password"
@@ -125,21 +117,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 />
                                 <InputError message={errors.password} />
                             </div>
-
-                            {/* Remember Me */}
-                            {/* <div className="flex items-center space-x-2 pt-1">
-                                <Checkbox
-                                    id="remember"
-                                    checked={data.remember}
-                                    onCheckedChange={(checked) => setData('remember', checked as boolean)}
-                                />
-                                <Label
-                                    htmlFor="remember"
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-zinc-600 dark:text-zinc-400 cursor-pointer"
-                                >
-                                    Ingat sesi saya
-                                </Label>
-                            </div> */}
                         </div>
 
                         {/* Tombol Login */}
@@ -150,14 +127,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             {processing ? 'Memproses...' : 'Masuk ke Dasbor'}
                         </Button>
                     </form>
-
-                    {/* Footer / Info tambahan */}
-                    {/* <p className="px-8 text-center text-sm text-muted-foreground">
-                        Sistem dilindungi oleh enkripsi tingkat lanjut.{' '}
-                        <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
-                            Ketentuan Layanan
-                        </Link>
-                    </p> */}
                 </div>
             </div>
         </div>

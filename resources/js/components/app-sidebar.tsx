@@ -14,7 +14,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Pembayaran',
+        title: 'Transaksi',
         url: '/payment',
         icon: Banknote,
     },
@@ -24,7 +24,7 @@ const mainNavItems: NavItem[] = [
         icon: CalendarArrowUp,
     },
     {
-        title: 'Data Uang makan',
+        title: 'Data Santri',
         url: '#', // Gunakan '#' karena ini akan bertindak sebagai tombol pembuka dropdown
         icon: BookText, // Contoh mengganti icon
         isActive: false, // (Opsional) jika true, menu akan terbuka secara default
