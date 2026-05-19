@@ -55,39 +55,39 @@ class StudentController extends Controller
             ->get()
             ->keyBy('spp_month_id');
 
-            $virtualLedger = $semuaBulanMaster->filter(function ($master) use ($student) {
-                $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
-                $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
-                
-                // 1. Pastikan tidak menagih sebelum bulan masuk
-                if ($bulanMasterSkor < $bulanMasukSkor) {
+        $virtualLedger = $semuaBulanMaster->filter(function ($master) use ($student) {
+            $bulanMasterSkor = ((int) $master->year * 12) + (int) $master->month;
+            $bulanMasukSkor = ((int) $student->entry_year * 12) + (int) $student->entry_month;
+
+            // 1. Pastikan tidak menagih sebelum bulan masuk
+            if ($bulanMasterSkor < $bulanMasukSkor) {
+                return false;
+            }
+
+            // 2. REM OTOMATIS: Jika siswa punya tanggal keluar (exit_year)
+            // (Opsional: Anda juga bisa menambahkan cek status seperti: $student->status !== 'aktif')
+            if ($student->exit_year && $student->exit_month) {
+                $bulanKeluarSkor = ((int) $student->exit_year * 12) + (int) $student->exit_month;
+
+                // Jika argo bulan master melebihi bulan dia keluar, HENTIKAN (false)
+                if ($bulanMasterSkor > $bulanKeluarSkor) {
                     return false;
                 }
-    
-                // 2. REM OTOMATIS: Jika siswa punya tanggal keluar (exit_year)
-                // (Opsional: Anda juga bisa menambahkan cek status seperti: $student->status !== 'aktif')
-                if ($student->exit_year && $student->exit_month) {
-                    $bulanKeluarSkor = ((int)$student->exit_year * 12) + (int)$student->exit_month;
-                    
-                    // Jika argo bulan master melebihi bulan dia keluar, HENTIKAN (false)
-                    if ($bulanMasterSkor > $bulanKeluarSkor) {
-                        return false;
-                    }
-                }
-                
-                return true;
+            }
+
+            return true;
 
         })->map(function ($master) use ($pembayaranAsli) {
             $pembayaran = $pembayaranAsli->get($master->id);
 
             return [
-                'id'           => $pembayaran ? $pembayaran->id : 'virtual-' . $master->id,
+                'id' => $pembayaran ? $pembayaran->id : 'virtual-'.$master->id,
                 'spp_month_id' => $master->id,
-                'month'        => $master->month,
-                'year'         => $master->year,
-                'amount'       => $master->amount,
-                'paid_amount'  => $pembayaran ? $pembayaran->paid_amount : 0,
-                'status'       => $pembayaran ? $pembayaran->status : 'unpaid',
+                'month' => $master->month,
+                'year' => $master->year,
+                'amount' => $master->amount,
+                'paid_amount' => $pembayaran ? $pembayaran->paid_amount : 0,
+                'status' => $pembayaran ? $pembayaran->status : 'unpaid',
             ];
         })->values();
 
@@ -98,7 +98,7 @@ class StudentController extends Controller
         $studentData['spp_payments'] = $virtualLedger->toArray();
 
         // Kembalikan dalam bentuk Array murni, bukan Object Model Eloquent
-        return $studentData; 
+        return $studentData;
     }
 
     //  ROUTE UNTUK SANTRIWAN (Memanggil fungsi bantuan di atas)
@@ -178,6 +178,7 @@ class StudentController extends Controller
             'gender' => 'required|in:L,P',
             'class' => 'nullable|in:1,2,3,4,5,6',
             'status' => 'nullable|in:aktif,lulus,pindah,berhenti',
+            'student_type' => 'nullable|in:umum,yatim,piatu,yatim_piatu',
             'entry_month' => 'required|integer|min:1|max:12',
             'entry_year' => 'required|integer|min:2020',
             'exit_month' => 'nullable|integer|min:1|max:12',
@@ -195,6 +196,7 @@ class StudentController extends Controller
             $validated['exit_year'] = null;
         }
         $validated['status'] = $validated['status'] ?? 'aktif';
+        $validated['student_type'] = $validated['student_type'] ?? 'umum';
 
         if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti'])) {
             $validated['exit_month'] = $validated['exit_month'] ?: null;
@@ -420,11 +422,13 @@ class StudentController extends Controller
             'gender' => 'required|in:L,P',
             'class' => 'nullable|in:1,2,3,4,5,6',
             'status' => 'nullable|in:aktif,lulus,pindah,berhenti',
+            'student_type' => 'nullable|in:umum,yatim,piatu,yatim_piatu',
             'entry_month' => 'required|integer|min:1|max:12',
             'entry_year' => 'required|integer|min:2020',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'aktif';
+        $validated['student_type'] = $validated['student_type'] ?? 'umum';
 
         Student::create($validated);
 
@@ -453,8 +457,7 @@ class StudentController extends Controller
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus!');
     }
 
-
-    // Pembayaran dari profil 
+    // Pembayaran dari profil
     public function paySpp(Request $request, $id)
     {
         $request->validate([
@@ -465,39 +468,39 @@ class StudentController extends Controller
         $paymentAmount = $request->amount;
 
         DB::transaction(function () use ($student, $paymentAmount) {
-            
+
             // 1. Catat ke tabel Buku Kas Utama (Transactions)
             // Ini sudah berhasil berjalan di sistem Anda
             Transaction::create([
-                'transaction_id'   => 'TRX-' . strtoupper(uniqid()), 
-                'type'             => 'in',
-                'category'         => 'SPP',
-                'amount'           => $paymentAmount,
-                'student_id'       => $student->id,
-                'user_id'          => Auth::id(),
+                'transaction_id' => 'TRX-'.strtoupper(uniqid()),
+                'type' => 'in',
+                'category' => 'SPP',
+                'amount' => $paymentAmount,
+                'student_id' => $student->id,
+                'user_id' => Auth::id(),
                 'transaction_date' => now(),
-                'note'             => 'Pembayaran SPP Otomatis via Profil Siswa',
+                'note' => 'Pembayaran SPP Otomatis via Profil Siswa',
             ]);
 
             // 2. LOGIKA BARU: Ambil Buku Menu untuk menghitung Virtual Waterfall
             $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
-            
+
             $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
-                $bulanMasterSkor = ((int)$master->year * 12) + (int)$master->month;
-                $bulanMasukSkor = ((int)$student->entry_year * 12) + (int)$student->entry_month;
-                
+                $bulanMasterSkor = ((int) $master->year * 12) + (int) $master->month;
+                $bulanMasukSkor = ((int) $student->entry_year * 12) + (int) $student->entry_month;
+
                 if ($bulanMasterSkor < $bulanMasukSkor) {
                     return false;
                 }
 
                 // REM OTOMATIS WATERFALL
                 if ($student->exit_year && $student->exit_month) {
-                    $bulanKeluarSkor = ((int)$student->exit_year * 12) + (int)$student->exit_month;
+                    $bulanKeluarSkor = ((int) $student->exit_year * 12) + (int) $student->exit_month;
                     if ($bulanMasterSkor > $bulanKeluarSkor) {
                         return false;
                     }
                 }
-                
+
                 return true;
             });
 
@@ -506,7 +509,9 @@ class StudentController extends Controller
             // 3. Looping dari bulan paling lama
             foreach ($bulanValid as $master) {
                 // Jika dompet kasir sudah kosong, hentikan perulangan
-                if ($sisaUang <= 0) break;
+                if ($sisaUang <= 0) {
+                    break;
+                }
 
                 // Cek apakah bulan ini sudah pernah diangsur/dibayar di tabel spp_payments?
                 $tagihan = SppPayment::where('student_id', $student->id)
@@ -514,7 +519,7 @@ class StudentController extends Controller
                     ->first();
 
                 $terbayarSebelumnya = $tagihan ? $tagihan->paid_amount : 0;
-                
+
                 // Jika bulan ini sudah lunas dari dulu, skip ke bulan depan
                 if ($terbayarSebelumnya >= $master->amount) {
                     continue;
@@ -530,7 +535,7 @@ class StudentController extends Controller
                     $bayarSekarang = $terbayarSebelumnya + $kekurangan;
                     $statusBaru = 'paid';
                     $sisaUang -= $kekurangan;
-                } 
+                }
                 // Skenario B: Uang kurang, jadi dicicil (Partial)
                 else {
                     $bayarSekarang = $terbayarSebelumnya + $sisaUang;
@@ -541,19 +546,19 @@ class StudentController extends Controller
                 // 4. THE MAGIC: Buat Baris Baru atau Perbarui jika sudah ada
                 SppPayment::updateOrCreate(
                     [
-                        'student_id'   => $student->id,
-                        'spp_month_id' => $master->id
+                        'student_id' => $student->id,
+                        'spp_month_id' => $master->id,
                     ],
                     [
-                        'paid_amount'  => $bayarSekarang,
-                        'status'       => $statusBaru,
-                        'paid_at'      => now(),
+                        'paid_amount' => $bayarSekarang,
+                        'status' => $statusBaru,
+                        'paid_at' => now(),
                     ]
                 );
             }
         });
 
         // Karena kita pakai Inertia.js, back() akan otomatis merender ulang data terbaru di layar!
-        return back()->with('success', 'Pembayaran sebesar Rp ' . number_format($request->amount, 0, ',', '.') . ' berhasil diproses!');
+        return back()->with('success', 'Pembayaran sebesar Rp '.number_format($request->amount, 0, ',', '.').' berhasil diproses!');
     }
 }

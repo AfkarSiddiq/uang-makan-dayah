@@ -14,98 +14,116 @@ class TuitionArrearsController extends Controller
     public function index(Request $request)
     {
         $selectedMonth = $request->input('month');
-        $currentYear = date('Y');
-        $currentMonth = date('n');
+        
+        // Ambil batas waktu saat ini (Skor)
+        $currentYear = (int) date('Y');
+        $currentMonth = (int) date('n');
+        $currentScore = ($currentYear * 12) + $currentMonth;
 
-        $sppMonths = SppMonth::where(function ($query) use ($currentYear, $currentMonth) {
-            $query->where('year', '<', $currentYear)
-                ->orWhere(function ($q) use ($currentYear, $currentMonth) {
-                    $q->where('year', $currentYear)->where('month', '<', $currentMonth);
-                });
-        })
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
+        // Ambil SEMUA buku menu (Master Bulan), dari awal sampai akhir
+        $sppMonths = \App\Models\SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
-        $allStudents = Student::where('status', 'aktif')
-            ->with('sppPayments.sppMonth')
+        // Hanya hitung siswa yang masih aktif menunggak
+        $allStudents = \App\Models\Student::where('status', 'aktif')
+            ->with('sppPayments')
             ->get();
 
         $studentsWithArrears = [];
 
         foreach ($allStudents as $student) {
-            $entryYear = $student->entry_year;
-            $entryMonth = $student->entry_month;
+            $entryScore = ($student->entry_year * 12) + $student->entry_month;
+            
+            // Hitung Exit Score jika anak ini sudah ada info lulus/keluar (jika ada field tersebut)
+            $exitScore = null;
+            if ($student->exit_year && $student->exit_month) {
+                $exitScore = ($student->exit_year * 12) + $student->exit_month;
+            }
 
-            $eligibleMonths = $sppMonths->filter(function ($month) use ($entryYear, $entryMonth) {
+            $totalArrearsAmount = 0;
+            $unpaidMonthsList = [];
+            $arrearsCount = 0;
+
+            foreach ($sppMonths as $month) {
                 $monthScore = ($month->year * 12) + $month->month;
-                $entryScore = ($entryYear * 12) + $entryMonth;
 
-                return $monthScore >= $entryScore;
-            });
+                // 1. Abaikan bulan sebelum siswa masuk
+                if ($monthScore < $entryScore) continue;
+                
+                // 2. Abaikan bulan setelah siswa keluar (Rem Otomatis)
+                if ($exitScore && $monthScore > $exitScore) continue;
+                
+                // 3. Abaikan bulan masa depan (Tidak menagih melebihi bulan ini)
+                if ($monthScore > $currentScore) continue;
 
-            $totalExpected = $eligibleMonths->count();
-            $paidCount = $student->sppPayments->where('status', 'paid')->count();
+                // Cek pembayaran di tabel spp_payments
+                $payment = $student->sppPayments->where('spp_month_id', $month->id)->first();
+                $paidAmount = $payment ? $payment->paid_amount : 0;
 
-            if ($paidCount < $totalExpected && $totalExpected > 0) {
-                $arrearsCount = $totalExpected - $paidCount;
-                $totalArrearsAmount = $arrearsCount * 500000;
+                // Jika uang bayar KURANG DARI harga bulan tersebut (Belum lunas / Cicilan)
+                if ($paidAmount < $month->amount) {
+                    $kekurangan = $month->amount - $paidAmount;
+                    $totalArrearsAmount += $kekurangan;
+                    $arrearsCount++;
 
-                $unpaidMonths = $eligibleMonths->reject(function ($month) use ($student) {
-                    return $student->sppPayments->where('spp_month_id', $month->id)->where('status', 'paid')->isNotEmpty();
-                });
+                    $unpaidMonthsList[] = [
+                        'id'         => $month->id,
+                        'month'      => $month->month,
+                        'year'       => $month->year,
+                        'month_name' => $this->getMonthName($month->month),
+                    ];
+                }
+            }
 
+            // Jika dia punya tunggakan walau Rp 1, masukkan ke daftar!
+            if ($totalArrearsAmount > 0) {
                 $studentsWithArrears[] = [
-                    'id' => $student->id,
-                    'name' => $student->name,
-                    'nisn' => $student->nisn,
-                    'class' => $student->class,
-                    'gender' => $student->gender,
-                    'entry_month' => $student->entry_month,
-                    'entry_year' => $student->entry_year,
-                    'arrears_count' => $arrearsCount,
-                    'total_expected' => $totalExpected,
-                    'paid_count' => $paidCount,
-                    'total_arrears' => $totalArrearsAmount,
-                    'unpaid_months' => $unpaidMonths->map(function ($month) {
-                        return [
-                            'id' => $month->id,
-                            'month' => $month->month,
-                            'year' => $month->year,
-                            'month_name' => $this->getMonthName($month->month),
-                        ];
-                    })->values(),
+                    'id'             => $student->id,
+                    'name'           => $student->name,
+                    'nisn'           => $student->nisn,
+                    'class'          => $student->class,
+                    'gender'         => $student->gender,
+                    'entry_month'    => $student->entry_month,
+                    'entry_year'     => $student->entry_year,
+                    'arrears_count'  => $arrearsCount,
+                    'total_arrears'  => $totalArrearsAmount,
+                    'unpaid_months'  => $unpaidMonthsList,
                 ];
             }
         }
 
+        // Urutkan dari yang hutangnya paling banyak (Descending)
         usort($studentsWithArrears, function ($a, $b) {
             return $b['total_arrears'] <=> $a['total_arrears'];
         });
 
+        // Hitung statistik untuk Dashboard/Header atas
         $totalStudentsWithArrears = count($studentsWithArrears);
-        $totalArrearsAmount = array_sum(array_column($studentsWithArrears, 'total_arrears'));
+        $totalArrearsAmountGlobal = array_sum(array_column($studentsWithArrears, 'total_arrears'));
 
-        $availableMonths = SppMonth::orderBy('year', 'desc')
-            ->orderBy('month', 'desc')
-            ->get()
-            ->map(function ($month) {
-                return [
-                    'id' => $month->id,
-                    'month' => $month->month,
-                    'year' => $month->year,
-                    'label' => $this->getMonthName($month->month).' '.$month->year,
-                ];
-            });
+        // Siapkan data dropdown Export per Bulan (Bulan yang sudah ada masternya di masa lalu/sekarang)
+        $availableMonths = $sppMonths->filter(function ($month) use ($currentScore) {
+            $score = ($month->year * 12) + $month->month;
+            return $score <= $currentScore;
+        })->sortByDesc(function ($month) {
+            return ($month->year * 12) + $month->month; // Urutkan dari terbaru ke terlama
+        })->map(function ($month) {
+            return [
+                'id'    => $month->id,
+                'month' => $month->month,
+                'year'  => $month->year,
+                'label' => $this->getMonthName($month->month) . ' ' . $month->year,
+            ];
+        })->values();
 
-        return Inertia::render('tuition-arrears/index', [
-            'students' => $studentsWithArrears,
-            'summary' => [
+        // Render ke Inertia (Sesuaikan 'tuition-arrears/index' dengan path file TSX Anda)
+        return \Inertia\Inertia::render('tuition-arrears/index', [
+            'students'        => $studentsWithArrears,
+            'summary'         => [
                 'total_students' => $totalStudentsWithArrears,
-                'total_arrears' => $totalArrearsAmount,
+                'total_arrears'  => $totalArrearsAmountGlobal,
             ],
             'availableMonths' => $availableMonths,
-            'selectedMonth' => $selectedMonth,
+            'selectedMonth'   => $selectedMonth,
         ]);
     }
 

@@ -52,6 +52,7 @@ export interface Student {
     gender: string;
     class: string;
     status: string;
+    student_type: 'umum' | 'yatim' | 'piatu' | 'yatim_piatu';
     entry_month: number;
     entry_year: number;
     exit_month?: number;
