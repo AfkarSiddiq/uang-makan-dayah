@@ -18,7 +18,7 @@ class HistoryController extends Controller
             'out' => $categories->whereIn('type', ['out', 'both'])->pluck('name')->toArray(),
         ];
     }
-    
+
     public function index(Request $request)
     {
         $query = Transaction::with(['student', 'user', 'logs.user']);
@@ -38,12 +38,12 @@ class HistoryController extends Controller
 
         if ($sortBy === 'student_name') {
             $query->leftJoin('students', 'transactions.student_id', '=', 'students.id')
-                  ->select('transactions.*') // Pastikan hanya menyeleksi kolom transaksi agar ID tidak tertimpa ID siswa
-                  ->orderBy('students.name', $sortDir);
+                ->select('transactions.*') // Pastikan hanya menyeleksi kolom transaksi agar ID tidak tertimpa ID siswa
+                ->orderBy('students.name', $sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }
-        
+
         // Secondary sort
         if ($sortBy !== 'created_at') {
             $query->orderBy('transactions.created_at', 'desc');
@@ -73,7 +73,7 @@ class HistoryController extends Controller
                     ->orWhere('note', 'like', "%{$search}%")
                     ->orWhereHas('student', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('nisn', 'like', "%{$search}%");
+                            ->orWhere('nisn', 'like', "%{$search}%");
                     });
             });
         }
@@ -82,7 +82,7 @@ class HistoryController extends Controller
         // PERBAIKAN: DINAMIS MENERIMA "PER PAGE" DARI REACT
         // =========================================================================
         // Default 10, maksimal 100 agar database tidak nge-hang jika diakali user
-        $perPage = $request->input('per_page', 10); 
+        $perPage = $request->input('per_page', 10);
         $perPage = is_numeric($perPage) && $perPage > 0 && $perPage <= 100 ? (int) $perPage : 10;
 
         $transactions = $query->paginate($perPage)->withQueryString();

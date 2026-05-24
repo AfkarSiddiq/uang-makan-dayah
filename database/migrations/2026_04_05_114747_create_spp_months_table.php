@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('spp_months', function (Blueprint $table) {
             $table->id();
-            $table->integer('month'); 
+            $table->integer('month');
             $table->year('year');
-            $table->integer('amount')->default(500000); 
-            
+            $table->integer('amount')->default(500000);
+
             $table->timestamps();
 
             $table->unique(['month', 'year']);

@@ -42,19 +42,41 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/siswa/import/template', [StudentImportController::class, 'template'])->name('siswa.import.template');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard')
+        ->middleware(['permission:dashboard.view']);
 
-    Route::get('/santriwan', [StudentController::class, 'indexSantriwan'])->name('santriwan.kelas');
-    Route::get('/santriwan/kenaikan', [StudentController::class, 'kenaikanSantriwan'])->name('santriwan.kenaikan');
-    Route::post('/santriwan/kenaikan', [StudentController::class, 'prosesKenaikanSantriwan'])->name('santriwan.kenaikan.proses');
-    Route::get('/santriwan/class/{kelas}', [StudentController::class, 'detailKelasSantriwan'])->name('santriwan.detail');
-    Route::get('/santriwan/santri/{id}', [StudentController::class, 'showSantriwan'])->name('santriwan.show');
+    Route::get('/santriwan', [StudentController::class, 'indexSantriwan'])
+        ->name('santriwan.kelas')
+        ->middleware(['permission:siswa.view']);
+    Route::get('/santriwan/kenaikan', [StudentController::class, 'kenaikanSantriwan'])
+        ->name('santriwan.kenaikan')
+        ->middleware(['permission:kenaikan.view']);
+    Route::post('/santriwan/kenaikan', [StudentController::class, 'prosesKenaikanSantriwan'])
+        ->name('santriwan.kenaikan.proses')
+        ->middleware(['permission:kenaikan.process']);
+    Route::get('/santriwan/class/{kelas}', [StudentController::class, 'detailKelasSantriwan'])
+        ->name('santriwan.detail')
+        ->middleware(['permission:siswa.view']);
+    Route::get('/santriwan/santri/{id}', [StudentController::class, 'showSantriwan'])
+        ->name('santriwan.show')
+        ->middleware(['permission:siswa.view']);
 
-    Route::get('/santriwati', [StudentController::class, 'indexSantriwati'])->name('santriwati.kelas');
-    Route::get('/santriwati/kenaikan', [StudentController::class, 'kenaikanSantriwati'])->name('santriwati.kenaikan');
-    Route::post('/santriwati/kenaikan', [StudentController::class, 'prosesKenaikanSantriwati'])->name('santriwati.kenaikan.proses');
-    Route::get('/santriwati/class/{kelas}', [StudentController::class, 'detailKelasSantriwati'])->name('santriwati.detail');
-    Route::get('/santriwati/santri/{id}', [StudentController::class, 'showSantriwati'])->name('santriwati.show');
+    Route::get('/santriwati', [StudentController::class, 'indexSantriwati'])
+        ->name('santriwati.kelas')
+        ->middleware(['permission:siswa.view']);
+    Route::get('/santriwati/kenaikan', [StudentController::class, 'kenaikanSantriwati'])
+        ->name('santriwati.kenaikan')
+        ->middleware(['permission:kenaikan.view']);
+    Route::post('/santriwati/kenaikan', [StudentController::class, 'prosesKenaikanSantriwati'])
+        ->name('santriwati.kenaikan.proses')
+        ->middleware(['permission:kenaikan.process']);
+    Route::get('/santriwati/class/{kelas}', [StudentController::class, 'detailKelasSantriwati'])
+        ->name('santriwati.detail')
+        ->middleware(['permission:siswa.view']);
+    Route::get('/santriwati/santri/{id}', [StudentController::class, 'showSantriwati'])
+        ->name('santriwati.show')
+        ->middleware(['permission:siswa.view']);
 
     // Tuition Arrears
     // TODO: refactor the permission middleware
@@ -81,8 +103,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Route Untuk Alumni
     Route::prefix('alumni')->name('alumni.')->group(function () {
-        Route::get('/', [AlumniController::class, 'index'])->name('index');
-        Route::get('/tahun/{year}', [AlumniController::class, 'detail'])->name('detail');
+        Route::get('/', [AlumniController::class, 'index'])->name('index')
+            ->middleware(['permission:siswa.view']);
+        Route::get('/tahun/{year}', [AlumniController::class, 'detail'])->name('detail')
+            ->middleware(['permission:siswa.view']);
     });
 
     // siswa CRUD
@@ -156,7 +180,9 @@ Route::middleware(['auth'])->group(function () {
         ->middleware(['permission:pembayaran.export']);
 
     // History
-    Route::get('/payment-history', [HistoryController::class, 'index'])->name('history');
+    Route::get('/payment-history', [HistoryController::class, 'index'])
+        ->name('history')
+        ->middleware(['permission:pembayaran.view']);
 
     // Category management
     Route::resource('category', CategoryController::class)
@@ -172,8 +198,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:users.view'])->group(function () {
         Route::resource('users', UserController::class);
     });
-    Route::post('/siswa/{id}/pay', [StudentController::class, 'paySpp'])->name('siswa.pay');
-
 
 });
 

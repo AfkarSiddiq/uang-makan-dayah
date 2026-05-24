@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -20,7 +19,7 @@ class AlumniController extends Controller
             ->get();
 
         return Inertia::render('alumni/index', [
-            'tahunLulus' => $tahunLulus
+            'tahunLulus' => $tahunLulus,
         ]);
     }
 
@@ -34,7 +33,7 @@ class AlumniController extends Controller
 
         return Inertia::render('alumni/detail-tahun', [
             'tahun' => $year,
-            'alumni' => $alumni
+            'alumni' => $alumni,
         ]);
     }
 }

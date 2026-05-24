@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::redirect('/', '/login');
-    
+
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 

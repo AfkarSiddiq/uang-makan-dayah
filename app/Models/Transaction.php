@@ -45,37 +45,37 @@ class Transaction extends Model
     {
         // 1. Dijalankan OTOMATIS sesaat setelah transaksi di-UPDATE
         static::updated(function ($transaction) {
-            
+
             // Cek apakah benar-benar ada data yang berubah (bukan cuma klik save tapi ga diganti)
             if ($transaction->wasChanged()) {
-                
+
                 // Ambil daftar kolom apa saja yang berubah
                 $changes = $transaction->getChanges();
                 $original = [];
-                
+
                 // Cari tahu nilai lamanya untuk kolom yang berubah tersebut
                 foreach ($changes as $key => $value) {
                     $original[$key] = $transaction->getOriginal($key);
                 }
 
-                \App\Models\TransactionLog::create([
+                TransactionLog::create([
                     'transaction_id' => $transaction->id,
-                    'user_id'        => Auth::id(), // Tangkap ID admin yang sedang login
-                    'action'         => 'updated',
-                    'old_values'     => json_encode($original),
-                    'new_values'     => json_encode($changes),
+                    'user_id' => Auth::id(), // Tangkap ID admin yang sedang login
+                    'action' => 'updated',
+                    'old_values' => json_encode($original),
+                    'new_values' => json_encode($changes),
                 ]);
             }
         });
 
         // 2. Dijalankan OTOMATIS sesaat sebelum transaksi di-DELETE
         static::deleting(function ($transaction) {
-            \App\Models\TransactionLog::create([
+            TransactionLog::create([
                 'transaction_id' => $transaction->id,
-                'user_id'        => Auth::id(),
-                'action'         => 'deleted',
-                'old_values'     => json_encode($transaction->toArray()), // Simpan semua data sebelum musnah
-                'new_values'     => null,
+                'user_id' => Auth::id(),
+                'action' => 'deleted',
+                'old_values' => json_encode($transaction->toArray()), // Simpan semua data sebelum musnah
+                'new_values' => null,
             ]);
         });
     }
