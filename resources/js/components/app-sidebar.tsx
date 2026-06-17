@@ -3,41 +3,50 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { AlarmCheck, Banknote, BanknoteIcon, BookCheck, BookOpen, BookText, CalendarArrowUp, Folder, GraduationCap, History, LayoutGrid, Mars, School, Shield, Tags, Users, Venus } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { AlarmCheck, Banknote, BookText, CalendarArrowUp, GraduationCap, History, LayoutGrid, Mars, School, Shield, Tags, Users, Venus } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+interface NavItemWithPermission extends NavItem {
+    permission?: string;
+    items?: { title: string; url: string; icon: any; permission?: string }[];
+}
+
+const mainNavItems: NavItemWithPermission[] = [
     {
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutGrid,
+        permission: 'dashboard.view',
     },
     {
         title: 'Transaksi',
         url: '/payment',
         icon: Banknote,
+        permission: 'pembayaran.view',
     },
     {
         title: 'Tagihan bulan',
         url: '/tuition-per-month',
         icon: CalendarArrowUp,
+        permission: 'spp.view',
     },
     {
         title: 'Data Santri',
-        url: '#', // Gunakan '#' karena ini akan bertindak sebagai tombol pembuka dropdown
-        icon: BookText, // Contoh mengganti icon
-        isActive: false, // (Opsional) jika true, menu akan terbuka secara default
+        url: '#',
+        icon: BookText,
         items: [
             {
                 title: 'Santriwan',
                 url: '/santriwan',
                 icon: Mars,
+                permission: 'siswa.view',
             },
             {
                 title: 'Santriwati',
                 url: '/santriwati',
                 icon: Venus,
+                permission: 'siswa.view',
             },
         ],
     },
@@ -45,54 +54,69 @@ const mainNavItems: NavItem[] = [
         title: 'Tunggakan',
         url: '/tuition-arrears',
         icon: AlarmCheck,
+        permission: 'spp.tunggakan',
     },
     {
         title: 'Riwayat',
         url: '/payment-history',
         icon: History,
+        permission: 'pembayaran.view',
     },
     {
         title: 'Masukkan siswa Baru',
-        // TODO: fix url to /new-students
         url: '/siswa',
         icon: School,
+        permission: 'siswa.view',
     },
     {
         title: 'Data Alumni',
         url: '/alumni',
         icon: GraduationCap,
+        permission: 'siswa.view',
     },
     {
         title: 'Kategori',
         url: '/category',
         icon: Tags,
+        permission: 'kategori.view',
     },
     {
         title: 'Pengguna',
         url: '/users',
         icon: Users,
+        permission: 'users.view',
     },
     {
         title: 'Role & Izin',
         url: '/role',
         icon: Shield,
+        permission: 'users.roles',
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    // {
-    //     title: 'Repository',
-    //     url: 'https://github.com/laravel/react-starter-kit',
-    //     icon: Folder,
-    // },
-    // {
-    //     title: 'Documentation',
-    //     url: 'https://laravel.com/docs/starter-kits',
-    //     icon: BookOpen,
-    // },
-];
+const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
+    const permissions = (usePage().props.auth as { permissions?: string[] } | undefined)?.permissions ?? [];
+
+    const filterNavItems = (items: NavItemWithPermission[]): NavItem[] => {
+        return items
+            .filter((item) => {
+                if (!item.permission) return true;
+                return permissions.includes(item.permission);
+            })
+            .map((item) => ({
+                ...item,
+                items: item.items
+                    ? item.items.filter((sub) => {
+                        if (!sub.permission) return true;
+                        return permissions.includes(sub.permission);
+                    })
+                    : undefined,
+            }))
+            .filter((item) => !item.items || item.items.length > 0);
+    };
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -108,7 +132,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={filterNavItems(mainNavItems)} />
             </SidebarContent>
 
             <SidebarFooter>

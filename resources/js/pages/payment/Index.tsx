@@ -6,6 +6,7 @@ import { Transaction, TransactionSummary } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowDown, ArrowDownRight, ArrowUp, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Printer, Search, Trash2, Upload, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { usePermissions } from '@/hooks/use-permissions';
 
 interface Props {
     transactions: {
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export default function Index({ transactions, summary, filters, categories }: Props) {
+    const { can } = usePermissions();
     const [showFilters, setShowFilters] = useState(false);
     const [localFilters, setLocalFilters] = useState({
         type: filters.type || '',
@@ -102,27 +104,33 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         <p className="text-sm text-slate-500">Kelola semua pemasukan dan pengeluaran</p>
                     </div>
                     <div className="flex gap-2">
-                        <Link href={route('transaction.import.create')}>
-                            <Button variant="outline">
-                                <Upload className="mr-2 h-4 w-4" />
-                                Import
-                            </Button>
-                        </Link>
-                        <a
-                            href={route('transaction.export', localFilters)}
-                            download
-                        >
-                            <Button variant="outline">
-                                <Download className="mr-2 h-4 w-4" />
-                                Export{localFilters.date_from || localFilters.date_to || localFilters.type || localFilters.category || localFilters.search ? ' (Filtered)' : ''}
-                            </Button>
-                        </a>
-                        <Link href={route('payment.create')}>
-                            <Button>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Tambah Transaksi
-                            </Button>
-                        </Link>
+                        {can('pembayaran.import') && (
+                            <Link href={route('transaction.import.create')}>
+                                <Button variant="outline">
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Import
+                                </Button>
+                            </Link>
+                        )}
+                        {can('pembayaran.export') && (
+                            <a
+                                href={route('transaction.export', localFilters)}
+                                download
+                            >
+                                <Button variant="outline">
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Export{localFilters.date_from || localFilters.date_to || localFilters.type || localFilters.category || localFilters.search ? ' (Filtered)' : ''}
+                                </Button>
+                            </a>
+                        )}
+                        {can('pembayaran.create') && (
+                            <Link href={route('payment.create')}>
+                                <Button>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Tambah Transaksi
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -355,40 +363,46 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                                 {transaction.type === 'in' ? '+' : '-'}
                                                 {formatRupiah(transaction.amount)}
                                             </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <div className="flex items-center justify-center gap-1">
-                                                    {transaction.id && (
-                                                        <>
-                                                            <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
-                                                                <Button variant="ghost" size="sm">
-                                                                    <Printer className="h-4 w-4" />
-                                                                </Button>
-                                                            </a>
-                                                            <a href={`/payment/${transaction.id}/edit`}>
-                                                                <Button variant="ghost" size="sm">
-                                                                    Edit
-                                                                </Button>
-                                                            </a>
-                                                        </>
-                                                    )}
-                                                    <form
-                                                        onSubmit={(e) => {
-                                                            e.preventDefault();
-                                                            if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                                                                router.delete({ url: `/payment/${transaction.id}` });
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </form>
-                                                </div>
-                                            </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            {transaction.id && (
+                                                                <>
+                                                                    {can('pembayaran.print') && (
+                                                                        <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
+                                                                            <Button variant="ghost" size="sm">
+                                                                                <Printer className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </a>
+                                                                    )}
+                                                                    {can('pembayaran.edit') && (
+                                                                        <a href={`/payment/${transaction.id}/edit`}>
+                                                                            <Button variant="ghost" size="sm">
+                                                                                Edit
+                                                                            </Button>
+                                                                        </a>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                            {can('pembayaran.delete') && (
+                                                                <form
+                                                                    onSubmit={(e) => {
+                                                                        e.preventDefault();
+                                                                        if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                                                                            router.delete({ url: `/payment/${transaction.id}` });
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </form>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                         </tr>
                                     ))
                                 )}

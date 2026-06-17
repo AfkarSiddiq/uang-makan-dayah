@@ -28,20 +28,20 @@ class SppPaymentController extends Controller
             });
 
         return Inertia::render('spp/pengaturan', [
-            'ringkasanSPP' => $ringkasanSPP
+            'ringkasanSPP' => $ringkasanSPP,
         ]);
     }
 
     public function generateTahunAjaran(Request $request)
     {
         $request->validate([
-            'start_year'  => 'required|integer|min:2000',
+            'start_year' => 'required|integer|min:2000',
             'base_amount' => 'required|numeric|min:0',
         ]);
 
         $tahunMulai = $request->start_year;
         $hargaDefault = $request->base_amount;
-        
+
         // Urutan bulan ajaran baru (Juli s.d. Juni)
         $bulanAjaran = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
 
@@ -53,7 +53,7 @@ class SppPaymentController extends Controller
             SppMonth::firstOrCreate(
                 [
                     'month' => $bulan,
-                    'year'  => $tahunAktual,
+                    'year' => $tahunAktual,
                 ],
                 [
                     'amount' => $hargaDefault,
@@ -61,22 +61,22 @@ class SppPaymentController extends Controller
             );
         }
 
-        return back()->with('success', "Tahun Ajaran $tahunMulai/".($tahunMulai+1)." berhasil digenerate ke Master SPP!");
+        return back()->with('success', "Tahun Ajaran $tahunMulai/".($tahunMulai + 1).' berhasil digenerate ke Master SPP!');
     }
 
     public function bulkUpdateAmount(Request $request)
     {
         $request->validate([
-            'month'      => 'required|integer',
-            'year'       => 'required|integer',
+            'month' => 'required|integer',
+            'year' => 'required|integer',
             'new_amount' => 'required|numeric|min:0',
         ]);
 
         // 1. Update harga di tabel master
         $month = SppMonth::where('month', $request->month)
-                         ->where('year', $request->year)
-                         ->firstOrFail();
-        
+            ->where('year', $request->year)
+            ->firstOrFail();
+
         $month->update(['amount' => $request->new_amount]);
 
         // 2. Kalkulasi ulang status bagi siswa yang SUDAH PERNAH BAYAR di bulan tersebut

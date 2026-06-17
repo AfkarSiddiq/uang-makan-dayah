@@ -13,20 +13,20 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            
+
             // Menyambungkan siapa yang bayar (Bisa null jika ini adalah pengeluaran sekolah)
             $table->foreignId('student_id')->nullable()->constrained('students')->nullOnDelete();
-            
+
             $table->enum('type', ['in', 'out']); // in = Pemasukan, out = Pengeluaran
             $table->string('category'); // Misal: 'SPP', 'Uang Pangkal', 'Listrik', 'Gaji'
             $table->integer('amount');  // Jumlah uang riil yang diterima/dikeluarkan
-            
+
             $table->string('note')->nullable(); // Catatan: "Terima dari Budi bayar berantai"
             $table->date('transaction_date');
-            
+
             // Admin/User yang menginput data ini
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            
+
             $table->timestamps();
         });
     }

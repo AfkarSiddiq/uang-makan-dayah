@@ -14,17 +14,17 @@ class TuitionArrearsController extends Controller
     public function index(Request $request)
     {
         $selectedMonth = $request->input('month');
-        
+
         // Ambil batas waktu saat ini (Skor)
         $currentYear = (int) date('Y');
         $currentMonth = (int) date('n');
         $currentScore = ($currentYear * 12) + $currentMonth;
 
         // Ambil SEMUA buku menu (Master Bulan), dari awal sampai akhir
-        $sppMonths = \App\Models\SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
+        $sppMonths = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
         // Hanya hitung siswa yang masih aktif menunggak
-        $allStudents = \App\Models\Student::where('status', 'aktif')
+        $allStudents = Student::where('status', 'aktif')
             ->with('sppPayments')
             ->get();
 
@@ -32,7 +32,7 @@ class TuitionArrearsController extends Controller
 
         foreach ($allStudents as $student) {
             $entryScore = ($student->entry_year * 12) + $student->entry_month;
-            
+
             // Hitung Exit Score jika anak ini sudah ada info lulus/keluar (jika ada field tersebut)
             $exitScore = null;
             if ($student->exit_year && $student->exit_month) {
@@ -47,13 +47,19 @@ class TuitionArrearsController extends Controller
                 $monthScore = ($month->year * 12) + $month->month;
 
                 // 1. Abaikan bulan sebelum siswa masuk
-                if ($monthScore < $entryScore) continue;
-                
+                if ($monthScore < $entryScore) {
+                    continue;
+                }
+
                 // 2. Abaikan bulan setelah siswa keluar (Rem Otomatis)
-                if ($exitScore && $monthScore > $exitScore) continue;
-                
+                if ($exitScore && $monthScore > $exitScore) {
+                    continue;
+                }
+
                 // 3. Abaikan bulan masa depan (Tidak menagih melebihi bulan ini)
-                if ($monthScore > $currentScore) continue;
+                if ($monthScore > $currentScore) {
+                    continue;
+                }
 
                 // Cek pembayaran di tabel spp_payments
                 $payment = $student->sppPayments->where('spp_month_id', $month->id)->first();
@@ -66,9 +72,9 @@ class TuitionArrearsController extends Controller
                     $arrearsCount++;
 
                     $unpaidMonthsList[] = [
-                        'id'         => $month->id,
-                        'month'      => $month->month,
-                        'year'       => $month->year,
+                        'id' => $month->id,
+                        'month' => $month->month,
+                        'year' => $month->year,
                         'month_name' => $this->getMonthName($month->month),
                     ];
                 }
@@ -77,16 +83,16 @@ class TuitionArrearsController extends Controller
             // Jika dia punya tunggakan walau Rp 1, masukkan ke daftar!
             if ($totalArrearsAmount > 0) {
                 $studentsWithArrears[] = [
-                    'id'             => $student->id,
-                    'name'           => $student->name,
-                    'nisn'           => $student->nisn,
-                    'class'          => $student->class,
-                    'gender'         => $student->gender,
-                    'entry_month'    => $student->entry_month,
-                    'entry_year'     => $student->entry_year,
-                    'arrears_count'  => $arrearsCount,
-                    'total_arrears'  => $totalArrearsAmount,
-                    'unpaid_months'  => $unpaidMonthsList,
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'nisn' => $student->nisn,
+                    'class' => $student->class,
+                    'gender' => $student->gender,
+                    'entry_month' => $student->entry_month,
+                    'entry_year' => $student->entry_year,
+                    'arrears_count' => $arrearsCount,
+                    'total_arrears' => $totalArrearsAmount,
+                    'unpaid_months' => $unpaidMonthsList,
                 ];
             }
         }
@@ -103,27 +109,28 @@ class TuitionArrearsController extends Controller
         // Siapkan data dropdown Export per Bulan (Bulan yang sudah ada masternya di masa lalu/sekarang)
         $availableMonths = $sppMonths->filter(function ($month) use ($currentScore) {
             $score = ($month->year * 12) + $month->month;
+
             return $score <= $currentScore;
         })->sortByDesc(function ($month) {
             return ($month->year * 12) + $month->month; // Urutkan dari terbaru ke terlama
         })->map(function ($month) {
             return [
-                'id'    => $month->id,
+                'id' => $month->id,
                 'month' => $month->month,
-                'year'  => $month->year,
-                'label' => $this->getMonthName($month->month) . ' ' . $month->year,
+                'year' => $month->year,
+                'label' => $this->getMonthName($month->month).' '.$month->year,
             ];
         })->values();
 
         // Render ke Inertia (Sesuaikan 'tuition-arrears/index' dengan path file TSX Anda)
-        return \Inertia\Inertia::render('tuition-arrears/index', [
-            'students'        => $studentsWithArrears,
-            'summary'         => [
+        return Inertia::render('tuition-arrears/index', [
+            'students' => $studentsWithArrears,
+            'summary' => [
                 'total_students' => $totalStudentsWithArrears,
-                'total_arrears'  => $totalArrearsAmountGlobal,
+                'total_arrears' => $totalArrearsAmountGlobal,
             ],
             'availableMonths' => $availableMonths,
-            'selectedMonth'   => $selectedMonth,
+            'selectedMonth' => $selectedMonth,
         ]);
     }
 

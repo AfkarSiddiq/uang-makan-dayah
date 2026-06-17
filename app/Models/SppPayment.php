@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SppPayment extends Model
 {
@@ -13,7 +12,7 @@ class SppPayment extends Model
         'amount',
         'paid_amount',
         'status',
-        'paid_at'
+        'paid_at',
 
     ];
 

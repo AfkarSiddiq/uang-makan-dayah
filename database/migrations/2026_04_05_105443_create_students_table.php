@@ -18,15 +18,15 @@ return new class extends Migration
             $table->enum('gender', ['L', 'P']);
             $table->enum('class', ['1', '2', '3', '4', '5', '6'])->nullable();
             $table->enum('status', ['aktif', 'lulus', 'pindah', 'berhenti'])->default('aktif');
-            
+
             // Waktu Masuk
             $table->integer('entry_month');
-            $table->year('entry_year');    
-            
+            $table->year('entry_year');
+
             // Waktu Keluar (Bisa null karena mungkin belum keluar)
             $table->integer('exit_month')->nullable();
             $table->year('exit_year')->nullable();
-            
+
             $table->timestamps();
         });
     }
