@@ -254,7 +254,7 @@ export default function ProfilSiswa({ student }: Props) {
                                                         >
                                                             <div className="mb-2 sm:mb-0">
                                                                 <p className="font-semibold text-slate-900 dark:text-slate-200">
-                                                                    {getMonthName(spp.month)}
+                                                                    {getMonthName(spp.month)} {spp.year}
                                                                 </p>
                                                                 <p className="text-xs text-slate-500">Tagihan: {formatRupiah(spp.amount)}</p>
                                                             </div>
