@@ -160,14 +160,26 @@ class StudentController extends Controller
                 'status' => 'required|in:aktif,lulus,pindah,berhenti',
             ]);
 
+            if ($validated['class'] === 'none') {
+                $validated['class'] = null;
+            }
+
+            if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti'])) {
+                $validated['exit_month'] = $student->exit_month ?: date('n');
+                $validated['exit_year'] = $student->exit_year ?: date('Y');
+            } else {
+                $validated['exit_month'] = null;
+                $validated['exit_year'] = null;
+            }
+
             $student->update($validated);
 
             if ($student->gender === 'L') {
-                return redirect()->route('santriwan.detail', ['kelas' => $student->class])
+                return redirect()->route('santriwan.detail', ['kelas' => $student->class ?: 'none'])
                     ->with('success', 'Data remaja putra berhasil diperbarui!');
             }
 
-            return redirect()->route('santriwati.detail', ['kelas' => $student->class])
+            return redirect()->route('santriwati.detail', ['kelas' => $student->class ?: 'none'])
                 ->with('success', 'Data remaja putri berhasil diperbarui!');
         }
 
@@ -177,16 +189,19 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'gender' => 'required|in:L,P',
             'class' => 'nullable|in:1,2,3,4,5,6',
-            'status' => 'nullable|in:aktif,lulus,pindah,berhenti',
+            'status' => 'required|in:aktif,lulus,pindah,berhenti',
             'student_type' => 'nullable|in:umum,yatim,piatu,yatim_piatu',
             'entry_month' => 'required|integer|min:1|max:12',
             'entry_year' => 'required|integer|min:2020',
-            'exit_month' => 'nullable|integer|min:1|max:12',
-            'exit_year' => 'nullable|integer|min:2020',
+            'exit_month' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:1|max:12',
+            'exit_year' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:2020',
+        ], [
+            'exit_month.required_if' => 'Bulan keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
+            'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
         // Convert 'none' to null for class
-        if ($validated['class'] === 'none') {
+        if (isset($validated['class']) && $validated['class'] === 'none') {
             $validated['class'] = null;
         }
         if (! empty($validated['exit_month']) && $validated['exit_month'] === 'none') {
@@ -198,10 +213,7 @@ class StudentController extends Controller
         $validated['status'] = $validated['status'] ?? 'aktif';
         $validated['student_type'] = $validated['student_type'] ?? 'umum';
 
-        if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti'])) {
-            $validated['exit_month'] = $validated['exit_month'] ?: null;
-            $validated['exit_year'] = $validated['exit_year'] ?: null;
-        } else {
+        if ($validated['status'] === 'aktif') {
             $validated['exit_month'] = null;
             $validated['exit_year'] = null;
         }
@@ -375,10 +387,20 @@ class StudentController extends Controller
             'student_type' => 'nullable|in:umum,yatim,piatu,yatim_piatu',
             'entry_month' => 'required|integer|min:1|max:12',
             'entry_year' => 'required|integer|min:2020',
+            'exit_month' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:1|max:12',
+            'exit_year' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:2020',
+        ], [
+            'exit_month.required_if' => 'Bulan keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
+            'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'aktif';
         $validated['student_type'] = $validated['student_type'] ?? 'umum';
+
+        if ($validated['status'] === 'aktif') {
+            $validated['exit_month'] = null;
+            $validated['exit_year'] = null;
+        }
 
         Student::create($validated);
 
