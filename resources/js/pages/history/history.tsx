@@ -2,14 +2,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { Transaction, TransactionSummary } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { Download, Filter, Plus, Printer, Search, Upload, X } from 'lucide-react';
+import { TransactionSummary } from '@/types';
+import { Head, router } from '@inertiajs/react';
+import { Clock, Download, Eye, Filter, History, Printer, Search, ShieldAlert, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Props {
     transactions: {
-        data: Transaction[];
+        data: any[];
         current_page: number;
         last_page: number;
         per_page: number;
@@ -24,6 +24,9 @@ interface Props {
         date_from?: string;
         date_to?: string;
         search?: string;
+        sort_by?: string;
+        sort_dir?: string;
+        per_page?: string;
     };
     categories: {
         in: string[];
@@ -42,6 +45,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
         search: filters.search || '',
         sort_by: filters.sort_by || 'transaction_date',
         sort_dir: filters.sort_dir || 'desc',
+        per_page: filters.per_page || '10',
     });
 
     useEffect(() => {
@@ -53,21 +57,21 @@ export default function Index({ transactions, summary, filters, categories }: Pr
             search: filters.search || '',
             sort_by: filters.sort_by || 'transaction_date',
             sort_dir: filters.sort_dir || 'desc',
+            per_page: filters.per_page || '10',
         });
-    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search, filters.sort_by, filters.sort_dir]);
+    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search, filters.sort_by, filters.sort_dir, filters.per_page]);
 
-    // TODO: make the filters button better by not making the whole page reload and making it as one component that other form could use
     const applyFilters = (newFilters: Record<string, string>) => {
         router.get(
-            route('payment.index'),
+            route('history'),
             { ...localFilters, ...newFilters },
-            { replace: true, preserveState: true, only: ['transactions', 'summary'] },
+            { replace: true, preserveState: true, only: ['transactions', 'summary', 'filters'] },
         );
     };
 
     const clearFilters = () => {
-        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '' });
-        router.get(route('payment.index'));
+        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '', sort_by: 'transaction_date', sort_dir: 'desc', per_page: '10' });
+        router.get(route('history'));
     };
 
     const applyFilter = () => {
@@ -85,46 +89,56 @@ export default function Index({ transactions, summary, filters, categories }: Pr
     const hasActiveFilters = filters.type || filters.category || filters.date_from || filters.date_to || filters.search;
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Transaksi', href: '/payment' }]}>
-            <Head title="Riwayat" />
+        <AppLayout breadcrumbs={[{ title: 'Riwayat & Audit Log', href: '/payment-history' }]}>
+            <Head title="Log Riwayat & Audit" />
 
             <div className="space-y-6 p-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Riwayat</h1>
-                        <p className="text-sm text-slate-500">Riwayat transaksi</p>
+                {/* HEADER KHUSUS RIWAYAT */}
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-3.5">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 shadow-sm dark:bg-indigo-950/50 dark:text-indigo-400">
+                            <History className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Log Riwayat & Audit Transaksi</h1>
+                            <p className="text-sm text-slate-500">Pantau jejak pencatatan, waktu rekam aktivitas, serta riwayat perubahan data keuangan</p>
+                        </div>
                     </div>
                     <div className="flex gap-2">
-                        <Link href={route('transaction.import.create')}>
-                            <Button variant="outline">
-                                <Upload className="mr-2 h-4 w-4" />
-                                Import
-                            </Button>
-                        </Link>
                         <a href={route('transaction.export', localFilters)} download>
-                            <Button variant="outline">
+                            <Button variant="outline" className="bg-white shadow-sm dark:bg-slate-900">
                                 <Download className="mr-2 h-4 w-4" />
-                                Export
-                                {localFilters.date_from || localFilters.date_to || localFilters.type || localFilters.category || localFilters.search
-                                    ? ' (Filtered)'
-                                    : ''}
+                                Export Log Audit
                             </Button>
                         </a>
-                        <Link href={route('payment.create')}>
-                            <Button>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Tambah Transaksi
-                            </Button>
-                        </Link>
                     </div>
                 </div>
 
-                {/* MODAL DETAIL TRANSAKSI */}
+                {/* SUMMARY CARDS RINGKAS */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Masuk (Tersaring)</span>
+                        <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.total_in)}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Keluar (Tersaring)</span>
+                        <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400">{formatRupiah(summary.total_out)}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Selisih Arus Kas</span>
+                        <p className="mt-1 text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatRupiah(summary.balance)}</p>
+                    </div>
+                </div>
+
+                {/* MODAL DETAIL DAN JEJAK AUDIT */}
                 {selectedTransaction && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
                         <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
                             <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
-                                <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">Detail Transaksi</h3>
+                                <div className="flex items-center gap-2">
+                                    <History className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Detail Audit Transaksi</h3>
+                                </div>
                                 <button
                                     onClick={() => setSelectedTransaction(null)}
                                     className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
@@ -134,9 +148,8 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                             </div>
 
                             <div className="space-y-4 p-6">
-                                {/* Nominal Besar di Atas */}
                                 <div className="border-b border-slate-100 pb-4 text-center dark:border-slate-800">
-                                    <p className="mb-1 text-sm font-medium text-slate-500">Total Nominal</p>
+                                    <p className="mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nominal Transaksi</p>
                                     <p
                                         className={`text-3xl font-bold ${selectedTransaction.type === 'in' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
                                     >
@@ -153,56 +166,78 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     </span>
                                 </div>
 
-                                {/* Rincian Detail */}
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
                                     <div>
-                                        <p className="mb-1 text-slate-500 dark:text-slate-400">ID Referensi</p>
-                                        <p className="font-mono font-medium text-slate-900 dark:text-slate-200">
-                                            {selectedTransaction.transaction_id}
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Pencatat / Admin</p>
+                                        <p className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-200">
+                                            <User className="h-4 w-4 text-indigo-500" />
+                                            {selectedTransaction.user?.name || 'Sistem / Otomatis'}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-slate-500 dark:text-slate-400">Waktu Transaksi</p>
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Waktu Transaksi</p>
                                         <p className="font-medium text-slate-900 dark:text-slate-200">
                                             {formatDate(selectedTransaction.transaction_date)}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-slate-500 dark:text-slate-400">Kategori</p>
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">ID Referensi</p>
+                                        <p className="font-mono font-medium text-slate-900 dark:text-slate-200">
+                                            {selectedTransaction.transaction_id}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Kategori</p>
                                         <p className="font-medium text-slate-900 dark:text-slate-200">{selectedTransaction.category}</p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-slate-500 dark:text-slate-400">Siswa Terkait</p>
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Siswa Terkait</p>
                                         <p className="font-medium text-indigo-600 dark:text-indigo-400">
                                             {selectedTransaction.student ? selectedTransaction.student.name : '-'}
                                         </p>
                                     </div>
+                                    <div>
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Status Audit</p>
+                                        {selectedTransaction.logs && selectedTransaction.logs.length > 0 ? (
+                                            <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
+                                                <ShieldAlert className="h-4 w-4" /> Pernah Diedit ({selectedTransaction.logs.length}x)
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                                                <Clock className="h-4 w-4 text-slate-400" /> Rekam Asli
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="col-span-2 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
-                                        <p className="mb-1 text-slate-500 dark:text-slate-400">Catatan</p>
+                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Catatan Transaksi</p>
                                         <p className="font-medium text-slate-900 dark:text-slate-200">
                                             {selectedTransaction.note || <span className="italic opacity-50">Tidak ada catatan</span>}
                                         </p>
                                     </div>
                                 </div>
+
+                                {/* JEJAK PERUBAHAN */}
                                 {selectedTransaction.logs && selectedTransaction.logs.length > 0 && (
                                     <div className="col-span-2 mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
-                                        <p className="mb-3 text-xs font-bold tracking-wider text-slate-500 uppercase">
-                                            Jejak Perubahan (Audit Trail)
+                                        <p className="mb-3 flex items-center gap-1.5 text-xs font-bold tracking-wider text-amber-700 uppercase dark:text-amber-400">
+                                            <ShieldAlert className="h-4 w-4" /> Jejak Perubahan Data (Audit Trail)
                                         </p>
-                                        <div className="max-h-32 space-y-2 overflow-y-auto pr-2">
+                                        <div className="max-h-36 space-y-2.5 overflow-y-auto pr-2">
                                             {selectedTransaction.logs.map((log: any) => (
                                                 <div
                                                     key={log.id}
-                                                    className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300"
+                                                    className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"
                                                 >
-                                                    <div className="mb-1 flex items-center justify-between">
-                                                        <span className="font-semibold">{log.user?.name || 'Sistem'}</span>
+                                                    <div className="mb-1.5 flex items-center justify-between border-b border-amber-200/50 pb-1 dark:border-amber-800/50">
+                                                        <span className="flex items-center gap-1 font-bold">
+                                                            <User className="h-3 w-3" /> {log.user?.name || 'Sistem'}
+                                                        </span>
                                                         <span className="text-[10px] opacity-75">
                                                             {new Date(log.created_at).toLocaleString('id-ID')}
                                                         </span>
                                                     </div>
                                                     <p>
-                                                        Melakukan tindakan: <span className="font-bold uppercase">{log.action}</span>
+                                                        Tindakan: <span className="font-bold uppercase underline">{log.action}</span>
                                                     </p>
                                                 </div>
                                             ))}
@@ -216,7 +251,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     Tutup
                                 </Button>
                                 {selectedTransaction.id && (
-                                    <a href={`/payment/${selectedTransaction.id}/print`} target="_blank">
+                                    <a href={`/payment/${selectedTransaction.id}/print`} target="_blank" rel="noreferrer">
                                         <Button className="flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700">
                                             <Printer className="h-4 w-4" /> Cetak Bukti
                                         </Button>
@@ -227,9 +262,8 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                     </div>
                 )}
 
-                {/* BUNGKUSAN TABEL DAN FILTER UTAMA */}
+                {/* PANEL UTAMA LOG AUDIT */}
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    {/* HEADER FILTER & PENCARIAN (Sama seperti sebelumnya) */}
                     <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/50 p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-800/20">
                         <div className="relative flex-1">
                             <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -240,7 +274,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                 onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
-                                        applyFilters(localFilters);
+                                        applyFilter();
                                     }
                                 }}
                             />
@@ -248,7 +282,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         <div className="flex gap-2">
                             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="bg-white dark:bg-slate-900">
                                 <Filter className="mr-2 h-4 w-4" />
-                                Filter
+                                Filter Log
                                 {hasActiveFilters && <span className="ml-2 h-2 w-2 rounded-full bg-indigo-500" />}
                             </Button>
                             {hasActiveFilters && (
@@ -260,12 +294,10 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         </div>
                     </div>
 
-                    {/* PANEL FILTER EXPANDABLE */}
                     {showFilters && (
                         <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
-                            {/* ... (Isi filter Select Tipe, Kategori, Tanggal Awal, Tanggal Akhir yang sama) ... */}
                             <div>
-                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Tipe</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Tipe Arus</label>
                                 <Select
                                     value={localFilters.type || 'all'}
                                     onValueChange={(value) => setLocalFilters({ ...localFilters, type: value === 'all' ? '' : value })}
@@ -274,7 +306,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">Semua</SelectItem>
+                                        <SelectItem value="all">Semua Arus</SelectItem>
                                         <SelectItem value="in">Uang Masuk</SelectItem>
                                         <SelectItem value="out">Uang Keluar</SelectItem>
                                     </SelectContent>
@@ -290,7 +322,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">Semua</SelectItem>
+                                        <SelectItem value="all">Semua Kategori</SelectItem>
                                         {categories.in.map((cat) => (
                                             <SelectItem key={cat} value={cat}>
                                                 {cat}
@@ -330,25 +362,27 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         </div>
                     )}
 
-                    {/* TABEL RIWAYAT TRANSAKSI DENGAN CLICKABLE ROWS */}
+                    {/* TABEL AUDIT TRAIL KHUSUS RIWAYAT */}
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-800/30">
-                                    <th className="px-4 py-3.5 text-left font-semibold text-slate-600 dark:text-slate-300">Waktu Transaksi</th>
-                                    <th className="px-4 py-3.5 text-left font-semibold text-slate-600 dark:text-slate-300">ID Referensi</th>
-                                    <th className="px-4 py-3.5 text-left font-semibold text-slate-600 dark:text-slate-300">Detail & Catatan</th>
-                                    <th className="px-4 py-3.5 text-right font-semibold text-slate-600 dark:text-slate-300">Nominal</th>
+                                <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-800/30">
+                                    <th className="px-5 py-3.5 text-left">Waktu & Pencatat</th>
+                                    <th className="px-5 py-3.5 text-left">ID & Kategori</th>
+                                    <th className="px-5 py-3.5 text-left">Subjek / Keterangan</th>
+                                    <th className="px-5 py-3.5 text-left">Status Audit</th>
+                                    <th className="px-5 py-3.5 text-right">Nominal</th>
+                                    <th className="px-5 py-3.5 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                                 {transactions.data.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="px-4 py-12 text-center">
+                                        <td colSpan={6} className="px-4 py-14 text-center">
                                             <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
-                                                <Search className="h-10 w-10 opacity-50" />
-                                                <p className="text-base font-medium text-slate-500">Riwayat kosong</p>
-                                                <p className="text-xs">Tidak ada transaksi yang sesuai dengan filter Anda.</p>
+                                                <History className="h-10 w-10 opacity-40" />
+                                                <p className="text-base font-medium text-slate-500">Log riwayat tidak ditemukan</p>
+                                                <p className="text-xs">Tidak ada catatan transaksi yang sesuai dengan filter Anda.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -356,51 +390,60 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     transactions.data.map((transaction) => (
                                         <tr
                                             key={transaction.id}
-                                            onClick={() => setSelectedTransaction(transaction)} // INI YANG MEMBUAT BARIS BISA DIKLIK
-                                            className="group cursor-pointer transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                            onClick={() => setSelectedTransaction(transaction)}
+                                            className="group cursor-pointer transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
                                         >
-                                            <td className="px-4 py-3 whitespace-nowrap">
+                                            <td className="px-5 py-3.5 whitespace-nowrap">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="font-medium text-slate-900 transition-colors group-hover:text-indigo-700 dark:text-slate-200 dark:group-hover:text-indigo-300">
+                                                    <span className="font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-slate-200 dark:group-hover:text-indigo-400">
                                                         {formatDate(transaction.transaction_date)}
                                                     </span>
-                                                    <span
-                                                        className={`inline-flex w-fit items-center rounded px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
-                                                            transaction.type === 'in'
-                                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30'
-                                                                : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30'
-                                                        }`}
-                                                    >
-                                                        {transaction.type === 'in' ? '↓ MASUK' : '↑ KELUAR'}
+                                                    <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                                                        <User className="h-3 w-3 text-slate-400" />
+                                                        {transaction.user?.name || 'Sistem'}
                                                     </span>
                                                 </div>
                                             </td>
 
-                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                <div className="flex flex-col">
-                                                    <span className="font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                            <td className="px-5 py-3.5 whitespace-nowrap">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-mono text-xs font-bold text-slate-600 dark:text-slate-400">
                                                         {transaction.transaction_id}
                                                     </span>
-                                                    <span className="text-sm font-medium text-slate-800 dark:text-slate-300">
+                                                    <span className="inline-block w-fit rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                                         {transaction.category}
                                                     </span>
                                                 </div>
                                             </td>
 
-                                            <td className="min-w-[200px] px-4 py-3">
+                                            <td className="min-w-[220px] px-5 py-3.5">
                                                 <div className="flex flex-col">
                                                     {transaction.student ? (
-                                                        <span className="font-medium text-indigo-600 dark:text-indigo-400">
+                                                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">
                                                             {transaction.student.name}
                                                         </span>
                                                     ) : null}
-                                                    <span className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
+                                                    <span className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
                                                         {transaction.note || <span className="italic opacity-50">Tanpa catatan</span>}
                                                     </span>
                                                 </div>
                                             </td>
 
-                                            <td className="px-4 py-3 text-right whitespace-nowrap">
+                                            <td className="px-5 py-3.5 whitespace-nowrap">
+                                                {transaction.logs && transaction.logs.length > 0 ? (
+                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 shadow-sm dark:bg-amber-950/60 dark:text-amber-300">
+                                                        <ShieldAlert className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                        Diedit ({transaction.logs.length}x)
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                        <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                                        Rekam Asli
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            <td className="px-5 py-3.5 text-right whitespace-nowrap">
                                                 <span
                                                     className={`text-base font-bold ${
                                                         transaction.type === 'in'
@@ -408,9 +451,22 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                                             : 'text-rose-600 dark:text-rose-400'
                                                     }`}
                                                 >
-                                                    {transaction.type === 'in' ? '+' : '-'}
-                                                    {formatRupiah(transaction.amount)}
+                                                    {transaction.type === 'in' ? '+' : '-'} {formatRupiah(transaction.amount)}
                                                 </span>
+                                            </td>
+
+                                            <td className="px-5 py-3.5 text-center whitespace-nowrap">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedTransaction(transaction);
+                                                    }}
+                                                    className="text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/50"
+                                                >
+                                                    <Eye className="mr-1 h-4 w-4" /> Lihat Log
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))
@@ -419,13 +475,13 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         </table>
                     </div>
 
-                    {/* PAGINATION & ROWS PER PAGE */}
+                    {/* PAGINATION */}
                     <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 bg-slate-50/50 px-6 py-4 sm:flex-row dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex flex-col items-center gap-4 text-sm text-slate-500 sm:flex-row dark:text-slate-400">
                             <p>
                                 Menampilkan <span className="font-semibold text-slate-900 dark:text-white">{transactions.from || 0}</span> -{' '}
                                 <span className="font-semibold text-slate-900 dark:text-white">{transactions.to || 0}</span> dari{' '}
-                                <span className="font-semibold text-slate-900 dark:text-white">{transactions.total}</span> data
+                                <span className="font-semibold text-slate-900 dark:text-white">{transactions.total}</span> data log
                             </p>
 
                             <div className="flex items-center gap-2 border-l border-slate-300 pl-4 dark:border-slate-700">
@@ -433,7 +489,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                 <Select
                                     value={String(localFilters.per_page || '10')}
                                     onValueChange={(value) => {
-                                        applyFilters({ ...localFilters, per_page: value, page: '1' });
+                                        applyFilters({ per_page: value, page: '1' });
                                     }}
                                 >
                                     <SelectTrigger className="h-8 w-[70px] bg-white dark:bg-slate-900">
@@ -454,7 +510,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => applyFilters({ ...localFilters, page: String(transactions.current_page - 1) })}
+                                    onClick={() => applyFilters({ page: String(transactions.current_page - 1) })}
                                     disabled={transactions.current_page === 1}
                                     className="bg-white dark:bg-slate-900"
                                 >
@@ -463,7 +519,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => applyFilters({ ...localFilters, page: String(transactions.current_page + 1) })}
+                                    onClick={() => applyFilters({ page: String(transactions.current_page + 1) })}
                                     disabled={transactions.current_page === transactions.last_page}
                                     className="bg-white dark:bg-slate-900"
                                 >
