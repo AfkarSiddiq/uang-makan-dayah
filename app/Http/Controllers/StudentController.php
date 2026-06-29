@@ -249,8 +249,8 @@ class StudentController extends Controller
             'old_class' => 'required|in:1,2,3,4,5,6',
             'is_graduating' => 'boolean',
             'new_class' => 'nullable|in:1,2,3,4,5,6',
-            'new_spp_amount' => 'required|numeric|min:0',
-            'start_year' => 'required|numeric|min:2020',
+            'new_spp_amount' => 'nullable|numeric|min:0',
+            'start_year' => 'nullable|numeric|min:2020',
         ]);
 
         // 2. Eksekusi dengan Transaction agar Aman
@@ -263,51 +263,24 @@ class StudentController extends Controller
                 ->get();
 
             foreach ($students as $student) {
-                // A. Jika Lulus, cukup ubah status dan skip pembuatan SPP
+                // A. Jika Lulus, cukup ubah status
                 if ($request->is_graduating) {
                     $student->update([
                         'status' => 'lulus',
-                        'exit_year' => $request->start_year,
+                        'exit_year' => $request->start_year ?? date('Y'),
                         'exit_month' => 6, // Biasanya lulus bulan Juni
                     ]);
 
                     continue;
                 }
 
-                // B. Jika Naik Kelas, ubah kelasnya
+                // B. Jika Naik Kelas, ubah kelasnya (Tagihan otomatis terdeteksi via virtual ledger SppMonth)
                 $student->update(['class' => $request->new_class]);
-
-                // C. Generate 12 Bulan Tagihan SPP Baru (Juli s.d Juni)
-                $months = [
-                    ['m' => 7,  'y' => $request->start_year],
-                    ['m' => 8,  'y' => $request->start_year],
-                    ['m' => 9,  'y' => $request->start_year],
-                    ['m' => 10, 'y' => $request->start_year],
-                    ['m' => 11, 'y' => $request->start_year],
-                    ['m' => 12, 'y' => $request->start_year],
-                    ['m' => 1,  'y' => $request->start_year + 1],
-                    ['m' => 2,  'y' => $request->start_year + 1],
-                    ['m' => 3,  'y' => $request->start_year + 1],
-                    ['m' => 4,  'y' => $request->start_year + 1],
-                    ['m' => 5,  'y' => $request->start_year + 1],
-                    ['m' => 6,  'y' => $request->start_year + 1],
-                ];
-
-                foreach ($months as $date) {
-                    SppPayment::create([
-                        'student_id' => $student->id,
-                        'month' => $date['m'],
-                        'year' => $date['y'],
-                        'amount' => $request->new_spp_amount,
-                        'paid_amount' => 0,
-                        'status' => 'unpaid',
-                    ]);
-                }
             }
         });
 
         // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
-        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
+        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil!');
     }
 
     public function prosesKenaikanSantriwati(Request $request)
@@ -317,65 +290,38 @@ class StudentController extends Controller
             'old_class' => 'required|in:1,2,3,4,5,6',
             'is_graduating' => 'boolean',
             'new_class' => 'nullable|in:1,2,3,4,5,6',
-            'new_spp_amount' => 'required|numeric|min:0',
-            'start_year' => 'required|numeric|min:2020',
+            'new_spp_amount' => 'nullable|numeric|min:0',
+            'start_year' => 'nullable|numeric|min:2020',
         ]);
 
         // 2. Eksekusi dengan Transaction agar Aman
         DB::transaction(function () use ($request) {
 
-            // Ambil semua santriwan di kelas asal yang masih aktif
+            // Ambil semua santriwati di kelas asal yang masih aktif
             $students = Student::where('gender', 'P')
                 ->where('class', $request->old_class)
                 ->where('status', 'aktif')
                 ->get();
 
             foreach ($students as $student) {
-                // A. Jika Lulus, cukup ubah status dan skip pembuatan SPP
+                // A. Jika Lulus, cukup ubah status
                 if ($request->is_graduating) {
                     $student->update([
                         'status' => 'lulus',
-                        'exit_year' => $request->start_year,
+                        'exit_year' => $request->start_year ?? date('Y'),
                         'exit_month' => 6, // Biasanya lulus bulan Juni
                     ]);
 
                     continue;
                 }
 
-                // B. Jika Naik Kelas, ubah kelasnya
+                // B. Jika Naik Kelas, ubah kelasnya (Tagihan otomatis terdeteksi via virtual ledger SppMonth)
                 $student->update(['class' => $request->new_class]);
-
-                // C. Generate 12 Bulan Tagihan SPP Baru (Juli s.d Juni)
-                $months = [
-                    ['m' => 7,  'y' => $request->start_year],
-                    ['m' => 8,  'y' => $request->start_year],
-                    ['m' => 9,  'y' => $request->start_year],
-                    ['m' => 10, 'y' => $request->start_year],
-                    ['m' => 11, 'y' => $request->start_year],
-                    ['m' => 12, 'y' => $request->start_year],
-                    ['m' => 1,  'y' => $request->start_year + 1],
-                    ['m' => 2,  'y' => $request->start_year + 1],
-                    ['m' => 3,  'y' => $request->start_year + 1],
-                    ['m' => 4,  'y' => $request->start_year + 1],
-                    ['m' => 5,  'y' => $request->start_year + 1],
-                    ['m' => 6,  'y' => $request->start_year + 1],
-                ];
-
-                foreach ($months as $date) {
-                    SppPayment::create([
-                        'student_id' => $student->id,
-                        'month' => $date['m'],
-                        'year' => $date['y'],
-                        'amount' => $request->new_spp_amount,
-                        'paid_amount' => 0,
-                        'status' => 'unpaid',
-                    ]);
-                }
             }
         });
 
         // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
-        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
+        return redirect()->route('santriwati.kelas')->with('success', 'Proses kenaikan kelas berhasil!');
     }
 
     public function index()
