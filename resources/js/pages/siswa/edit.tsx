@@ -9,26 +9,29 @@ interface Props {
 }
 
 export default function Edit({ student }: Props) {
+    const backUrl = student.gender === 'L' ? route('santriwan.show', student.id) : route('santriwati.show', student.id);
+
     const handleSuccess = () => {
-        router.visit(route('siswa.index'));
+        router.visit(backUrl);
     };
 
     return (
         <AppLayout
             breadcrumbs={[
-                { title: 'Siswa', href: '/siswa' },
-                { title: student.name, href: '#' },
+                { title: student.gender === 'L' ? 'Santriwan' : 'Santriwati', href: student.gender === 'L' ? '/santriwan' : '/santriwati' },
+                { title: student.name, href: backUrl },
+                { title: 'Edit', href: '#' },
             ]}
         >
             <Head title={`Edit ${student.name}`} />
 
             <div className="mx-auto max-w-2xl space-y-6 p-6">
                 <Link
-                    href={route('siswa.index')}
+                    href={backUrl}
                     className="inline-flex items-center text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
                 >
                     <ArrowLeft className="mr-1 h-4 w-4" />
-                    Kembali ke Data Siswa
+                    Kembali ke Profil Siswa
                 </Link>
 
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">

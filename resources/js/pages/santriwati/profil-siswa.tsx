@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, Check, ChevronDown, ChevronUp, Pencil, User, Wallet, X } from 'lucide-react'; // [DITAMBAHKAN]: Icon CalendarDays
-import { useMemo, useState } from 'react'; // [DITAMBAHKAN]: Import useMemo
+import { ArrowLeft, CalendarDays, ChevronDown, ChevronUp, Pencil, User, Wallet } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 // Tipe data yang dikirim dari Laravel
 interface SppPayment {
@@ -21,7 +21,7 @@ interface Student {
     status: string;
     entry_month: number;
     entry_year: number;
-    spp_payments: SppPayment[];
+    spp_payments: SppPayment[]; // Relasi dari Laravel otomatis masuk ke sini
 }
 
 interface Props {
@@ -29,15 +29,6 @@ interface Props {
 }
 
 export default function ProfilSiswa({ student }: Props) {
-    const [isEditing, setIsEditing] = useState(false);
-
-    const { data, setData, put, processing, reset } = useForm({
-        class: student.class || '',
-        status: student.status,
-        entry_month: student.entry_month,
-        entry_year: student.entry_year,
-    });
-
     const {
         data: payData,
         setData: setPayData,
@@ -60,18 +51,8 @@ export default function ProfilSiswa({ student }: Props) {
         });
     };
 
-    const submitEdit = (e: React.FormEvent) => {
-        e.preventDefault();
-        put(route('siswa.update', { id: student.id }), {
-            onSuccess: () => {
-                setIsEditing(false);
-            },
-        });
-    };
-
     const getMonthName = (monthNumber: number) => {
-        const date = new Date();
-        date.setMonth(monthNumber - 1);
+        const date = new Date(2000, monthNumber - 1, 1);
         return date.toLocaleString('id-ID', { month: 'long' });
     };
 
@@ -79,59 +60,62 @@ export default function ProfilSiswa({ student }: Props) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     };
 
+    // LOGIKA BARU VIRTUAL WATERFALL LEDGER DI FRONTEND
+    // Mengelompokkan tagihan berdasarkan Tahun Ajaran (Juli s.d Juni tahun berikutnya)
     const groupedPayments = useMemo(() => {
-        const groups: Record<number, any[]> = {};
+        const groups: { [key: string]: SppPayment[] } = {};
 
-        // Dapatkan batas waktu saat ini (Skor Bulan)
-        const currentDate = new Date();
-        const currentYearValue = currentDate.getFullYear();
-        const currentMonthValue = currentDate.getMonth() + 1; // getMonth() mulai dari 0
-        const currentScore = currentYearValue * 12 + currentMonthValue;
+        student.spp_payments.forEach((p) => {
+            const yearNum = Number(p.year);
+            const monthNum = Number(p.month);
+            // Jika bulan >= 7 (Juli-Desember), maka masuk tahun ajaran p.year / p.year + 1
+            // Jika bulan < 7 (Januari-Juni), maka masuk tahun ajaran p.year - 1 / p.year
+            const startYear = monthNum >= 7 ? yearNum : yearNum - 1;
+            const endYear = startYear + 1;
+            const groupName = `Tahun Ajaran ${startYear}/${endYear}`;
 
-        student.spp_payments.forEach((payment) => {
-            // Hitung skor bulan untuk tagihan ini
-            const paymentScore = payment.year * 12 + payment.month;
-
-            // SYARAT TAMPIL:
-            // 1. Jika bulannya <= bulan saat ini (Tagihan masa lalu / bulan ini)
-            // 2. ATAU Jika bulannya di masa depan TETAPI statusnya sudah 'paid' atau 'partial'
-            if (paymentScore <= currentScore || payment.status !== 'unpaid') {
-                if (!groups[payment.year]) {
-                    groups[payment.year] = [];
-                }
-                groups[payment.year].push(payment);
+            if (!groups[groupName]) {
+                groups[groupName] = [];
             }
+            groups[groupName].push(p);
         });
 
         return groups;
     }, [student.spp_payments]);
 
-    // Ambil daftar tahun dan urutkan (Tahun terbaru di atas)
-    const sortedYears = useMemo(() => {
-        return Object.keys(groupedPayments)
-            .map(Number)
-            .sort((a, b) => b - a); // Ubah jadi (a - b) jika ingin tahun lama di atas
-    }, [groupedPayments]);
+    // Urutkan tahun ajaran dari yang terbaru ke terlama
+    const sortedYears = Object.keys(groupedPayments).sort().reverse();
 
-    // State untuk accordion (Otomatis buka tahun terbaru)
-    const [expandedYear, setExpandedYear] = useState<number | null>(sortedYears.length > 0 ? sortedYears[0] : null);
+    // State untuk akordion tahun ajaran (default terbuka tahun terbaru)
+    const [expandedYear, setExpandedYear] = useState<string | null>(sortedYears[0] || null);
 
-    // =========================================================================
+    const toggleYear = (year: string) => {
+        setExpandedYear(expandedYear === year ? null : year);
+    };
+
+    // Hitung ringkasan total tagihan
+    const summary = useMemo(() => {
+        let totalBill = 0;
+        let totalPaid = 0;
+        let totalUnpaid = 0;
+
+        student.spp_payments.forEach((p) => {
+            totalBill += p.amount;
+            totalPaid += p.paid_amount;
+            totalUnpaid += p.amount - p.paid_amount;
+        });
+
+        return { totalBill, totalPaid, totalUnpaid };
+    }, [student.spp_payments]);
 
     return (
-        <AppLayout
-            breadcrumbs={[
-                { title: 'Data santriwati', href: '/santriwati' },
-                { title: `Kelas ${student.class}`, href: `/santriwati/class/${student.class}` },
-                { title: student.name, href: '#' },
-            ]}
-        >
+        <AppLayout breadcrumbs={[{ title: 'Daftar Siswa', href: '#' }, { title: student.name }]}>
             <Head title={`Profil - ${student.name}`} />
 
-            <div className="mx-auto max-w-5xl space-y-6 p-6">
+            <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
                 {/* TOMBOL KEMBALI */}
                 <Link
-                    href={`/santriwati/class/${student.class}`}
+                    href={route('santriwati.detail', { kelas: student.class || 1 })}
                     className="inline-flex items-center text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
                 >
                     <ArrowLeft className="mr-1 h-4 w-4" /> Kembali ke Kelas
@@ -139,17 +123,14 @@ export default function ProfilSiswa({ student }: Props) {
 
                 {/* KARTU BIODATA SISWA */}
                 <div className="relative flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    {/* Tombol Toggle Edit di Pojok Kanan Atas */}
-                    <button
-                        onClick={() => {
-                            setIsEditing(!isEditing);
-                            reset(); // Kembalikan ke data asli di database jika batal
-                        }}
+                    {/* Tombol Link Edit ke halaman khusus /siswa/{id}/edit */}
+                    <Link
+                        href={route('siswa.edit', student.id)}
                         className="absolute top-6 right-6 rounded-md bg-slate-50 p-2 text-slate-500 transition hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-                        title={isEditing ? 'Batal Edit' : 'Edit Biodata'}
+                        title="Edit Biodata"
                     >
-                        {isEditing ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
-                    </button>
+                        <Pencil className="h-4 w-4" />
+                    </Link>
 
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50">
                         <User className="h-8 w-8" />
@@ -157,111 +138,29 @@ export default function ProfilSiswa({ student }: Props) {
                     <div className="w-full pr-12">
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{student.name}</h1>
 
-                        {/* Logika Jika Sedang Edit vs Sedang Melihat */}
-                        {isEditing ? (
-                            <form
-                                onSubmit={submitEdit}
-                                className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50"
-                            >
-                                <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                    {/* Input Kelas */}
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-500">Ubah Kelas</label>
-                                        <select
-                                            value={data.class}
-                                            onChange={(e) => setData('class', e.target.value)}
-                                            className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                        >
-                                            <option value="">-- Pilih --</option>
-                                            <option value="1">Kelas 1</option>
-                                            <option value="2">Kelas 2</option>
-                                            <option value="3">Kelas 3</option>
-                                            <option value="4">Kelas 4</option>
-                                            <option value="5">Kelas 5</option>
-                                            <option value="6">Kelas 6</option>
-                                        </select>
-                                    </div>
+                        <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <p>
+                                <span className="font-medium text-slate-900 dark:text-slate-300">NISN:</span> {student.nisn}
+                            </p>
+                            <p>
+                                <span className="font-medium text-slate-900 dark:text-slate-300">Kelas:</span>{' '}
+                                {student.class || 'Belum ada kelas'}
+                            </p>
 
-                                    {/* Input Status */}
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-500">Status Siswa</label>
-                                        <select
-                                            value={data.status}
-                                            onChange={(e) => setData('status', e.target.value)}
-                                            className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                        >
-                                            <option value="aktif">Aktif</option>
-                                            <option value="lulus">Lulus</option>
-                                            <option value="pindah">Pindah Sekolah</option>
-                                            <option value="berhenti">Berhenti</option>
-                                        </select>
-                                    </div>
+                            <p>
+                                <span className="font-medium text-slate-900 dark:text-slate-300">Masuk Sejak:</span>{' '}
+                                {getMonthName(student.entry_month)} {student.entry_year}
+                            </p>
 
-                                    {/* [BARU] Input Bulan Masuk */}
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-500">Argo Tagihan Mulai (Bulan)</label>
-                                        <select
-                                            value={data.entry_month}
-                                            onChange={(e) => setData('entry_month', parseInt(e.target.value))}
-                                            className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                        >
-                                            {/* Loop 1-12 untuk bulan */}
-                                            {[...Array(12)].map((_, i) => (
-                                                <option key={i + 1} value={i + 1}>
-                                                    {getMonthName(i + 1)}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* [BARU] Input Tahun Masuk */}
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-500">Tahun Masuk</label>
-                                        <input
-                                            type="number"
-                                            value={data.entry_year}
-                                            onChange={(e) => setData('entry_year', parseInt(e.target.value))}
-                                            className="w-full rounded-md border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-2">
-                                    <button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="flex items-center gap-1 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
-                                    >
-                                        <Check className="h-4 w-4" /> Simpan Perubahan
-                                    </button>
-                                </div>
-                            </form>
-                        ) : (
-                            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-slate-400">
-                                <p>
-                                    <span className="font-medium text-slate-900 dark:text-slate-300">NISN:</span> {student.nisn}
-                                </p>
-                                <p>
-                                    <span className="font-medium text-slate-900 dark:text-slate-300">Kelas:</span>{' '}
-                                    {student.class || 'Belum ada kelas'}
-                                </p>
-
-                                {/* [BARU] Tampilkan Info Masuk */}
-                                <p>
-                                    <span className="font-medium text-slate-900 dark:text-slate-300">Masuk Sejak:</span>{' '}
-                                    {getMonthName(student.entry_month)} {student.entry_year}
-                                </p>
-
-                                <p>
-                                    <span className="font-medium text-slate-900 dark:text-slate-300">Status:</span>
-                                    <span
-                                        className={`ml-1 font-semibold uppercase ${student.status === 'aktif' ? 'text-emerald-600' : 'text-rose-600'}`}
-                                    >
-                                        {student.status}
-                                    </span>
-                                </p>
-                            </div>
-                        )}
+                            <p>
+                                <span className="font-medium text-slate-900 dark:text-slate-300">Status:</span>
+                                <span
+                                    className={`ml-1 font-semibold uppercase ${student.status === 'aktif' ? 'text-emerald-600' : 'text-rose-600'}`}
+                                >
+                                    {student.status}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 

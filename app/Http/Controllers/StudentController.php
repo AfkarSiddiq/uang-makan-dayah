@@ -208,7 +208,11 @@ class StudentController extends Controller
 
         $student->update($validated);
 
-        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui!');
+        if ($student->gender === 'L') {
+            return redirect()->route('santriwan.show', $student->id)->with('success', 'Data siswa berhasil diperbarui!');
+        }
+
+        return redirect()->route('santriwati.show', $student->id)->with('success', 'Data siswa berhasil diperbarui!');
     }
 
     // ======KENAIKAN KELAS===========

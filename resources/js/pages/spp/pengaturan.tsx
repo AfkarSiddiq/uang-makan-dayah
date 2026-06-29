@@ -80,8 +80,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
     
     // HELPER & HANDLER
     const getMonthName = (monthNumber: number) => {
-        const date = new Date();
-        date.setMonth(monthNumber - 1);
+        const date = new Date(2000, monthNumber - 1, 1);
         return date.toLocaleString('id-ID', { month: 'long' });
     };
 
