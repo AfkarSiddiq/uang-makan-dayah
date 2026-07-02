@@ -21,7 +21,75 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        $query = Transaction::with(['student', 'user']);
+        $baseQuery = Transaction::query();
+
+        if ($request->filled('type')) {
+            $baseQuery->where('type', $request->type);
+        }
+
+        if ($request->filled('category')) {
+            $baseQuery->where('category', $request->category);
+        }
+
+        if ($request->filled('date_from')) {
+            $baseQuery->where('transaction_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $baseQuery->where('transaction_date', '<=', $request->date_to);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $baseQuery->where(function ($q) use ($search) {
+                $q->where('transaction_id', 'like', "%{$search}%")
+                    ->orWhere('note', 'like', "%{$search}%")
+                    ->orWhereHas('student', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('nisn', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // 5 Transaksi Terbaru
+        $latestTransactions = (clone $baseQuery)->with(['student', 'user'])
+            ->orderBy('transaction_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Data Visualisasi Kategori Pemasukan
+        $inCategories = (clone $baseQuery)->where('type', 'in')
+            ->selectRaw('category, SUM(amount) as total')
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get();
+
+        // Data Visualisasi Kategori Pengeluaran
+        $outCategories = (clone $baseQuery)->where('type', 'out')
+            ->selectRaw('category, SUM(amount) as total')
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get();
+
+        // Tren 6 Bulan Terakhir
+        $monthlyTrend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $year = $date->year;
+            $month = $date->month;
+            $in = (clone $baseQuery)->where('type', 'in')->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month)->sum('amount');
+            $out = (clone $baseQuery)->where('type', 'out')->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month)->sum('amount');
+            $monthlyTrend[] = [
+                'year' => $year,
+                'month' => $month,
+                'in' => (float) $in,
+                'out' => (float) $out,
+            ];
+        }
+
+        // Query untuk tabel transaksi lengkap paginasi
+        $query = (clone $baseQuery)->with(['student', 'user']);
 
         $sortBy = $request->sort_by ?? 'transaction_date';
         $sortDir = $request->sort_dir ?? 'desc';
@@ -37,40 +105,13 @@ class DashboardController extends Controller
 
         if ($sortBy === 'student_name') {
             $query->leftJoin('students', 'transactions.student_id', '=', 'students.id')
+                ->select('transactions.*')
                 ->orderBy('students.name', $sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }
         if ($sortBy !== 'created_at') {
             $query->orderBy('transactions.created_at', 'desc');
-        }
-
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('transaction_date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('transaction_date', '<=', $request->date_to);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('transaction_id', 'like', "%{$search}%")
-                    ->orWhere('note', 'like', "%{$search}%")
-                    ->orWhereHas('student', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('nisn', 'like', "%{$search}%");
-                    });
-            });
         }
 
         $transactions = $query->paginate(15)->withQueryString();
@@ -89,6 +130,12 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'transactions' => $transactions,
+            'latest_transactions' => $latestTransactions,
+            'chart_data' => [
+                'in_categories' => $inCategories,
+                'out_categories' => $outCategories,
+                'monthly_trend' => $monthlyTrend,
+            ],
             'summary' => $summary,
             'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search', 'sort_by', 'sort_dir']),
             'categories' => $this->getCategories(),

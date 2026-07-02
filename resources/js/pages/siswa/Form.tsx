@@ -209,44 +209,51 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
                 </div>
             </div>
 
-            {isEdit && (data.status === 'lulus' || data.status === 'pindah' || data.status === 'berhenti') && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                        <Label htmlFor="exit_month" className="text-slate-700 dark:text-slate-300">
-                            Bulan Keluar
-                        </Label>
-                        <Select value={data.exit_month} onValueChange={(value) => setData('exit_month', value === 'none' ? '' : value)}>
-                            <SelectTrigger className="mt-1">
-                                <SelectValue placeholder="Pilih bulan" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">-</SelectItem>
-                                {months.map((month) => (
-                                    <SelectItem key={month.value} value={month.value}>
-                                        {month.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+            {(data.status === 'lulus' || data.status === 'pindah' || data.status === 'berhenti') && (
+                <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20">
+                    <p className="mb-3 text-xs font-semibold text-amber-800 dark:text-amber-400">
+                        ⚠️ Siswa berstatus <span className="uppercase font-bold">{data.status}</span>. Wajib menentukan bulan dan tahun keluar agar sistem berhenti menghitung tagihan SPP berikutnya.
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <Label htmlFor="exit_month" className="text-slate-700 dark:text-slate-300">
+                                Bulan Keluar <span className="text-rose-500">*</span>
+                            </Label>
+                            <Select value={data.exit_month} onValueChange={(value) => setData('exit_month', value === 'none' ? '' : value)}>
+                                <SelectTrigger className="mt-1 bg-white dark:bg-slate-900">
+                                    <SelectValue placeholder="Pilih bulan keluar" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">- Pilih Bulan -</SelectItem>
+                                    {months.map((month) => (
+                                        <SelectItem key={month.value} value={month.value}>
+                                            {month.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.exit_month && <p className="mt-1 text-sm text-rose-600 font-medium">{errors.exit_month}</p>}
+                        </div>
 
-                    <div>
-                        <Label htmlFor="exit_year" className="text-slate-700 dark:text-slate-300">
-                            Tahun Keluar
-                        </Label>
-                        <Select value={data.exit_year} onValueChange={(value) => setData('exit_year', value === 'none' ? '' : value)}>
-                            <SelectTrigger className="mt-1">
-                                <SelectValue placeholder="Pilih tahun" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">-</SelectItem>
-                                {years.map((year) => (
-                                    <SelectItem key={year} value={year}>
-                                        {year}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div>
+                            <Label htmlFor="exit_year" className="text-slate-700 dark:text-slate-300">
+                                Tahun Keluar <span className="text-rose-500">*</span>
+                            </Label>
+                            <Select value={data.exit_year} onValueChange={(value) => setData('exit_year', value === 'none' ? '' : value)}>
+                                <SelectTrigger className="mt-1 bg-white dark:bg-slate-900">
+                                    <SelectValue placeholder="Pilih tahun keluar" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">- Pilih Tahun -</SelectItem>
+                                    {years.map((year) => (
+                                        <SelectItem key={year} value={year}>
+                                            {year}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.exit_year && <p className="mt-1 text-sm text-rose-600 font-medium">{errors.exit_year}</p>}
+                        </div>
                     </div>
                 </div>
             )}

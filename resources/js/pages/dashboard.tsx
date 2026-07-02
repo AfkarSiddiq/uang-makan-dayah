@@ -1,85 +1,21 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { Transaction, TransactionSummary } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowDown, ArrowDownRight, ArrowUp, ArrowUpDown, ArrowUpRight, Download, Filter, Plus, Printer, Search, Trash2, Upload, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Head } from '@inertiajs/react';
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight, BarChart3, Clock, PieChart } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
-    transactions: {
-        data: Transaction[];
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-        from: number;
-        to: number;
+    latest_transactions?: Transaction[];
+    chart_data?: {
+        in_categories: { category: string; total: number }[];
+        out_categories: { category: string; total: number }[];
+        monthly_trend: { year: number; month: number; in: number; out: number }[];
     };
     summary: TransactionSummary;
-    filters: {
-        type?: string;
-        category?: string;
-        date_from?: string;
-        date_to?: string;
-        search?: string;
-    };
-    categories: {
-        in: string[];
-        out: string[];
-    };
 }
 
-export default function Index({ transactions, summary, filters, categories }: Props) {
-    const [showFilters, setShowFilters] = useState(false);
-    const [localFilters, setLocalFilters] = useState({
-        type: filters.type || '',
-        category: filters.category || '',
-        date_from: filters.date_from || '',
-        date_to: filters.date_to || '',
-        search: filters.search || '',
-        sort_by: filters.sort_by || 'transaction_date',
-        sort_dir: filters.sort_dir || 'desc',
-    });
-
-    useEffect(() => {
-        setLocalFilters({
-            type: filters.type || '',
-            category: filters.category || '',
-            date_from: filters.date_from || '',
-            date_to: filters.date_to || '',
-            search: filters.search || '',
-            sort_by: filters.sort_by || 'transaction_date',
-            sort_dir: filters.sort_dir || 'desc',
-        });
-    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search, filters.sort_by, filters.sort_dir]);
-
-    // TODO: make the filters button better by not making the whole page reload and making it as one component that other form could use
-    const applyFilters = (newFilters: Record<string, string>) => {
-        router.get(route('payment.index'), { ...localFilters, ...newFilters }, { replace: true, preserveState: true, only: ['transactions', 'summary'] });
-    };
-
-    // TODO: create a better sort button component that could handle things like a null data etc
-    // FIX: whys when the sort button is clicked the link would show the sort parameter
-    const handleSort = (column: string) => {
-        const newDir = localFilters.sort_by === column && localFilters.sort_dir === 'asc' ? 'desc' : 'asc';
-        applyFilters({ sort_by: column, sort_dir: newDir });
-    };
-
-    const getSortIcon = (column: string) => {
-        if (localFilters.sort_by !== column) return <ArrowUpDown className="h-4 w-4 opacity-50" />;
-        return localFilters.sort_dir === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
-    };
-
-    const clearFilters = () => {
-        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '' });
-        router.get(route('payment.index'));
-    };
-
-    const applyFilter = () => {
-        applyFilters(localFilters);
-    };
+export default function Index({ latest_transactions = [], chart_data, summary }: Props) {
+    const [catTab, setCatTab] = useState<'in' | 'out'>('in');
 
     const formatRupiah = (angka: number) => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
@@ -88,8 +24,6 @@ export default function Index({ transactions, summary, filters, categories }: Pr
     const formatDate = (date: string) => {
         return new Date(date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
     };
-
-    const hasActiveFilters = filters.type || filters.category || filters.date_from || filters.date_to || filters.search;
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }]}>
@@ -128,270 +62,169 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-900 dark:bg-indigo-950/30">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/30">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
-                                <ArrowUpDown className="h-5 w-5 text-indigo-600" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+                                <ArrowUpDown className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Saldo</p>
-                                <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{formatRupiah(summary.balance)}</p>
+                                <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Saldo</p>
+                                <p className="text-xl font-bold text-amber-700 dark:text-amber-300">{formatRupiah(summary.balance)}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:flex-row dark:border-slate-800">
-                        <div className="relative flex-1">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <Input
-                                placeholder="Cari nomor transaksi, catatan, siswa..."
-                                className="pl-9"
-                                value={localFilters.search}
-                                onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        applyFilters(localFilters);
-                                    }
-                                }}
-                            />
+                {/* BAGIAN VISUALISASI DATA & 5 TRANSAKSI TERBARU */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* GRAFIK TREN 6 BULAN */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                            <div className="flex items-center gap-2">
+                                <BarChart3 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Tren Arus Kas (6 Bulan Terakhir)</h2>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs font-medium">
+                                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span> Masuk
+                                </span>
+                                <span className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-rose-500"></span> Keluar
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
-                                <Filter className="mr-2 h-4 w-4" />
-                                Filter
-                                {hasActiveFilters && <span className="ml-2 h-2 w-2 rounded-full bg-indigo-500" />}
-                            </Button>
-                            {hasActiveFilters && (
-                                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                                    <X className="mr-1 h-4 w-4" />
-                                    Reset
-                                </Button>
-                            )}
-                        </div>
-                    </div>
 
-                    {showFilters && (
-                        <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Tipe</label>
-                                <Select value={localFilters.type || 'all'} onValueChange={(value) => setLocalFilters({ ...localFilters, type: value === 'all' ? '' : value })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Semua" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">Semua</SelectItem>
-                                        <SelectItem value="in">Masuk</SelectItem>
-                                        <SelectItem value="out">Keluar</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Kategori</label>
-                                <Select
-                                    value={localFilters.category || 'all'}
-                                    onValueChange={(value) => setLocalFilters({ ...localFilters, category: value === 'all' ? '' : value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Semua" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">Semua</SelectItem>
-                                        <SelectItem value="_income_header" disabled className="text-xs text-slate-500 font-semibold pointer-events-none">
-                                            — Pemasukan —
-                                        </SelectItem>
-                                        {categories.in.map((cat) => (
-                                            <SelectItem key={cat} value={cat}>
-                                                {cat}
-                                            </SelectItem>
-                                        ))}
-                                        <SelectItem value="_expense_header" disabled className="text-xs text-slate-500 font-semibold pointer-events-none">
-                                            — Pengeluaran —
-                                        </SelectItem>
-                                        {categories.out.map((cat) => (
-                                            <SelectItem key={cat} value={cat}>
-                                                {cat}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Dari Tanggal</label>
-                                <Input
-                                    type="date"
-                                    value={localFilters.date_from}
-                                    onChange={(e) => setLocalFilters({ ...localFilters, date_from: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Sampai Tanggal</label>
-                                <Input
-                                    type="date"
-                                    value={localFilters.date_to}
-                                    onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
-                                />
-                            </div>
-                            <div className="flex items-end">
-                                <Button onClick={applyFilter} className="w-full">
-                                    Terapkan Filter
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+                        <div className="mt-4 space-y-4">
+                            {(() => {
+                                const maxVal = Math.max(...(chart_data?.monthly_trend || []).flatMap((m) => [m.in, m.out]), 1);
+                                return (chart_data?.monthly_trend || []).map((m, idx) => {
+                                    const dateObj = new Date(2000, m.month - 1, 1);
+                                    const monthLabel = `${dateObj.toLocaleString('id-ID', { month: 'short' })} ${m.year}`;
+                                    const inPct = Math.round((m.in / maxVal) * 100);
+                                    const outPct = Math.round((m.out / maxVal) * 100);
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                                        <button onClick={() => handleSort('transaction_id')} className="flex items-center gap-1 hover:text-slate-700">
-                                            No. Transaksi
-                                            {getSortIcon('transaction_id')}
-                                        </button>
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                                        <button onClick={() => handleSort('transaction_date')} className="flex items-center gap-1 hover:text-slate-700">
-                                            Tanggal
-                                            {getSortIcon('transaction_date')}
-                                        </button>
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                                        <button onClick={() => handleSort('category')} className="flex items-center gap-1 hover:text-slate-700">
-                                            Kategori
-                                            {getSortIcon('category')}
-                                        </button>
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                                        <button onClick={() => handleSort('student_name')} className="flex items-center gap-1 hover:text-slate-700">
-                                            Siswa
-                                            {getSortIcon('student_name')}
-                                        </button>
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Catatan</th>
-                                    <th className="px-4 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                                        <button onClick={() => handleSort('amount')} className="flex items-center gap-1 ml-auto hover:text-slate-700">
-                                            Jumlah
-                                            {getSortIcon('amount')}
-                                        </button>
-                                    </th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold tracking-wider text-slate-500 uppercase">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                {transactions.data.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <Search className="h-8 w-8 text-slate-300" />
-                                                <p>Tidak ada transaksi ditemukan</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    transactions.data.map((transaction) => (
-                                        <tr key={transaction.id} className="transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                            <td className="px-4 py-3">
-                                                <span className="font-mono text-sm font-medium text-slate-900 dark:text-white">
-                                                    {transaction.transaction_id}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
-                                                {formatDate(transaction.transaction_date)}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                        transaction.type === 'in'
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
-                                                    }`}
-                                                >
-                                                    {transaction.type === 'in' ? '↓ ' : '↑ '}
-                                                    {transaction.category}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.student ? (
-                                                    <span>{transaction.student.name}</span>
-                                                ) : (
-                                                    <span className="text-slate-400">-</span>
-                                                )}
-                                            </td>
-                                            <td className="max-w-[200px] truncate px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.note || '-'}
-                                            </td>
-                                            <td
-                                                className={`px-4 py-3 text-right text-sm font-semibold ${
-                                                    transaction.type === 'in'
-                                                        ? 'text-emerald-600 dark:text-emerald-400'
-                                                        : 'text-rose-600 dark:text-rose-400'
-                                                }`}
-                                            >
-                                                {transaction.type === 'in' ? '+' : '-'}
-                                                {formatRupiah(transaction.amount)}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <div className="flex items-center justify-center gap-1">
-                                                    {transaction.id && (
-                                                        <>
-                                                            <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
-                                                                <Button variant="ghost" size="sm">
-                                                                    <Printer className="h-4 w-4" />
-                                                                </Button>
-                                                            </a>
-                                                            <a href={`/payment/${transaction.id}/edit`}>
-                                                                <Button variant="ghost" size="sm">
-                                                                    Edit
-                                                                </Button>
-                                                            </a>
-                                                        </>
-                                                    )}
-                                                    <form
-                                                        onSubmit={(e) => {
-                                                            e.preventDefault();
-                                                            if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                                                                router.delete({ url: `/payment/${transaction.id}` });
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </form>
+                                    return (
+                                        <div key={idx} className="space-y-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-800/50">
+                                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{monthLabel}</span>
+                                            <div className="space-y-1.5 pt-0.5">
+                                                <div className="flex items-center gap-2 text-xs">
+                                                    <span className="w-12 text-[11px] text-slate-500">Masuk</span>
+                                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                                        <div style={{ width: `${inPct}%` }} className="h-full bg-emerald-500 transition-all duration-500" />
+                                                    </div>
+                                                    <span className="w-24 text-right font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(m.in)}</span>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                                <div className="flex items-center gap-2 text-xs">
+                                                    <span className="w-12 text-[11px] text-slate-500">Keluar</span>
+                                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                                        <div style={{ width: `${outPct}%` }} className="h-full bg-rose-500 transition-all duration-500" />
+                                                    </div>
+                                                    <span className="w-24 text-right font-medium text-rose-600 dark:text-rose-400">{formatRupiah(m.out)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                });
+                            })()}
+                        </div>
                     </div>
 
-                    {transactions.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-800">
-                            <p className="text-sm text-slate-500">
-                                Menampilkan {transactions.from} - {transactions.to} dari {transactions.total} transaksi
-                            </p>
-                            <div className="flex gap-1">
-                                {transactions.current_page > 1 && (
-                                    <Button variant="outline" size="sm" onClick={() => applyFilters({ page: String(transactions.current_page - 1) })}>
-                                        Previous
-                                    </Button>
-                                )}
-                                {transactions.current_page < transactions.last_page && (
-                                    <Button variant="outline" size="sm" onClick={() => applyFilters({ page: String(transactions.current_page + 1) })}>
-                                        Next
-                                    </Button>
-                                )}
+                    {/* BREAKDOWN KATEGORI */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                            <div className="flex items-center gap-2">
+                                <PieChart className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Proporsi Kategori</h2>
+                            </div>
+                            <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-medium dark:bg-slate-800">
+                                <button
+                                    onClick={() => setCatTab('in')}
+                                    className={`rounded-md px-2.5 py-1 transition-all ${catTab === 'in' ? 'bg-white text-emerald-600 shadow-sm dark:bg-slate-700 dark:text-emerald-400 font-semibold' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                                >
+                                    Pemasukan
+                                </button>
+                                <button
+                                    onClick={() => setCatTab('out')}
+                                    className={`rounded-md px-2.5 py-1 transition-all ${catTab === 'out' ? 'bg-white text-rose-600 shadow-sm dark:bg-slate-700 dark:text-rose-400 font-semibold' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                                >
+                                    Pengeluaran
+                                </button>
                             </div>
                         </div>
-                    )}
+
+                        <div className="mt-4 space-y-4">
+                            {(() => {
+                                const activeList = catTab === 'in' ? chart_data?.in_categories || [] : chart_data?.out_categories || [];
+                                const totalSum = activeList.reduce((acc, curr) => acc + Number(curr.total), 0);
+
+                                if (activeList.length === 0) {
+                                    return <p className="py-12 text-center text-sm text-slate-400">Belum ada data kategori untuk filter ini.</p>;
+                                }
+
+                                return activeList.slice(0, 6).map((cat, idx) => {
+                                    const pct = totalSum > 0 ? Math.round((Number(cat.total) / totalSum) * 100) : 0;
+                                    const barColor = catTab === 'in' ? 'bg-emerald-500' : 'bg-rose-500';
+
+                                    return (
+                                        <div key={idx} className="space-y-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-800/50">
+                                            <div className="flex justify-between text-xs">
+                                                <span className="font-medium text-slate-700 dark:text-slate-300">{cat.category}</span>
+                                                <span className="font-semibold text-slate-900 dark:text-white">
+                                                    {formatRupiah(Number(cat.total))} <span className="text-slate-400 font-normal">({pct}%)</span>
+                                                </span>
+                                            </div>
+                                            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                                <div style={{ width: `${pct}%` }} className={`h-full ${barColor} transition-all duration-500`} />
+                                            </div>
+                                        </div>
+                                    );
+                                });
+                            })()}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 5 TRANSAKSI TERBARU */}
+                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">5 Transaksi Terbaru</h2>
+                        </div>
+                        <span className="text-xs text-slate-500">Aktivitas transaksi terakhir yang dicatat</span>
+                    </div>
+
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {(!latest_transactions || latest_transactions.length === 0) ? (
+                            <p className="py-8 text-center text-sm text-slate-400">Belum ada transaksi.</p>
+                        ) : (
+                            latest_transactions.map((t) => (
+                                <div key={t.id} className="flex flex-col justify-between py-3.5 sm:flex-row sm:items-center">
+                                    <div className="flex items-start gap-3">
+                                        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${t.type === 'in' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400'}`}>
+                                            {t.type === 'in' ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-medium text-sm text-slate-900 dark:text-white">{t.category}</p>
+                                                <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                    {t.transaction_id}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-slate-500">
+                                                {t.student ? t.student.name : (t.note || 'Tidak ada catatan')} • {formatDate(t.transaction_date)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 text-left font-semibold sm:mt-0 sm:text-right">
+                                        <span className={`text-sm ${t.type === 'in' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                            {t.type === 'in' ? '+' : '-'} {formatRupiah(t.amount)}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
         </AppLayout>

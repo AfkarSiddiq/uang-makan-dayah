@@ -39,9 +39,9 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
 
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
                     <div className="mb-6 pb-6 border-b border-slate-200 dark:border-slate-800">
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Proses Kenaikan Kelas & SPP</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Proses Kenaikan Kelas & Kelulusan</h1>
                         <p className="text-sm text-slate-500 mt-1">
-                            Pindahkan seluruh siswa di satu kelas ke kelas baru, dan otomatis buatkan 12 bulan tagihan SPP untuk tahun ajaran yang baru.
+                            Pindahkan seluruh siswa di satu kelas ke kelas baru, atau luluskan siswa menjadi alumni.
                         </p>
                     </div>
 
@@ -79,7 +79,7 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
                                 <span className="text-sm font-medium text-slate-900 dark:text-slate-200">Luluskan semua siswa di kelas ini (Menjadi Alumni)</span>
                             </label>
 
-                            {!data.is_graduating && (
+                            {!data.is_graduating ? (
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Naik Ke Kelas Tujuan</label>
                                     <select 
@@ -98,35 +98,20 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
                                     </select>
                                     {errors.new_class && <p className="text-red-500 text-xs mt-1">{errors.new_class}</p>}
                                 </div>
-                            )}
-                        </div>
-
-                        {/* 3. SETTING SPP BARU (Hanya muncul jika tidak lulus) */}
-                        {!data.is_graduating && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ) : (
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tahun Ajaran Baru Dimulai</label>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tahun Kelulusan</label>
                                     <input 
                                         type="number" 
                                         value={data.start_year}
                                         onChange={e => setData('start_year', parseInt(e.target.value))}
                                         className="w-full rounded-md border-slate-300 focus:ring-indigo-500 dark:bg-slate-950 dark:border-slate-700 dark:text-white"
-                                        required
+                                        required={data.is_graduating}
                                     />
-                                    <p className="text-xs text-slate-500 mt-1">Sistem akan membuat tagihan mulai Juli {data.start_year}</p>
+                                    <p className="text-xs text-slate-500 mt-1">Siswa akan tercatat lulus pada bulan Juni {data.start_year}</p>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nominal SPP per Bulan (Rp)</label>
-                                    <input 
-                                        type="number" 
-                                        value={data.new_spp_amount}
-                                        onChange={e => setData('new_spp_amount', parseInt(e.target.value))}
-                                        className="w-full rounded-md border-slate-300 focus:ring-indigo-500 dark:bg-slate-950 dark:border-slate-700 dark:text-white"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
                         <div className="pt-4 flex items-center justify-end border-t border-slate-200 dark:border-slate-800">
                             <button 

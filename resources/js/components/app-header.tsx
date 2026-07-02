@@ -36,7 +36,7 @@ const rightNavItems: NavItem[] = [
     },
 ];
 
-const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+const activeItemStyles = 'text-emerald-800 font-semibold dark:bg-emerald-950/60 dark:text-emerald-200';
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -116,7 +116,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             {item.title}
                                         </Link>
                                         {page.url === item.url && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-emerald-700 dark:bg-emerald-400"></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}

@@ -160,14 +160,26 @@ class StudentController extends Controller
                 'status' => 'required|in:aktif,lulus,pindah,berhenti',
             ]);
 
+            if ($validated['class'] === 'none') {
+                $validated['class'] = null;
+            }
+
+            if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti'])) {
+                $validated['exit_month'] = $student->exit_month ?: date('n');
+                $validated['exit_year'] = $student->exit_year ?: date('Y');
+            } else {
+                $validated['exit_month'] = null;
+                $validated['exit_year'] = null;
+            }
+
             $student->update($validated);
 
             if ($student->gender === 'L') {
-                return redirect()->route('santriwan.detail', ['kelas' => $student->class])
+                return redirect()->route('santriwan.detail', ['kelas' => $student->class ?: 'none'])
                     ->with('success', 'Data remaja putra berhasil diperbarui!');
             }
 
-            return redirect()->route('santriwati.detail', ['kelas' => $student->class])
+            return redirect()->route('santriwati.detail', ['kelas' => $student->class ?: 'none'])
                 ->with('success', 'Data remaja putri berhasil diperbarui!');
         }
 
@@ -177,16 +189,19 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'gender' => 'required|in:L,P',
             'class' => 'nullable|in:1,2,3,4,5,6',
-            'status' => 'nullable|in:aktif,lulus,pindah,berhenti',
+            'status' => 'required|in:aktif,lulus,pindah,berhenti',
             'student_type' => 'nullable|in:umum,yatim,piatu,yatim_piatu',
             'entry_month' => 'required|integer|min:1|max:12',
             'entry_year' => 'required|integer|min:2020',
-            'exit_month' => 'nullable|integer|min:1|max:12',
-            'exit_year' => 'nullable|integer|min:2020',
+            'exit_month' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:1|max:12',
+            'exit_year' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:2020',
+        ], [
+            'exit_month.required_if' => 'Bulan keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
+            'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
         // Convert 'none' to null for class
-        if ($validated['class'] === 'none') {
+        if (isset($validated['class']) && $validated['class'] === 'none') {
             $validated['class'] = null;
         }
         if (! empty($validated['exit_month']) && $validated['exit_month'] === 'none') {
@@ -198,17 +213,18 @@ class StudentController extends Controller
         $validated['status'] = $validated['status'] ?? 'aktif';
         $validated['student_type'] = $validated['student_type'] ?? 'umum';
 
-        if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti'])) {
-            $validated['exit_month'] = $validated['exit_month'] ?: null;
-            $validated['exit_year'] = $validated['exit_year'] ?: null;
-        } else {
+        if ($validated['status'] === 'aktif') {
             $validated['exit_month'] = null;
             $validated['exit_year'] = null;
         }
 
         $student->update($validated);
 
-        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui!');
+        if ($student->gender === 'L') {
+            return redirect()->route('santriwan.show', $student->id)->with('success', 'Data siswa berhasil diperbarui!');
+        }
+
+        return redirect()->route('santriwati.show', $student->id)->with('success', 'Data siswa berhasil diperbarui!');
     }
 
     // ======KENAIKAN KELAS===========
@@ -249,8 +265,8 @@ class StudentController extends Controller
             'old_class' => 'required|in:1,2,3,4,5,6',
             'is_graduating' => 'boolean',
             'new_class' => 'nullable|in:1,2,3,4,5,6',
-            'new_spp_amount' => 'required|numeric|min:0',
-            'start_year' => 'required|numeric|min:2020',
+            'new_spp_amount' => 'nullable|numeric|min:0',
+            'start_year' => 'nullable|numeric|min:2020',
         ]);
 
         // 2. Eksekusi dengan Transaction agar Aman
@@ -263,51 +279,24 @@ class StudentController extends Controller
                 ->get();
 
             foreach ($students as $student) {
-                // A. Jika Lulus, cukup ubah status dan skip pembuatan SPP
+                // A. Jika Lulus, cukup ubah status
                 if ($request->is_graduating) {
                     $student->update([
                         'status' => 'lulus',
-                        'exit_year' => $request->start_year,
+                        'exit_year' => $request->start_year ?? date('Y'),
                         'exit_month' => 6, // Biasanya lulus bulan Juni
                     ]);
 
                     continue;
                 }
 
-                // B. Jika Naik Kelas, ubah kelasnya
+                // B. Jika Naik Kelas, ubah kelasnya (Tagihan otomatis terdeteksi via virtual ledger SppMonth)
                 $student->update(['class' => $request->new_class]);
-
-                // C. Generate 12 Bulan Tagihan SPP Baru (Juli s.d Juni)
-                $months = [
-                    ['m' => 7,  'y' => $request->start_year],
-                    ['m' => 8,  'y' => $request->start_year],
-                    ['m' => 9,  'y' => $request->start_year],
-                    ['m' => 10, 'y' => $request->start_year],
-                    ['m' => 11, 'y' => $request->start_year],
-                    ['m' => 12, 'y' => $request->start_year],
-                    ['m' => 1,  'y' => $request->start_year + 1],
-                    ['m' => 2,  'y' => $request->start_year + 1],
-                    ['m' => 3,  'y' => $request->start_year + 1],
-                    ['m' => 4,  'y' => $request->start_year + 1],
-                    ['m' => 5,  'y' => $request->start_year + 1],
-                    ['m' => 6,  'y' => $request->start_year + 1],
-                ];
-
-                foreach ($months as $date) {
-                    SppPayment::create([
-                        'student_id' => $student->id,
-                        'month' => $date['m'],
-                        'year' => $date['y'],
-                        'amount' => $request->new_spp_amount,
-                        'paid_amount' => 0,
-                        'status' => 'unpaid',
-                    ]);
-                }
             }
         });
 
         // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
-        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
+        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil!');
     }
 
     public function prosesKenaikanSantriwati(Request $request)
@@ -317,65 +306,38 @@ class StudentController extends Controller
             'old_class' => 'required|in:1,2,3,4,5,6',
             'is_graduating' => 'boolean',
             'new_class' => 'nullable|in:1,2,3,4,5,6',
-            'new_spp_amount' => 'required|numeric|min:0',
-            'start_year' => 'required|numeric|min:2020',
+            'new_spp_amount' => 'nullable|numeric|min:0',
+            'start_year' => 'nullable|numeric|min:2020',
         ]);
 
         // 2. Eksekusi dengan Transaction agar Aman
         DB::transaction(function () use ($request) {
 
-            // Ambil semua santriwan di kelas asal yang masih aktif
+            // Ambil semua santriwati di kelas asal yang masih aktif
             $students = Student::where('gender', 'P')
                 ->where('class', $request->old_class)
                 ->where('status', 'aktif')
                 ->get();
 
             foreach ($students as $student) {
-                // A. Jika Lulus, cukup ubah status dan skip pembuatan SPP
+                // A. Jika Lulus, cukup ubah status
                 if ($request->is_graduating) {
                     $student->update([
                         'status' => 'lulus',
-                        'exit_year' => $request->start_year,
+                        'exit_year' => $request->start_year ?? date('Y'),
                         'exit_month' => 6, // Biasanya lulus bulan Juni
                     ]);
 
                     continue;
                 }
 
-                // B. Jika Naik Kelas, ubah kelasnya
+                // B. Jika Naik Kelas, ubah kelasnya (Tagihan otomatis terdeteksi via virtual ledger SppMonth)
                 $student->update(['class' => $request->new_class]);
-
-                // C. Generate 12 Bulan Tagihan SPP Baru (Juli s.d Juni)
-                $months = [
-                    ['m' => 7,  'y' => $request->start_year],
-                    ['m' => 8,  'y' => $request->start_year],
-                    ['m' => 9,  'y' => $request->start_year],
-                    ['m' => 10, 'y' => $request->start_year],
-                    ['m' => 11, 'y' => $request->start_year],
-                    ['m' => 12, 'y' => $request->start_year],
-                    ['m' => 1,  'y' => $request->start_year + 1],
-                    ['m' => 2,  'y' => $request->start_year + 1],
-                    ['m' => 3,  'y' => $request->start_year + 1],
-                    ['m' => 4,  'y' => $request->start_year + 1],
-                    ['m' => 5,  'y' => $request->start_year + 1],
-                    ['m' => 6,  'y' => $request->start_year + 1],
-                ];
-
-                foreach ($months as $date) {
-                    SppPayment::create([
-                        'student_id' => $student->id,
-                        'month' => $date['m'],
-                        'year' => $date['y'],
-                        'amount' => $request->new_spp_amount,
-                        'paid_amount' => 0,
-                        'status' => 'unpaid',
-                    ]);
-                }
             }
         });
 
         // 3. Kembalikan ke halaman daftar kelas dengan pesan sukses
-        return redirect()->route('santriwan.kelas')->with('success', 'Proses kenaikan kelas berhasil dan Tagihan SPP baru telah dibuat!');
+        return redirect()->route('santriwati.kelas')->with('success', 'Proses kenaikan kelas berhasil!');
     }
 
     public function index()
@@ -425,10 +387,20 @@ class StudentController extends Controller
             'student_type' => 'nullable|in:umum,yatim,piatu,yatim_piatu',
             'entry_month' => 'required|integer|min:1|max:12',
             'entry_year' => 'required|integer|min:2020',
+            'exit_month' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:1|max:12',
+            'exit_year' => 'required_if:status,lulus,pindah,berhenti|nullable|integer|min:2020',
+        ], [
+            'exit_month.required_if' => 'Bulan keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
+            'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'aktif';
         $validated['student_type'] = $validated['student_type'] ?? 'umum';
+
+        if ($validated['status'] === 'aktif') {
+            $validated['exit_month'] = null;
+            $validated['exit_year'] = null;
+        }
 
         Student::create($validated);
 
