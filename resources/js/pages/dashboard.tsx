@@ -37,6 +37,7 @@ export default function Index({ latest_transactions = [], chart_data, summary }:
                     </div>
                 </div>
 
+
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
                         <div className="flex items-center gap-3">

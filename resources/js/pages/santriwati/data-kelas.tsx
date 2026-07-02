@@ -19,8 +19,8 @@ export default function DataKelas({ kelasData }: Props) {
             <div className="p-6">
                 <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Data Santriwan</h1>
-                        <p className="text-slate-500 dark:text-slate-400">Pilih kelas untuk melihat daftar santriwan.</p>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Data Santriwati</h1>
+                        <p className="text-slate-500 dark:text-slate-400">Pilih kelas untuk melihat daftar santriwati.</p>
                     </div>
 
                     <Link

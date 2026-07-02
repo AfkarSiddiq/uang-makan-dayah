@@ -20,20 +20,20 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         if (confirm('Apakah Anda yakin ingin memproses ini? Aksi ini akan mengubah data banyak siswa sekaligus.')) {
-            post(route('santriwan.kenaikan.proses'));
+            post(route('santriwati.kenaikan.proses'));
         }
     };
 
     return (
         <AppLayout breadcrumbs={[
-            { title: 'Data Santriwan', href: '/santriwan' },
+            { title: 'Data Santriwati', href: '/santriwati' },
             { title: 'Kenaikan Kelas', href: '#' }
         ]}>
             <Head title="Proses Kenaikan Kelas" />
             
             <div className="p-6 max-w-3xl mx-auto space-y-6">
                 
-                <Link href="/santriwan" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition">
+                <Link href="/santriwati" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition">
                     <ArrowLeft className="w-4 h-4 mr-1" /> Kembali
                 </Link>
 
