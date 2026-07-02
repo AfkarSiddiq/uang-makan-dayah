@@ -62,14 +62,14 @@ export default function Index({ latest_transactions = [], chart_data, summary }:
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-900 dark:bg-indigo-950/30">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/30">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
-                                <ArrowUpDown className="h-5 w-5 text-indigo-600" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+                                <ArrowUpDown className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Saldo</p>
-                                <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{formatRupiah(summary.balance)}</p>
+                                <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Saldo</p>
+                                <p className="text-xl font-bold text-amber-700 dark:text-amber-300">{formatRupiah(summary.balance)}</p>
                             </div>
                         </div>
                     </div>
@@ -81,7 +81,7 @@ export default function Index({ latest_transactions = [], chart_data, summary }:
                     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                             <div className="flex items-center gap-2">
-                                <BarChart3 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                <BarChart3 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Tren Arus Kas (6 Bulan Terakhir)</h2>
                             </div>
                             <div className="flex items-center gap-3 text-xs font-medium">
@@ -133,7 +133,7 @@ export default function Index({ latest_transactions = [], chart_data, summary }:
                     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                             <div className="flex items-center gap-2">
-                                <PieChart className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                <PieChart className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Proporsi Kategori</h2>
                             </div>
                             <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-medium dark:bg-slate-800">
@@ -188,7 +188,7 @@ export default function Index({ latest_transactions = [], chart_data, summary }:
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                         <div className="flex items-center gap-2">
-                            <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                            <Clock className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                             <h2 className="font-semibold text-slate-900 dark:text-white">5 Transaksi Terbaru</h2>
                         </div>
                         <span className="text-xs text-slate-500">Aktivitas transaksi terakhir yang dicatat</span>

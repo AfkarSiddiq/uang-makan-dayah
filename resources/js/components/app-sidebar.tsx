@@ -118,11 +118,11 @@ export function AppSidebar() {
     };
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar collapsible="icon" variant="inset" className="border-r border-emerald-900/10 shadow-sm dark:border-emerald-900/20">
+            <SidebarHeader className="border-b border-emerald-900/10 bg-gradient-to-b from-emerald-50/70 via-emerald-50/30 to-transparent pb-3 pt-3 dark:border-emerald-900/20 dark:from-emerald-950/40">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton size="lg" asChild className="rounded-xl border border-transparent p-2 transition-all duration-300 hover:border-emerald-300/50 hover:bg-emerald-500/10 hover:shadow-xs dark:hover:border-emerald-700/50">
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
@@ -131,11 +131,11 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="px-1 py-2">
                 <NavMain items={filterNavItems(mainNavItems)} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-emerald-900/10 bg-gradient-to-t from-emerald-50/40 to-transparent p-2 dark:border-emerald-900/20 dark:from-emerald-950/20">
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
