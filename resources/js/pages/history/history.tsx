@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { TransactionSummary } from '@/types';
@@ -265,20 +266,14 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                 {/* PANEL UTAMA LOG AUDIT */}
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/50 p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-800/20">
-                        <div className="relative flex-1">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <Input
-                                placeholder="Cari nomor transaksi, catatan, siswa..."
-                                className="bg-white pl-9 dark:bg-slate-900"
-                                value={localFilters.search}
-                                onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        applyFilter();
-                                    }
-                                }}
-                            />
-                        </div>
+                        <SearchInput
+                            value={localFilters.search}
+                            onChange={(value) => setLocalFilters({ ...localFilters, search: value })}
+                            onSubmit={applyFilter}
+                            onClear={() => setLocalFilters({ ...localFilters, search: '' })}
+                            placeholder="Cari nomor transaksi, catatan, siswa..."
+                            showButton
+                        />
                         <div className="flex gap-2">
                             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="bg-white dark:bg-slate-900">
                                 <Filter className="mr-2 h-4 w-4" />

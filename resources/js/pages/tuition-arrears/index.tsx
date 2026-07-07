@@ -1,3 +1,4 @@
+import { SearchInput } from '@/components/ui/search-input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, Download, FileSpreadsheet, Search, User, Wallet, X, Check } from 'lucide-react';

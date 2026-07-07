@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
@@ -59,13 +60,8 @@ export default function Create({ studentsByGender, classes, categories }: Props)
             <Head title="Tambah Transaksi" />
 
             <div className="mx-auto max-w-2xl space-y-6 p-6">
-                <Link
-                    href={route('payment.index')}
-                    className="inline-flex items-center text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
-                >
-                    <ArrowLeft className="mr-1 h-4 w-4" />
-                    Kembali ke Transaksi
-                </Link>
+                {/* TODO: replaces every hardcoded back button with BackButton component */}
+                <BackButton href={route('payment.index')}>Transaksi</BackButton>
 
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="border-b border-slate-200 p-6 dark:border-slate-800">
