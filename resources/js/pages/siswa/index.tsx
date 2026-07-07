@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { Student } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Download, Plus, Search, Trash2, Upload } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
     students: {
@@ -25,6 +26,8 @@ interface Props {
 }
 
 export default function Index({ students, filters }: Props) {
+    const [search, setSearch] = useState(filters.search || '');
+
     const applyFilters = (newFilters: Record<string, string>) => {
         router.get(route('siswa.index'), { ...filters, ...newFilters }, { preserveState: true });
     };
@@ -91,19 +94,18 @@ export default function Index({ students, filters }: Props) {
 
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-                        <div className="relative max-w-md">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <Input
-                                placeholder="Cari nama atau NISN..."
-                                className="pl-9"
-                                defaultValue={filters.search}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        applyFilters({ search: (e.target as HTMLInputElement).value });
-                                    }
-                                }}
-                            />
-                        </div>
+                        <SearchInput
+                            value={search}
+                            onChange={setSearch}
+                            onSubmit={() => applyFilters({ search })}
+                            onClear={() => {
+                                setSearch('');
+                                applyFilters({ search: '' });
+                            }}
+                            placeholder="Cari nama atau NISN..."
+                            showButton
+                            className="max-w-md"
+                        />
                     </div>
 
                     <div className="overflow-x-auto">
