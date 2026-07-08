@@ -14,12 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     // },
 ];
 
-// Anda bisa mendefinisikan interface props di sini jika nanti menerima data dari Controller
-interface Props {
-    // dataUangMakan: any[]; // Contoh jika nanti ada data yang dikirim
-}
-
-export default function Index({}: Props) {
+export default function Index() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Data Uang Makan" />
