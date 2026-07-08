@@ -20,7 +20,8 @@ class RolePermissionSeeder extends Seeder
             'siswa.import' => ['Siswa', 'Mengimport data siswa'],
             'siswa.export' => ['Siswa', 'Mengexport data siswa'],
 
-            'pembayaran.view' => ['Pembayaran', 'Melihat daftar transaksi'],
+            'pembayaran.masuk.view' => ['Pembayaran', 'Melihat transaksi pemasukan'],
+            'pembayaran.keluar.view' => ['Pembayaran', 'Melihat transaksi pengeluaran'],
             'pembayaran.create' => ['Pembayaran', 'Menambah transaksi baru'],
             'pembayaran.edit' => ['Pembayaran', 'Mengedit transaksi'],
             'pembayaran.delete' => ['Pembayaran', 'Menghapus transaksi'],
@@ -86,7 +87,8 @@ class RolePermissionSeeder extends Seeder
             'siswa.edit',
             'siswa.import',
             'siswa.export',
-            'pembayaran.view',
+            'pembayaran.masuk.view',
+            'pembayaran.keluar.view',
             'pembayaran.create',
             'pembayaran.edit',
             'pembayaran.delete',
@@ -114,7 +116,8 @@ class RolePermissionSeeder extends Seeder
         );
         $umumRole->syncPermissions(Permission::whereIn('name', [
             'dashboard.view',
-            'pembayaran.view',
+            'pembayaran.masuk.view',
+            'pembayaran.keluar.view',
             'pembayaran.create',
         ])->pluck('id')->toArray());
     }
