@@ -31,9 +31,10 @@ interface Props {
         in: string[];
         out: string[];
     };
+    allowedTypes: string[];
 }
 
-export default function Index({ transactions, summary, filters, categories }: Props) {
+export default function Index({ transactions, summary, filters, categories, allowedTypes }: Props) {
     const { can } = usePermissions();
     const [showFilters, setShowFilters] = useState(false);
     const [localFilters, setLocalFilters] = useState({
@@ -136,41 +137,47 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-                                <ArrowDownRight className="h-5 w-5 text-emerald-600" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Total Masuk</p>
-                                <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{formatRupiah(summary.total_in)}</p>
+                    {(allowedTypes.includes('in') || allowedTypes.length === 0) && (
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                                    <ArrowDownRight className="h-5 w-5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Total Masuk</p>
+                                    <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{formatRupiah(summary.total_in)}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-900 dark:bg-rose-950/30">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/50">
-                                <ArrowUpRight className="h-5 w-5 text-rose-600" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-rose-600 dark:text-rose-400">Total Keluar</p>
-                                <p className="text-xl font-bold text-rose-700 dark:text-rose-300">{formatRupiah(summary.total_out)}</p>
+                    {(allowedTypes.includes('out') || allowedTypes.length === 0) && (
+                        <div className="rounded-xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-900 dark:bg-rose-950/30">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/50">
+                                    <ArrowUpRight className="h-5 w-5 text-rose-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-rose-600 dark:text-rose-400">Total Keluar</p>
+                                    <p className="text-xl font-bold text-rose-700 dark:text-rose-300">{formatRupiah(summary.total_out)}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-900 dark:bg-indigo-950/30">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
-                                <ArrowUpDown className="h-5 w-5 text-indigo-600" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Saldo</p>
-                                <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{formatRupiah(summary.balance)}</p>
+                    {allowedTypes.length !== 1 && (
+                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-900 dark:bg-indigo-950/30">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                                    <ArrowUpDown className="h-5 w-5 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Saldo</p>
+                                    <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{formatRupiah(summary.balance)}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -208,8 +215,12 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Semua</SelectItem>
-                                        <SelectItem value="in">Masuk</SelectItem>
-                                        <SelectItem value="out">Keluar</SelectItem>
+                                        {(allowedTypes.length === 0 || allowedTypes.includes('in')) && (
+                                            <SelectItem value="in">Masuk</SelectItem>
+                                        )}
+                                        {(allowedTypes.length === 0 || allowedTypes.includes('out')) && (
+                                            <SelectItem value="out">Keluar</SelectItem>
+                                        )}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -383,7 +394,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                                                     onSubmit={(e) => {
                                                                         e.preventDefault();
                                                                         if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                                                                            router.delete({ url: `/payment/${transaction.id}` });
+                                                                            router.delete(`/payment/${transaction.id}`);
                                                                         }
                                                                     }}
                                                                 >

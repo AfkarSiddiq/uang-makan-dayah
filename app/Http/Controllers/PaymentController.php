@@ -29,7 +29,20 @@ class PaymentController extends Controller
 
     public function index(Request $request)
     {
+        $user = $request->user();
+        $allowedTypes = [];
+        if ($user->hasPermission('pembayaran.masuk.view')) {
+            $allowedTypes[] = 'in';
+        }
+        if ($user->hasPermission('pembayaran.keluar.view')) {
+            $allowedTypes[] = 'out';
+        }
+
         $query = Transaction::with(['student', 'user']);
+
+        if (count($allowedTypes) === 1) {
+            $query->where('type', $allowedTypes[0]);
+        }
 
         $sortBy = $request->sort_by ?? 'transaction_date';
         $sortDir = $request->sort_dir ?? 'desc';
@@ -83,23 +96,32 @@ class PaymentController extends Controller
 
         $transactions = $query->paginate(15)->withQueryString();
 
+        $totalIn = in_array('in', $allowedTypes)
+            ? Transaction::where('type', 'in')
+                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
+                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
+                ->sum('amount')
+            : 0;
+
+        $totalOut = in_array('out', $allowedTypes)
+            ? Transaction::where('type', 'out')
+                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
+                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
+                ->sum('amount')
+            : 0;
+
         $summary = [
-            'total_in' => Transaction::where('type', 'in')
-                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
-                ->sum('amount'),
-            'total_out' => Transaction::where('type', 'out')
-                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
-                ->sum('amount'),
+            'total_in' => $totalIn,
+            'total_out' => $totalOut,
+            'balance' => $totalIn - $totalOut,
         ];
-        $summary['balance'] = $summary['total_in'] - $summary['total_out'];
 
         return Inertia::render('payment/Index', [
             'transactions' => $transactions,
             'summary' => $summary,
             'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search', 'sort_by', 'sort_dir']),
             'categories' => $this->getCategories(),
+            'allowedTypes' => $allowedTypes,
         ]);
     }
 
@@ -108,9 +130,9 @@ class PaymentController extends Controller
         $studentsByGender = Student::where('status', 'aktif')
             ->orderBy('class')
             ->orderBy('name')
-            ->get(['id', 'nisn', 'name', 'class'])
-            ->groupBy('class')
-            ->map(fn ($group) => $group->values());
+            ->get(['id', 'nisn', 'name', 'gender', 'class'])
+            ->groupBy('gender')
+            ->map(fn ($genderGroup) => $genderGroup->groupBy('class')->map(fn ($classGroup) => $classGroup->values()));
 
         $classes = Student::where('status', 'aktif')
             ->distinct()
@@ -130,10 +152,18 @@ class PaymentController extends Controller
             'type' => ['required', Rule::in(['in', 'out'])],
             'category' => ['required', 'string', 'max:50'],
             'amount' => ['required', 'integer', 'min:1'],
-            'student_id' => ['nullable', 'exists:students,id'],
+            'student_id' => [
+                Rule::prohibitedIf(fn () => $request->category !== 'SPP'),
+                'required_if:category,SPP',
+                'exists:students,id',
+            ],
             'transaction_date' => ['required', 'date'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
+
+        if ($validated['category'] !== 'SPP') {
+            $validated['student_id'] = null;
+        }
 
         $validated['transaction_id'] = $this->generateTransactionNumber();
         $validated['user_id'] = Auth::id();
@@ -168,10 +198,18 @@ class PaymentController extends Controller
             'type' => ['required', Rule::in(['in', 'out'])],
             'category' => ['required', 'string', 'max:50'],
             'amount' => ['required', 'integer', 'min:1'],
-            'student_id' => ['nullable', 'exists:students,id'],
+            'student_id' => [
+                Rule::prohibitedIf(fn () => $request->category !== 'SPP'),
+                'required_if:category,SPP',
+                'exists:students,id',
+            ],
             'transaction_date' => ['required', 'date'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
+
+        if ($validated['category'] !== 'SPP') {
+            $validated['student_id'] = null;
+        }
 
         $payment->update($validated);
 

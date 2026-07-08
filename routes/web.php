@@ -145,7 +145,7 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk Payment
     Route::get('/payment', [PaymentController::class, 'index'])
         ->name('payment.index')
-        ->middleware(['permission:pembayaran.view']);
+        ->middleware(['permission:pembayaran.masuk.view|pembayaran.keluar.view']);
     Route::get('/payment/create', [PaymentController::class, 'create'])
         ->name('payment.create')
         ->middleware(['permission:pembayaran.create']);
@@ -182,7 +182,7 @@ Route::middleware(['auth'])->group(function () {
     // History
     Route::get('/payment-history', [HistoryController::class, 'index'])
         ->name('history')
-        ->middleware(['permission:pembayaran.view']);
+        ->middleware(['permission:pembayaran.masuk.view|pembayaran.keluar.view']);
 
     // Category management
     Route::resource('category', CategoryController::class)
