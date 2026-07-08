@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm } from '@inertiajs/react';
-import { FileText, Pencil, Check, X, Users, Calendar, AlertCircle, PlusCircle } from 'lucide-react';
+import { FileText, Pencil, Check, X, Calendar, AlertCircle, PlusCircle } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 // 1. Interface bawaan dari Database

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,8 +19,12 @@ class DashboardTest extends TestCase
 
     public function test_authenticated_users_can_visit_the_dashboard()
     {
-        $this->actingAs($user = User::factory()->create());
+        $this->seed(RolePermissionSeeder::class);
 
+        $user = User::factory()->create();
+        $user->roles()->attach(Role::where('name', 'admin')->first());
+
+        $this->actingAs($user);
         $this->get('/dashboard')->assertOk();
     }
 }

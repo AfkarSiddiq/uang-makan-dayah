@@ -9,7 +9,7 @@ import AppLogo from './app-logo';
 
 interface NavItemWithPermission extends NavItem {
     permission?: string;
-    items?: { title: string; url: string; icon: any; permission?: string }[];
+    items?: { title: string; url: string; icon: React.ElementType; permission?: string }[];
 }
 
 const mainNavItems: NavItemWithPermission[] = [

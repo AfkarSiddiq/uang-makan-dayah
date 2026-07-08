@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Student } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Calendar as CalendarIcon, Save } from 'lucide-react';
+import { Calendar as CalendarIcon, Save } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
