@@ -177,11 +177,8 @@ export default function Index({ students, summary, availableMonths, selectedMont
     });
 
     // Grouping Active Students by Class for informative per-class display
-    const activeClassesList = ['1', '2', '3', '4', '5', '6', 'Lainnya'];
+    const activeClassesList = ['1', '2', '3', '4', '5', '6'];
     const getStudentsByClass = (cls: string) => {
-        if (cls === 'Lainnya') {
-            return filteredTabStudents.filter((s) => !s.class || !['1', '2', '3', '4', '5', '6'].includes(String(s.class)));
-        }
         return filteredTabStudents.filter((s) => String(s.class) === cls);
     };
 
@@ -527,7 +524,6 @@ export default function Index({ students, summary, availableMonths, selectedMont
                             <option value="4">Khusus Kelas 4</option>
                             <option value="5">Khusus Kelas 5</option>
                             <option value="6">Khusus Kelas 6</option>
-                            <option value="Lainnya">Belum Ada Kelas</option>
                         </select>
                     ) : (
                         <select
@@ -571,11 +567,11 @@ export default function Index({ students, summary, availableMonths, selectedMont
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white font-bold text-lg shadow-sm shrink-0">
-                                                {cls === 'Lainnya' ? '?' : cls}
+                                                {cls}
                                             </div>
                                             <div>
                                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                                    {cls === 'Lainnya' ? 'Belum Ada Kelas' : `Kelas ${cls}`}
+                                                    {`Kelas ${cls}`}
                                                     <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${classStudents.length > 0 ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}>
                                                         {classStudents.length} Siswa Menunggak
                                                     </span>
@@ -604,7 +600,7 @@ export default function Index({ students, summary, availableMonths, selectedMont
                                             <div className="p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
                                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelas Ini Bersih dari Tunggakan</p>
-                                                <p className="text-xs text-slate-500 mt-0.5">Tidak ada siswa aktif di {cls === 'Lainnya' ? 'kelompok ini' : `Kelas ${cls}`} yang memiliki tagihan SPP tertunggak.</p>
+                                                <p className="text-xs text-slate-500 mt-0.5">Tidak ada siswa aktif di {`Kelas ${cls}`} yang memiliki tagihan SPP tertunggak.</p>
                                             </div>
                                         ) : (
                                             <div className="overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
