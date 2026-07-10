@@ -45,9 +45,13 @@ class StudentController extends Controller
             ->get();
     }
 
-    private function getStudentProfile($id, $gender)
+    private function getStudentProfile($id, $gender = null)
     {
-        $student = Student::where('gender', $gender)->findOrFail($id);
+        $query = Student::query();
+        if ($gender) {
+            $query->where('gender', $gender);
+        }
+        $student = $query->findOrFail($id);
 
         $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
@@ -409,9 +413,9 @@ class StudentController extends Controller
 
     public function show($id)
     {
-        $student = Student::findOrFail($id);
-
-        return Inertia::render('siswa/show', ['student' => $student]);
+        return Inertia::render('siswa/show', [
+            'student' => $this->getStudentProfile($id),
+        ]);
     }
 
     public function edit($id)
