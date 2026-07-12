@@ -23,7 +23,7 @@ const mainNavItems: NavItemWithPermission[] = [
         title: 'Transaksi',
         url: '/payment',
         icon: Banknote,
-        permission: 'pembayaran.view',
+        permission: 'pembayaran.masuk.view' | 'pembayaran.keluar.view',
     },
     {
         title: 'Tagihan bulan',
@@ -60,7 +60,7 @@ const mainNavItems: NavItemWithPermission[] = [
         title: 'Riwayat',
         url: '/payment-history',
         icon: History,
-        permission: 'pembayaran.view',
+        permission: 'pembayaran.masuk.view' | 'pembayaran.keluar.view',
     },
     {
         title: 'Masukkan siswa Baru',

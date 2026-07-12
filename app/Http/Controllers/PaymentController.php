@@ -153,17 +153,13 @@ class PaymentController extends Controller
             'category' => ['required', 'string', 'max:50'],
             'amount' => ['required', 'integer', 'min:1'],
             'student_id' => [
-                Rule::prohibitedIf(fn () => $request->category !== 'SPP'),
-                'required_if:category,SPP',
+                'nullable',
+                Rule::requiredIf(fn () => $request->category === 'SPP'),
                 'exists:students,id',
             ],
             'transaction_date' => ['required', 'date'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
-
-        if ($validated['category'] !== 'SPP') {
-            $validated['student_id'] = null;
-        }
 
         $validated['transaction_id'] = $this->generateTransactionNumber();
         $validated['user_id'] = Auth::id();
@@ -199,17 +195,13 @@ class PaymentController extends Controller
             'category' => ['required', 'string', 'max:50'],
             'amount' => ['required', 'integer', 'min:1'],
             'student_id' => [
-                Rule::prohibitedIf(fn () => $request->category !== 'SPP'),
-                'required_if:category,SPP',
+                'nullable',
+                Rule::requiredIf(fn () => $request->category === 'SPP'),
                 'exists:students,id',
             ],
             'transaction_date' => ['required', 'date'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
-
-        if ($validated['category'] !== 'SPP') {
-            $validated['student_id'] = null;
-        }
 
         $payment->update($validated);
 

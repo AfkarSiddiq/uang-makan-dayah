@@ -21,7 +21,20 @@ class HistoryController extends Controller
 
     public function index(Request $request)
     {
-        $query = Transaction::with(['student', 'user', 'logs.user']);
+        $user = $request->user();
+        $allowedTypes = [];
+        if ($user->hasPermission('pembayaran.masuk.view')) {
+            $allowedTypes[] = 'in';
+        }
+        if ($user->hasPermission('pembayaran.keluar.view')) {
+            $allowedTypes[] = 'out';
+        }
+
+        $query = Transaction::with(['student', 'user', 'logs.user', 'sppPayments.sppMonth']);
+
+        if (count($allowedTypes) === 1) {
+            $query->where('type', $allowedTypes[0]);
+        }
 
         // --- SORTING ---
         $sortBy = $request->sort_by ?? 'transaction_date';
@@ -90,24 +103,32 @@ class HistoryController extends Controller
         // --- SUMMARY (RINGKASAN) ---
         // Anda juga bisa mengoptimalkan summary ini jika data sudah jutaan baris,
         // tapi untuk skala sekolah/yayasan, cara Anda ini masih sangat aman dan cepat.
+        $totalIn = in_array('in', $allowedTypes)
+            ? Transaction::where('type', 'in')
+                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
+                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
+                ->sum('amount')
+            : 0;
+
+        $totalOut = in_array('out', $allowedTypes)
+            ? Transaction::where('type', 'out')
+                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
+                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
+                ->sum('amount')
+            : 0;
+
         $summary = [
-            'total_in' => Transaction::where('type', 'in')
-                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
-                ->sum('amount'),
-            'total_out' => Transaction::where('type', 'out')
-                ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
-                ->sum('amount'),
+            'total_in' => $totalIn,
+            'total_out' => $totalOut,
+            'balance' => $totalIn - $totalOut,
         ];
-        $summary['balance'] = $summary['total_in'] - $summary['total_out'];
 
         return Inertia::render('history/history', [
             'transactions' => $transactions,
             'summary' => $summary,
-            // Tambahkan per_page ke filters agar React tahu state saat ini
             'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search', 'sort_by', 'sort_dir', 'per_page']),
             'categories' => $this->getCategories(),
+            'allowedTypes' => $allowedTypes,
         ]);
     }
 }
