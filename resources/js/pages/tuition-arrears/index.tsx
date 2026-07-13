@@ -1,3 +1,4 @@
+import { SearchInput } from '@/components/ui/search-input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, Download, FileSpreadsheet, Search, User, Wallet, X, Check, GraduationCap, Users, BookOpen, Clock, ChevronDown, ChevronUp } from 'lucide-react';
@@ -8,6 +9,14 @@ interface UnpaidMonth {
     month: number;
     year: number;
     month_name: string;
+}
+
+interface SelectedMonth {
+    id: number;
+    month: number;
+    year: number;
+    month_name: string;
+    amount: number;
 }
 
 interface Student {
@@ -21,7 +30,8 @@ interface Student {
     entry_year: number;
     arrears_count: number;
     total_arrears: number;
-    unpaid_months: UnpaidMonth[];
+    unpaid_months?: UnpaidMonth[];
+    selected_month?: SelectedMonth;
 }
 
 interface Props {
@@ -111,7 +121,7 @@ export default function Index({ students, summary, availableMonths, selectedMont
     const openPaymentModal = (student: Student) => {
         setPaymentModal({ isOpen: true, student });
         setDisplayAmount('0');
-        setPayData('amount', 0); 
+        setPayData('amount', 0);
     };
 
     const closePaymentModal = () => {
@@ -140,8 +150,13 @@ export default function Index({ students, summary, availableMonths, selectedMont
         }).format(angka);
     };
 
-    const toggleExpand = (id: number) => {
-        setExpandedStudent(expandedStudent === id ? null : id);
+    const handleMonthChange = (value: string) => {
+        setFilterMonth(value);
+        if (value) {
+            router.get('/tuition-arrears', { spp_month_id: value });
+        } else {
+            router.get('/tuition-arrears');
+        }
     };
 
     const handleExportSubmit = () => {
@@ -209,7 +224,7 @@ export default function Index({ students, summary, availableMonths, selectedMont
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
+
                         <form onSubmit={submitPayment} className="p-6">
                             <div className="mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                                 <div className="flex justify-between items-start mb-2">
@@ -262,9 +277,9 @@ export default function Index({ students, summary, availableMonths, selectedMont
                                 <button type="button" onClick={closePaymentModal} className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
                                     Batal
                                 </button>
-                                <button 
-                                    type="submit" 
-                                    disabled={payProcessing || payData.amount <= 0} 
+                                <button
+                                    type="submit"
+                                    disabled={payProcessing || payData.amount <= 0}
                                     className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition"
                                 >
                                     <Check className="w-4 h-4" /> {payProcessing ? 'Memproses...' : 'Proses Pembayaran'}

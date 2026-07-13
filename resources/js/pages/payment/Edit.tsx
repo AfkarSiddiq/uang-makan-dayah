@@ -108,7 +108,12 @@ export default function Edit({ transaction, students, categories }: Props) {
                                 <Label htmlFor="category" className="text-slate-700 dark:text-slate-300">
                                     Kategori <span className="text-rose-500">*</span>
                                 </Label>
-                                <Select value={data.category} onValueChange={(value) => setData('category', value)}>
+                                <Select value={data.category} onValueChange={(value) => {
+                                    setData('category', value);
+                                    if (value !== 'SPP') {
+                                        setData('student_id', '');
+                                    }
+                                }}>
                                     <SelectTrigger className="mt-1">
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>
@@ -140,17 +145,16 @@ export default function Edit({ transaction, students, categories }: Props) {
                             </div>
                         </div>
 
-                        {type === 'in' && (
+                        {type === 'in' && data.category === 'SPP' && (
                             <div>
                                 <Label htmlFor="student_id" className="text-slate-700 dark:text-slate-300">
-                                    Siswa (opsional)
+                                    Pilih Siswa <span className="text-rose-500">*</span>
                                 </Label>
-                                <Select value={data.student_id} onValueChange={(value) => setData('student_id', value === 'none' ? '' : value)}>
+                                <Select value={data.student_id} onValueChange={(value) => setData('student_id', value)}>
                                     <SelectTrigger className="mt-1">
-                                        <SelectValue placeholder="Pilih siswa (jika terkait)" />
+                                        <SelectValue placeholder="Pilih siswa" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">Tidak ada</SelectItem>
                                         {students.map((student) => (
                                             <SelectItem key={student.id} value={String(student.id)}>
                                                 {student.name} - {student.nisn} (Kelas {student.class})
@@ -158,6 +162,7 @@ export default function Edit({ transaction, students, categories }: Props) {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                {errors.student_id && <p className="mt-1 text-sm text-rose-600">{errors.student_id}</p>}
                             </div>
                         )}
 

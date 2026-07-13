@@ -1,15 +1,27 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { TransactionSummary } from '@/types';
+import { Transaction, TransactionSummary } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Clock, Download, Eye, Filter, History, Printer, Search, ShieldAlert, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+interface TransactionLog {
+    id: number;
+    action: string;
+    created_at: string;
+    user?: { id: number; name: string };
+}
+
+interface TransactionWithLogs extends Transaction {
+    logs?: TransactionLog[];
+}
+
 interface Props {
     transactions: {
-        data: any[];
+        data: TransactionWithLogs[];
         current_page: number;
         last_page: number;
         per_page: number;
@@ -36,7 +48,7 @@ interface Props {
 
 export default function Index({ transactions, summary, filters, categories }: Props) {
     const [showFilters, setShowFilters] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState<any | null>(null);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithLogs | null>(null);
     const [localFilters, setLocalFilters] = useState({
         type: filters.type || '',
         category: filters.category || '',
@@ -223,7 +235,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                             <ShieldAlert className="h-4 w-4" /> Jejak Perubahan Data (Audit Trail)
                                         </p>
                                         <div className="max-h-36 space-y-2.5 overflow-y-auto pr-2">
-                                            {selectedTransaction.logs.map((log: any) => (
+                                            {selectedTransaction.logs.map((log: TransactionLog) => (
                                                 <div
                                                     key={log.id}
                                                     className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"
@@ -265,20 +277,14 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                 {/* PANEL UTAMA LOG AUDIT */}
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/50 p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-800/20">
-                        <div className="relative flex-1">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <Input
-                                placeholder="Cari nomor transaksi, catatan, siswa..."
-                                className="bg-white pl-9 dark:bg-slate-900"
-                                value={localFilters.search}
-                                onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        applyFilter();
-                                    }
-                                }}
-                            />
-                        </div>
+                        <SearchInput
+                            value={localFilters.search}
+                            onChange={(value) => setLocalFilters({ ...localFilters, search: value })}
+                            onSubmit={applyFilter}
+                            onClear={() => setLocalFilters({ ...localFilters, search: '' })}
+                            placeholder="Cari nomor transaksi, catatan, siswa..."
+                            showButton
+                        />
                         <div className="flex gap-2">
                             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="bg-white dark:bg-slate-900">
                                 <Filter className="mr-2 h-4 w-4" />
