@@ -204,6 +204,17 @@ class StudentController extends Controller
             'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
+        if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti']) && !empty($validated['exit_year']) && !empty($validated['exit_month']) && $validated['exit_year'] !== 'none' && $validated['exit_month'] !== 'none') {
+            $entryScore = ((int) $validated['entry_year'] * 12) + (int) $validated['entry_month'];
+            $exitScore = ((int) $validated['exit_year'] * 12) + (int) $validated['exit_month'];
+            if ($exitScore < $entryScore) {
+                return back()->withErrors([
+                    'exit_month' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                    'exit_year' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                ])->withInput();
+            }
+        }
+
         // Convert 'none' to null for class
         if (isset($validated['class']) && $validated['class'] === 'none') {
             $validated['class'] = null;
@@ -470,6 +481,17 @@ class StudentController extends Controller
             'exit_month.required_if' => 'Bulan keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
             'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
+
+        if (in_array($validated['status'] ?? 'aktif', ['lulus', 'pindah', 'berhenti']) && !empty($validated['exit_year']) && !empty($validated['exit_month']) && $validated['exit_year'] !== 'none' && $validated['exit_month'] !== 'none') {
+            $entryScore = ((int) $validated['entry_year'] * 12) + (int) $validated['entry_month'];
+            $exitScore = ((int) $validated['exit_year'] * 12) + (int) $validated['exit_month'];
+            if ($exitScore < $entryScore) {
+                return back()->withErrors([
+                    'exit_month' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                    'exit_year' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                ])->withInput();
+            }
+        }
 
         $validated['status'] = $validated['status'] ?? 'aktif';
         $validated['student_type'] = $validated['student_type'] ?? 'umum';

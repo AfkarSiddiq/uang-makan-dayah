@@ -68,6 +68,24 @@ export default function StudentForm({
         e.preventDefault();
         setProcessing(true);
 
+        // Validasi frontend: Pastikan bulan dan tahun keluar tidak lebih terdahulu dibanding bulan dan tahun masuk
+        if (data.status === 'lulus' || data.status === 'pindah' || data.status === 'berhenti') {
+            const entryScore = (Number(data.entry_year) || 0) * 12 + (Number(data.entry_month) || 0);
+            const exitScore = (Number(data.exit_year) || 0) * 12 + (Number(data.exit_month) || 0);
+
+            if (!data.exit_month || !data.exit_year || data.exit_month === 'none' || data.exit_year === 'none') {
+                alert(`Bulan dan Tahun keluar wajib dipilih untuk siswa dengan status ${data.status.toUpperCase()}!`);
+                setProcessing(false);
+                return;
+            }
+
+            if (exitScore < entryScore) {
+                alert('Bulan dan Tahun keluar TIDAK BOLEH lebih terdahulu dibandingkan Bulan dan Tahun masuk siswa!');
+                setProcessing(false);
+                return;
+            }
+        }
+
         if (isEdit && student) {
             router.put(route('siswa.update', student.id), data, {
                 onFinish: () => setProcessing(false),
@@ -335,11 +353,15 @@ export default function StudentForm({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">- Pilih Bulan -</SelectItem>
-                                        {months.map((month) => (
-                                            <SelectItem key={month.value} value={month.value}>
-                                                {month.label}
-                                            </SelectItem>
-                                        ))}
+                                        {months.map((month) => {
+                                            const isSameYear = Number(data.exit_year) === Number(data.entry_year);
+                                            const isBeforeEntry = isSameYear && Number(month.value) < Number(data.entry_month || 0);
+                                            return (
+                                                <SelectItem key={month.value} value={month.value} disabled={isBeforeEntry}>
+                                                    {month.label} {isBeforeEntry ? '(Sebelum Bulan Masuk)' : ''}
+                                                </SelectItem>
+                                            );
+                                        })}
                                     </SelectContent>
                                 </Select>
                                 {errors.exit_month && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.exit_month}</p>}
@@ -349,17 +371,32 @@ export default function StudentForm({
                                 <Label htmlFor="exit_year" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                     Tahun Keluar <span className="text-rose-500">*</span>
                                 </Label>
-                                <Select value={data.exit_year} onValueChange={(value) => setData('exit_year', value === 'none' ? '' : value)}>
+                                <Select
+                                    value={data.exit_year}
+                                    onValueChange={(value) => {
+                                        const newYear = value === 'none' ? '' : value;
+                                        setData((prev) => {
+                                            const updated = { ...prev, exit_year: newYear };
+                                            if (newYear && Number(newYear) === Number(prev.entry_year) && Number(prev.exit_month) < Number(prev.entry_month)) {
+                                                updated.exit_month = prev.entry_month;
+                                            }
+                                            return updated;
+                                        });
+                                    }}
+                                >
                                     <SelectTrigger className="mt-1 bg-white dark:bg-slate-900">
                                         <SelectValue placeholder="Pilih tahun keluar" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">- Pilih Tahun -</SelectItem>
-                                        {years.map((year) => (
-                                            <SelectItem key={year} value={year}>
-                                                {year}
-                                            </SelectItem>
-                                        ))}
+                                        {years.map((year) => {
+                                            const isBeforeEntryYear = Number(year) < Number(data.entry_year || 0);
+                                            return (
+                                                <SelectItem key={year} value={year} disabled={isBeforeEntryYear}>
+                                                    {year} {isBeforeEntryYear ? '(Sebelum Tahun Masuk)' : ''}
+                                                </SelectItem>
+                                            );
+                                        })}
                                     </SelectContent>
                                 </Select>
                                 {errors.exit_year && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.exit_year}</p>}
