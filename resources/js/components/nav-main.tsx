@@ -24,15 +24,15 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                     const isSubActiveGroup = item.items?.some(sub => sub.url !== '#' && (page.url === sub.url || page.url.startsWith(sub.url + '/')));
 
                     return item.items && item.items.length > 0 ? (
-                        // JIKA ADA SUB-MENU (Contoh: Data Santri)
+                        // JIKA ADA SUB-MENU (Contoh: Data Santri -> Santriwan / Santriwati)
                         <Collapsible key={item.title} asChild defaultOpen={item.isActive || isSubActiveGroup} className="group/collapsible">
                             <SidebarMenuItem>
                                 <CollapsibleTrigger asChild>
-                                    <SidebarMenuButton 
+                                    <SidebarMenuButton
                                         tooltip={item.title}
-                                        isActive={isSubActiveGroup}
+                                        isActive={false}
                                         className={isSubActiveGroup
-                                            ? 'bg-emerald-100/70 font-semibold text-emerald-900 border-l-4 border-amber-500 shadow-xs dark:bg-emerald-950/80 dark:text-emerald-200'
+                                            ? 'bg-emerald-100/70 font-semibold text-emerald-900! data-[active=true]:text-emerald-900! border-l-4 border-amber-500 shadow-xs dark:bg-emerald-950/80 dark:text-emerald-200! dark:data-[active=true]:text-emerald-200!'
                                             : 'transition-all duration-200 hover:bg-emerald-500/10 hover:text-emerald-900 dark:hover:text-emerald-300'}
                                     >
                                         {item.icon && <item.icon className={isSubActiveGroup ? 'text-emerald-700 dark:text-emerald-400' : ''} />}
@@ -46,11 +46,11 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                             const isSubActive = subItem.url !== '#' && (page.url === subItem.url || page.url.startsWith(subItem.url + '/'));
                                             return (
                                                 <SidebarMenuSubItem key={subItem.title}>
-                                                    <SidebarMenuSubButton 
-                                                        asChild 
+                                                    <SidebarMenuSubButton
+                                                        asChild
                                                         isActive={isSubActive}
                                                         className={isSubActive
-                                                            ? 'bg-emerald-600 font-semibold text-white shadow-xs rounded-lg hover:bg-emerald-700 hover:text-white dark:bg-emerald-700'
+                                                            ? 'bg-emerald-600 font-semibold text-white! data-[active=true]:text-black! shadow-xs rounded-lg hover:bg-emerald-700 hover:text-white! dark:bg-emerald-700'
                                                             : 'transition-all duration-200 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-900 dark:hover:text-emerald-300'}
                                                     >
                                                         <Link href={subItem.url}>
@@ -65,14 +65,14 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                             </SidebarMenuItem>
                         </Collapsible>
                     ) : (
-                        // JIKA TIDAK ADA SUB-MENU (Contoh: Dashboard, Transaksi)
+                        // JIKA TIDAK ADA SUB-MENU (Contoh: Dashboard, Transaksi, Tagihan bulan)
                         <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton 
-                                asChild 
-                                tooltip={item.title} 
+                            <SidebarMenuButton
+                                asChild
+                                tooltip={item.title}
                                 isActive={isMainActive}
                                 className={isMainActive
-                                    ? 'bg-gradient-to-r from-emerald-800 to-emerald-700 font-bold text-white shadow-md shadow-emerald-900/20 hover:bg-emerald-800 hover:text-white dark:from-emerald-700 dark:to-emerald-600'
+                                    ? 'bg-gradient-to-r from-emerald-800 to-emerald-700 font-bold text-white! data-[active=true]:text-white! shadow-md shadow-emerald-900/20 hover:bg-emerald-800 hover:text-white! dark:from-emerald-700 dark:to-emerald-600 dark:data-[active=true]:text-white!'
                                     : 'transition-all duration-200 hover:bg-emerald-500/10 hover:text-emerald-900 hover:translate-x-0.5 dark:hover:text-emerald-300'}
                             >
                                 <Link href={item.url}>

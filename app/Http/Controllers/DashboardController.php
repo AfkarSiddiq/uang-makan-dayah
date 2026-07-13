@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Student;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -126,7 +127,13 @@ class DashboardController extends Controller
                 ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
                 ->sum('amount'),
         ];
-        $summary['balance'] = $summary['total_in'] - $summary['total_out'];
+        $summary['balance'] = (float)$summary['total_in'] - (float)$summary['total_out'];
+        $studentStats = [
+            'total_aktif' => Student::where('status', 'aktif')->count(),
+            'santriwan_aktif' => Student::where('status', 'aktif')->where('gender', 'L')->count(),
+            'santriwati_aktif' => Student::where('status', 'aktif')->where('gender', 'P')->count(),
+            'total_non_aktif' => Student::whereIn('status', ['lulus', 'pindah', 'berhenti'])->count(),
+        ];
 
         return Inertia::render('dashboard', [
             'transactions' => $transactions,
@@ -137,6 +144,7 @@ class DashboardController extends Controller
                 'monthly_trend' => $monthlyTrend,
             ],
             'summary' => $summary,
+            'student_stats' => $studentStats,
             'filters' => $request->only(['type', 'category', 'date_from', 'date_to', 'search', 'sort_by', 'sort_dir']),
             'categories' => $this->getCategories(),
         ]);
