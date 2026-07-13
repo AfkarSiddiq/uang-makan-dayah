@@ -13,7 +13,7 @@ class SppPayment extends Model
         'paid_amount',
         'status',
         'paid_at',
-
+        'transaction_id',
     ];
 
     // Casting agar tipe data tanggal otomatis dibaca dengan benar oleh Laravel/React
@@ -31,6 +31,12 @@ class SppPayment extends Model
     public function sppMonth()
     {
         return $this->belongsTo(SppMonth::class);
+    }
+
+    // Relasi ke transaksi pembayaran
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     public function getAmountAttribute()
