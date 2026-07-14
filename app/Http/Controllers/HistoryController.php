@@ -33,7 +33,7 @@ class HistoryController extends Controller
         $query = Transaction::with(['student', 'user', 'logs.user', 'sppPayments.sppMonth']);
 
         if (count($allowedTypes) === 1) {
-            $query->where('type', $allowedTypes[0]);
+            $query->where('transactions.type', $allowedTypes[0]);
         }
 
         // --- SORTING ---
@@ -54,7 +54,7 @@ class HistoryController extends Controller
                 ->select('transactions.*') // Pastikan hanya menyeleksi kolom transaksi agar ID tidak tertimpa ID siswa
                 ->orderBy('students.name', $sortDir);
         } else {
-            $query->orderBy($sortBy, $sortDir);
+            $query->orderBy('transactions.' . $sortBy, $sortDir);
         }
 
         // Secondary sort
@@ -64,26 +64,26 @@ class HistoryController extends Controller
 
         // --- FILTERING ---
         if ($request->filled('type')) {
-            $query->where('type', $request->type);
+            $query->where('transactions.type', $request->type);
         }
 
         if ($request->filled('category')) {
-            $query->where('category', $request->category);
+            $query->where('transactions.category', $request->category);
         }
 
         if ($request->filled('date_from')) {
-            $query->where('transaction_date', '>=', $request->date_from);
+            $query->where('transactions.transaction_date', '>=', $request->date_from);
         }
 
         if ($request->filled('date_to')) {
-            $query->where('transaction_date', '<=', $request->date_to);
+            $query->where('transactions.transaction_date', '<=', $request->date_to);
         }
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('transaction_id', 'like', "%{$search}%")
-                    ->orWhere('note', 'like', "%{$search}%")
+                $q->where('transactions.transaction_id', 'like', "%{$search}%")
+                    ->orWhere('transactions.note', 'like', "%{$search}%")
                     ->orWhereHas('student', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->orWhere('nisn', 'like', "%{$search}%");
@@ -107,6 +107,18 @@ class HistoryController extends Controller
             ? Transaction::where('type', 'in')
                 ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
                 ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
+                ->when($request->category, fn ($q) => $q->where('category', $request->category))
+                ->when($request->search, function ($q) use ($request) {
+                    $search = $request->search;
+                    $q->where(function ($sq) use ($search) {
+                        $sq->where('transaction_id', 'like', "%{$search}%")
+                            ->orWhere('note', 'like', "%{$search}%")
+                            ->orWhereHas('student', function ($sq2) use ($search) {
+                                $sq2->where('name', 'like', "%{$search}%")
+                                    ->orWhere('nisn', 'like', "%{$search}%");
+                            });
+                    });
+                })
                 ->sum('amount')
             : 0;
 
@@ -114,6 +126,18 @@ class HistoryController extends Controller
             ? Transaction::where('type', 'out')
                 ->when($request->date_from, fn ($q) => $q->where('transaction_date', '>=', $request->date_from))
                 ->when($request->date_to, fn ($q) => $q->where('transaction_date', '<=', $request->date_to))
+                ->when($request->category, fn ($q) => $q->where('category', $request->category))
+                ->when($request->search, function ($q) use ($request) {
+                    $search = $request->search;
+                    $q->where(function ($sq) use ($search) {
+                        $sq->where('transaction_id', 'like', "%{$search}%")
+                            ->orWhere('note', 'like', "%{$search}%")
+                            ->orWhereHas('student', function ($sq2) use ($search) {
+                                $sq2->where('name', 'like', "%{$search}%")
+                                    ->orWhere('nisn', 'like', "%{$search}%");
+                            });
+                    });
+                })
                 ->sum('amount')
             : 0;
 

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\SppPayment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
 class Transaction extends Model
@@ -39,6 +41,12 @@ class Transaction extends Model
     {
         // Kita urutkan dari yang terbaru agar log terakhir muncul di atas
         return $this->hasMany(TransactionLog::class)->orderBy('created_at', 'desc');
+    }
+
+    // Relasi: Transaksi (khususnya kategori SPP) bisa memiliki item pembayaran SPP
+    public function sppPayments(): HasMany
+    {
+        return $this->hasMany(SppPayment::class);
     }
 
     protected static function booted()

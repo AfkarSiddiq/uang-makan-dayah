@@ -15,8 +15,19 @@ interface TransactionLog {
     user?: { id: number; name: string };
 }
 
+interface SppPayment {
+    id: number;
+    paid_amount: number;
+    status: string;
+    sppMonth: {
+        month: number;
+        year: number;
+    };
+}
+
 interface TransactionWithLogs extends Transaction {
     logs?: TransactionLog[];
+    sppPayments?: SppPayment[];
 }
 
 interface Props {
