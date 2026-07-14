@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -116,29 +117,27 @@ function UserForm({ roles, initial, title, description, submitLabel, submitUrl, 
                 </div>
 
                 <div className="space-y-2">
-                    <Label>Role</Label>
-                    <div className="mt-2 space-y-2">
-                        {roles.map((role) => (
-                            <label key={role.id} className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={form.roles.includes(role.id)}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setForm({ ...form, roles: [...form.roles, role.id] });
-                                        } else {
-                                            setForm({
-                                                ...form,
-                                                roles: form.roles.filter((r) => r !== role.id),
-                                            });
-                                        }
-                                    }}
-                                    className="h-4 w-4 rounded border-gray-300"
-                                />
-                                <span className="text-sm">{role.display_name}</span>
-                            </label>
-                        ))}
-                    </div>
+                    <Label htmlFor="role">Role *</Label>
+                    <Select
+                        value={form.roles[0]?.toString() || ''}
+                        onValueChange={(value) => {
+                            setForm({ ...form, roles: value ? [Number(value)] : [] });
+                        }}
+                    >
+                        <SelectTrigger id="role" className="w-full">
+                            <SelectValue placeholder="Pilih role pengguna" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {roles.map((role) => (
+                                <SelectItem key={role.id} value={role.id.toString()}>
+                                    {role.display_name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {(errors.roles || errors['roles.0']) && (
+                        <p className="text-sm text-rose-500">{errors.roles || errors['roles.0']}</p>
+                    )}
                 </div>
 
                 <div className="flex gap-2 pt-4">

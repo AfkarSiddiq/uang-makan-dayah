@@ -138,9 +138,15 @@ export default function Index() {
                         <DialogHeader>
                             <DialogTitle>Hapus Role</DialogTitle>
                             <DialogDescription>
-                                Apakah Anda yakin ingin menghapus role "{deleteDialog?.display_name}"?
-                                Role tidak dapat dihapus karena masih digunakan oleh{' '}
-                                {deleteDialog?.users_count} pengguna.
+                                {(deleteDialog?.users_count ?? 0) > 0 ? (
+                                    <span className="text-rose-500 font-medium">
+                                        Role "{deleteDialog?.display_name}" tidak dapat dihapus karena masih digunakan oleh {deleteDialog?.users_count} pengguna.
+                                    </span>
+                                ) : (
+                                    <span>
+                                        Apakah Anda yakin ingin menghapus role "{deleteDialog?.display_name}"? Tindakan ini akan menghapus role secara permanen dan tidak dapat dibatalkan.
+                                    </span>
+                                )}
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
@@ -150,9 +156,9 @@ export default function Index() {
                             <Button
                                 variant="destructive"
                                 onClick={handleDelete}
-                                disabled={processing}
+                                disabled={processing || (deleteDialog?.users_count ?? 0) > 0}
                             >
-                                Hapus
+                                {processing ? 'Menghapus...' : 'Hapus'}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

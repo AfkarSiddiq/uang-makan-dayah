@@ -36,8 +36,11 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'roles' => 'array',
+            'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,id',
+        ], [
+            'roles.required' => 'Role pengguna wajib dipilih.',
+            'roles.min' => 'Role pengguna wajib dipilih.',
         ]);
 
         $user = User::create([
@@ -78,7 +81,7 @@ class UserController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'roles' => 'array',
+            'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,id',
         ];
 
@@ -86,7 +89,10 @@ class UserController extends Controller
             $rules['password'] = 'string|min:8|confirmed';
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, [
+            'roles.required' => 'Role pengguna wajib dipilih.',
+            'roles.min' => 'Role pengguna wajib dipilih.',
+        ]);
 
         $user->update([
             'name' => $validated['name'],
