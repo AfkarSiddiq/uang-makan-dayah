@@ -8,28 +8,20 @@ import { Head, router } from '@inertiajs/react';
 import { Clock, Download, Eye, Filter, History, Printer, Search, ShieldAlert, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface SppPayment {
+interface TransactionLog {
     id: number;
-    sppMonth: { month: number; year: number };
-    paid_amount: number;
-    status: string;
-}
-
-interface AuditLog {
-    id: number;
-    user?: { name: string };
     action: string;
     created_at: string;
+    user?: { id: number; name: string };
 }
 
-interface TransactionDetail extends Transaction {
-    logs?: AuditLog[];
-    sppPayments?: SppPayment[];
+interface TransactionWithLogs extends Transaction {
+    logs?: TransactionLog[];
 }
 
 interface Props {
     transactions: {
-        data: Transaction[];
+        data: TransactionWithLogs[];
         current_page: number;
         last_page: number;
         per_page: number;
@@ -79,7 +71,7 @@ function formatSppMonthsCompact(sppPayments: { sppMonth: { year: number; month: 
 
 export default function Index({ transactions, summary, filters, categories, allowedTypes }: Props) {
     const [showFilters, setShowFilters] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetail | null>(null);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithLogs | null>(null);
     const [localFilters, setLocalFilters] = useState({
         type: filters.type || '',
         category: filters.category || '',
@@ -309,7 +301,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                             <ShieldAlert className="h-4 w-4" /> Jejak Perubahan Data (Audit Trail)
                                         </p>
                                         <div className="max-h-36 space-y-2.5 overflow-y-auto pr-2">
-                                            {selectedTransaction.logs.map((log: AuditLog) => (
+                                            {selectedTransaction.logs.map((log: TransactionLog) => (
                                                 <div
                                                     key={log.id}
                                                     className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"

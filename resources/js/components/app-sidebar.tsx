@@ -63,7 +63,7 @@ const mainNavItems: NavItemWithPermission[] = [
         permission: 'pembayaran.masuk.view' | 'pembayaran.keluar.view',
     },
     {
-        title: 'Masukkan siswa Baru',
+        title: 'Data & Input Siswa',
         url: '/siswa',
         icon: School,
         permission: 'siswa.view',

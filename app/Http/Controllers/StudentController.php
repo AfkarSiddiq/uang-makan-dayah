@@ -45,9 +45,13 @@ class StudentController extends Controller
             ->get();
     }
 
-    private function getStudentProfile($id, $gender)
+    private function getStudentProfile($id, $gender = null)
     {
-        $student = Student::where('gender', $gender)->findOrFail($id);
+        $query = Student::query();
+        if ($gender) {
+            $query->where('gender', $gender);
+        }
+        $student = $query->findOrFail($id);
 
         $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
@@ -200,6 +204,17 @@ class StudentController extends Controller
             'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
+        if (in_array($validated['status'], ['lulus', 'pindah', 'berhenti']) && !empty($validated['exit_year']) && !empty($validated['exit_month']) && $validated['exit_year'] !== 'none' && $validated['exit_month'] !== 'none') {
+            $entryScore = ((int) $validated['entry_year'] * 12) + (int) $validated['entry_month'];
+            $exitScore = ((int) $validated['exit_year'] * 12) + (int) $validated['exit_month'];
+            if ($exitScore < $entryScore) {
+                return back()->withErrors([
+                    'exit_month' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                    'exit_year' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                ])->withInput();
+            }
+        }
+
         // Convert 'none' to null for class
         if (isset($validated['class']) && $validated['class'] === 'none') {
             $validated['class'] = null;
@@ -340,31 +355,104 @@ class StudentController extends Controller
         return redirect()->route('santriwati.kelas')->with('success', 'Proses kenaikan kelas berhasil!');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $query = Student::query();
 
+        // Filter status (default 'aktif' jika tidak dipilih)
+        $statusFilter = $request->get('status', 'aktif');
+        if ($statusFilter !== 'all' && $statusFilter !== '') {
+            $query->where('status', $statusFilter);
+        }
+
+        // Filter kelas
+        $classFilter = $request->get('class', 'all');
+        if ($classFilter !== 'all' && $classFilter !== '') {
+            if ($classFilter === 'none') {
+                $query->where(function ($q) {
+                    $q->whereNull('class')->orWhere('class', '');
+                });
+            } else {
+                $query->where('class', $classFilter);
+            }
+        }
+
+        // Filter gender
+        $genderFilter = $request->get('gender', 'all');
+        if ($genderFilter !== 'all' && $genderFilter !== '') {
+            $query->where('gender', $genderFilter);
+        }
+
+        // Filter jenis siswa
+        $typeFilter = $request->get('student_type', 'all');
+        if ($typeFilter !== 'all' && $typeFilter !== '') {
+            $query->where('student_type', $typeFilter);
+        }
+
         // Search
-        if (request()->has('search') && request()->search) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', '%'.request()->search.'%')
-                    ->orWhere('nisn', 'like', '%'.request()->search.'%');
+        if ($request->has('search') && $request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('nisn', 'like', '%'.$request->search.'%');
             });
         }
 
         // Sorting
-        $sortBy = request()->get('sort_by', 'name');
-        $sortDir = request()->get('sort_dir', 'asc');
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDir = $request->get('sort_dir', 'asc');
         $query->orderBy($sortBy, $sortDir);
 
-        $perPage = request()->get('per_page', 15);
+        $perPage = $request->get('per_page', 15);
         $students = $query->paginate($perPage)->withQueryString();
+
+        // Statistik umum
+        $stats = [
+            'total_aktif' => Student::where('status', 'aktif')->count(),
+            'santriwan_aktif' => Student::where('status', 'aktif')->where('gender', 'L')->count(),
+            'santriwati_aktif' => Student::where('status', 'aktif')->where('gender', 'P')->count(),
+            'total_non_aktif' => Student::whereIn('status', ['lulus', 'pindah', 'berhenti'])->count(),
+        ];
+
+        // Breakdown per kelas berdasarkan filter status/gender/type saat ini
+        $classCountsQuery = Student::query();
+        if ($statusFilter !== 'all' && $statusFilter !== '') {
+            $classCountsQuery->where('status', $statusFilter);
+        }
+        if ($genderFilter !== 'all' && $genderFilter !== '') {
+            $classCountsQuery->where('gender', $genderFilter);
+        }
+        if ($typeFilter !== 'all' && $typeFilter !== '') {
+            $classCountsQuery->where('student_type', $typeFilter);
+        }
+
+        $totalCount = (clone $classCountsQuery)->count();
+        $classCountsRaw = (clone $classCountsQuery)
+            ->select('class', DB::raw('count(*) as count'))
+            ->groupBy('class')
+            ->pluck('count', 'class');
+
+        $classBreakdown = [
+            'all' => $totalCount,
+            '1' => $classCountsRaw->get('1', 0),
+            '2' => $classCountsRaw->get('2', 0),
+            '3' => $classCountsRaw->get('3', 0),
+            '4' => $classCountsRaw->get('4', 0),
+            '5' => $classCountsRaw->get('5', 0),
+            '6' => $classCountsRaw->get('6', 0),
+            'none' => $classCountsRaw->get('', 0) + $classCountsRaw->get(null, 0),
+        ];
 
         return Inertia::render('siswa/index', [
             'students' => $students,
+            'stats' => $stats,
+            'classBreakdown' => $classBreakdown,
             'filters' => [
-                'search' => request()->search,
-                'per_page' => $perPage,
+                'search' => $request->search ?? '',
+                'class' => $classFilter,
+                'status' => $statusFilter,
+                'gender' => $genderFilter,
+                'student_type' => $typeFilter,
+                'per_page' => (string) $perPage,
                 'sort_by' => $sortBy,
                 'sort_dir' => $sortDir,
             ],
@@ -394,6 +482,17 @@ class StudentController extends Controller
             'exit_year.required_if' => 'Tahun keluar wajib diisi karena siswa berstatus pindah/lulus/berhenti.',
         ]);
 
+        if (in_array($validated['status'] ?? 'aktif', ['lulus', 'pindah', 'berhenti']) && !empty($validated['exit_year']) && !empty($validated['exit_month']) && $validated['exit_year'] !== 'none' && $validated['exit_month'] !== 'none') {
+            $entryScore = ((int) $validated['entry_year'] * 12) + (int) $validated['entry_month'];
+            $exitScore = ((int) $validated['exit_year'] * 12) + (int) $validated['exit_month'];
+            if ($exitScore < $entryScore) {
+                return back()->withErrors([
+                    'exit_month' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                    'exit_year' => 'Bulan & tahun keluar tidak boleh lebih awal dibanding bulan & tahun masuk.',
+                ])->withInput();
+            }
+        }
+
         $validated['status'] = $validated['status'] ?? 'aktif';
         $validated['student_type'] = $validated['student_type'] ?? 'umum';
 
@@ -409,9 +508,9 @@ class StudentController extends Controller
 
     public function show($id)
     {
-        $student = Student::findOrFail($id);
-
-        return Inertia::render('siswa/show', ['student' => $student]);
+        return Inertia::render('siswa/show', [
+            'student' => $this->getStudentProfile($id),
+        ]);
     }
 
     public function edit($id)

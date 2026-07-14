@@ -20,23 +20,67 @@ class TuitionArrearsController extends Controller
         $currentMonth = (int) date('n');
         $currentScore = ($currentYear * 12) + $currentMonth;
 
-        // Ambil SEMUA buku menu (Master Bulan), dari awal sampai akhir
         $sppMonths = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
-        // Hanya hitung siswa yang masih aktif menunggak
-        $allStudents = Student::where('status', 'aktif')
-            ->with('sppPayments')
-            ->get();
+        // Hitung tunggakan untuk SEMUA siswa (aktif maupun non-aktif/alumni yang masih punya tunggakan)
+        $studentsWithArrears = $this->calculateArrearsForStudents(Student::query());
+
+        // Hitung statistik untuk Dashboard/Header atas
+        $totalStudentsWithArrears = count($studentsWithArrears);
+        $totalArrearsAmountGlobal = array_sum(array_column($studentsWithArrears, 'total_arrears'));
+        $activeStudentsCount = count(array_filter($studentsWithArrears, fn ($s) => $s['status'] === 'aktif'));
+        $inactiveStudentsCount = count(array_filter($studentsWithArrears, fn ($s) => $s['status'] !== 'aktif'));
+
+        // Siapkan data dropdown Export per Bulan (Bulan yang sudah ada masternya di masa lalu/sekarang)
+        $availableMonths = $sppMonths->filter(function ($month) use ($currentScore) {
+            $score = ($month->year * 12) + $month->month;
+
+            return $score <= $currentScore;
+        })->sortByDesc(function ($month) {
+            return ($month->year * 12) + $month->month; // Urutkan dari terbaru ke terlama
+        })->map(function ($month) {
+            return [
+                'id' => $month->id,
+                'month' => $month->month,
+                'year' => $month->year,
+                'label' => $this->getMonthName($month->month).' '.$month->year,
+            ];
+        })->values();
+
+        // Render ke Inertia
+        return Inertia::render('tuition-arrears/index', [
+            'students' => array_values($studentsWithArrears),
+            'summary' => [
+                'total_students' => $totalStudentsWithArrears,
+                'total_arrears' => $totalArrearsAmountGlobal,
+                'active_students_count' => $activeStudentsCount,
+                'inactive_students_count' => $inactiveStudentsCount,
+            ],
+            'availableMonths' => $availableMonths,
+            'selectedMonth' => $selectedMonth,
+        ]);
+    }
+
+    private function calculateArrearsForStudents($studentsQuery)
+    {
+        $currentYear = (int) date('Y');
+        $currentMonth = (int) date('n');
+        $currentScore = ($currentYear * 12) + $currentMonth;
+
+        $sppMonths = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
+        $allStudents = $studentsQuery->with('sppPayments')->get();
 
         $studentsWithArrears = [];
 
         foreach ($allStudents as $student) {
             $entryScore = ($student->entry_year * 12) + $student->entry_month;
 
-            // Hitung Exit Score jika anak ini sudah ada info lulus/keluar (jika ada field tersebut)
+            // Hitung Exit Score jika anak ini sudah ada info lulus/keluar atau status non-aktif
             $exitScore = null;
             if ($student->exit_year && $student->exit_month) {
                 $exitScore = ($student->exit_year * 12) + $student->exit_month;
+            } elseif ($student->status !== 'aktif') {
+                $exitScore = ((int) $student->updated_at->format('Y') * 12) + (int) $student->updated_at->format('n');
             }
 
             $totalArrearsAmount = 0;
@@ -88,6 +132,7 @@ class TuitionArrearsController extends Controller
                     'nisn' => $student->nisn,
                     'class' => $student->class,
                     'gender' => $student->gender,
+                    'status' => $student->status,
                     'entry_month' => $student->entry_month,
                     'entry_year' => $student->entry_year,
                     'arrears_count' => $arrearsCount,
@@ -97,127 +142,156 @@ class TuitionArrearsController extends Controller
             }
         }
 
-        // Urutkan dari yang hutangnya paling banyak (Descending)
         usort($studentsWithArrears, function ($a, $b) {
             return $b['total_arrears'] <=> $a['total_arrears'];
         });
 
-        // Hitung statistik untuk Dashboard/Header atas
-        $totalStudentsWithArrears = count($studentsWithArrears);
-        $totalArrearsAmountGlobal = array_sum(array_column($studentsWithArrears, 'total_arrears'));
-
-        // Siapkan data dropdown Export per Bulan (Bulan yang sudah ada masternya di masa lalu/sekarang)
-        $availableMonths = $sppMonths->filter(function ($month) use ($currentScore) {
-            $score = ($month->year * 12) + $month->month;
-
-            return $score <= $currentScore;
-        })->sortByDesc(function ($month) {
-            return ($month->year * 12) + $month->month; // Urutkan dari terbaru ke terlama
-        })->map(function ($month) {
-            return [
-                'id' => $month->id,
-                'month' => $month->month,
-                'year' => $month->year,
-                'label' => $this->getMonthName($month->month).' '.$month->year,
-            ];
-        })->values();
-
-        // Render ke Inertia (Sesuaikan 'tuition-arrears/index' dengan path file TSX Anda)
-        return Inertia::render('tuition-arrears/index', [
-            'students' => $studentsWithArrears,
-            'summary' => [
-                'total_students' => $totalStudentsWithArrears,
-                'total_arrears' => $totalArrearsAmountGlobal,
-            ],
-            'availableMonths' => $availableMonths,
-            'selectedMonth' => $selectedMonth,
-        ]);
+        return $studentsWithArrears;
     }
 
-    public function exportAll()
+    public function exportAll(Request $request)
     {
-        $currentYear = date('Y');
-        $currentMonth = date('n');
+        $statusFilter = $request->input('status', 'all'); // 'active', 'inactive', 'all'
 
-        $sppMonths = SppMonth::where(function ($query) use ($currentYear, $currentMonth) {
-            $query->where('year', '<', $currentYear)
-                ->orWhere(function ($q) use ($currentYear, $currentMonth) {
-                    $q->where('year', $currentYear)->where('month', '<', $currentMonth);
-                });
-        })
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
-
-        $allStudents = Student::where('status', 'aktif')
-            ->with('sppPayments.sppMonth')
-            ->get();
-
-        $studentsWithArrears = [];
-
-        foreach ($allStudents as $student) {
-            $entryYear = $student->entry_year;
-            $entryMonth = $student->entry_month;
-
-            $eligibleMonths = $sppMonths->filter(function ($month) use ($entryYear, $entryMonth) {
-                $monthScore = ($month->year * 12) + $month->month;
-                $entryScore = ($entryYear * 12) + $entryMonth;
-
-                return $monthScore >= $entryScore;
-            });
-
-            $totalExpected = $eligibleMonths->count();
-            $paidCount = $student->sppPayments->where('status', 'paid')->count();
-
-            if ($paidCount < $totalExpected && $totalExpected > 0) {
-                $arrearsCount = $totalExpected - $paidCount;
-                $totalArrearsAmount = $arrearsCount * 500000;
-
-                $unpaidMonths = $eligibleMonths->reject(function ($month) use ($student) {
-                    return $student->sppPayments->where('spp_month_id', $month->id)->where('status', 'paid')->isNotEmpty();
-                });
-
-                $studentsWithArrears[] = [
-                    'name' => $student->name,
-                    'nisn' => $student->nisn,
-                    'class' => $student->class,
-                    'arrears_count' => $arrearsCount,
-                    'total_arrears' => $totalArrearsAmount,
-                    'unpaid_months' => $unpaidMonths->map(fn ($m) => $this->getMonthName($m->month).' '.$m->year)->implode(', '),
-                ];
-            }
+        $query = Student::query();
+        if ($statusFilter === 'active') {
+            $query->where('status', 'aktif');
+        } elseif ($statusFilter === 'inactive') {
+            $query->where('status', '!=', 'aktif');
         }
 
-        usort($studentsWithArrears, function ($a, $b) {
-            return $b['total_arrears'] <=> $a['total_arrears'];
-        });
+        $studentsWithArrears = $this->calculateArrearsForStudents($query);
 
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->setCellValue('A1', 'Nama Siswa');
-        $sheet->setCellValue('B1', 'NISN');
-        $sheet->setCellValue('C1', 'Kelas');
-        $sheet->setCellValue('D1', 'Jumlah Bulan Tunggakan');
-        $sheet->setCellValue('E1', 'Total Tunggakan');
-        $sheet->setCellValue('F1', 'Bulan Belum Dibayar');
+        $title = 'Data Semua Tunggakan SPP';
+        if ($statusFilter === 'active') {
+            $title = 'Data Tunggakan SPP - Siswa Aktif';
+        }
+        if ($statusFilter === 'inactive') {
+            $title = 'Data Tunggakan SPP - Siswa Non-Aktif / Alumni';
+        }
 
-        $row = 2;
+        $sheet->setCellValue('A1', strtoupper($title));
+        $sheet->mergeCells('A1:G1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+        $sheet->setCellValue('A3', 'No');
+        $sheet->setCellValue('B3', 'Nama Siswa');
+        $sheet->setCellValue('C3', 'NISN');
+        $sheet->setCellValue('D3', 'Kelas');
+        $sheet->setCellValue('E3', 'Status Siswa');
+        $sheet->setCellValue('F3', 'Jumlah Bulan Tunggakan');
+        $sheet->setCellValue('G3', 'Total Tunggakan (Rp)');
+        $sheet->setCellValue('H3', 'Rincian Bulan Belum Dibayar');
+
+        $sheet->getStyle('A3:H3')->getFont()->setBold(true);
+
+        $row = 4;
+        $no = 1;
+        $totalArrears = 0;
         foreach ($studentsWithArrears as $student) {
-            $sheet->setCellValue('A'.$row, $student['name']);
-            $sheet->setCellValue('B'.$row, $student['nisn']);
-            $sheet->setCellValue('C'.$row, $student['class'] ?: '-');
-            $sheet->setCellValue('D'.$row, $student['arrears_count']);
-            $sheet->setCellValue('E'.$row, $student['total_arrears']);
-            $sheet->setCellValue('F'.$row, $student['unpaid_months']);
+            $unpaidStr = collect($student['unpaid_months'])->map(fn ($m) => $m['month_name'].' '.$m['year'])->implode(', ');
+
+            $sheet->setCellValue('A'.$row, $no);
+            $sheet->setCellValue('B'.$row, $student['name']);
+            $sheet->setCellValue('C'.$row, $student['nisn']);
+            $sheet->setCellValue('D'.$row, $student['class'] ? 'Kelas '.$student['class'] : '-');
+            $sheet->setCellValue('E'.$row, ucfirst($student['status']));
+            $sheet->setCellValue('F'.$row, $student['arrears_count']);
+            $sheet->setCellValue('G'.$row, $student['total_arrears']);
+            $sheet->setCellValue('H'.$row, $unpaidStr);
+
+            $totalArrears += $student['total_arrears'];
+            $no++;
             $row++;
         }
 
-        foreach (range('A', 'F') as $col) {
+        $sheet->setCellValue('F'.$row, 'TOTAL AKUMULASI');
+        $sheet->setCellValue('G'.$row, $totalArrears);
+        $sheet->getStyle('F'.$row.':G'.$row)->getFont()->setBold(true);
+
+        foreach (range('A', 'H') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        $filename = 'tunggakan_spp_all_'.date('Y-m-d').'.xlsx';
+        $filename = 'tunggakan_spp_semua_'.date('Y-m-d').'.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.xlsx');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
+    }
+
+    public function exportByClass(Request $request)
+    {
+        $class = $request->input('class');
+        $status = $request->input('status', 'aktif'); // default 'aktif' jika per kelas, atau 'all'
+
+        $query = Student::query();
+        if ($class && $class !== 'all') {
+            $query->where('class', $class);
+        }
+        if ($status === 'aktif') {
+            $query->where('status', 'aktif');
+        } elseif ($status === 'nonaktif' || $status === 'inactive') {
+            $query->where('status', '!=', 'aktif');
+        }
+
+        $studentsWithArrears = $this->calculateArrearsForStudents($query);
+
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $className = ($class && $class !== 'all') ? 'Kelas '.$class : 'Semua Kelas';
+        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN SPP - '.strtoupper($className));
+        $sheet->mergeCells('A1:G1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+        $sheet->setCellValue('A3', 'No');
+        $sheet->setCellValue('B3', 'Nama Siswa');
+        $sheet->setCellValue('C3', 'NISN');
+        $sheet->setCellValue('D3', 'Kelas');
+        $sheet->setCellValue('E3', 'Status Siswa');
+        $sheet->setCellValue('F3', 'Jumlah Bulan Tunggakan');
+        $sheet->setCellValue('G3', 'Total Tunggakan (Rp)');
+        $sheet->setCellValue('H3', 'Rincian Bulan Belum Dibayar');
+
+        $sheet->getStyle('A3:H3')->getFont()->setBold(true);
+
+        $row = 4;
+        $no = 1;
+        $totalArrears = 0;
+        foreach ($studentsWithArrears as $student) {
+            $unpaidStr = collect($student['unpaid_months'])->map(fn ($m) => $m['month_name'].' '.$m['year'])->implode(', ');
+
+            $sheet->setCellValue('A'.$row, $no);
+            $sheet->setCellValue('B'.$row, $student['name']);
+            $sheet->setCellValue('C'.$row, $student['nisn']);
+            $sheet->setCellValue('D'.$row, $student['class'] ? 'Kelas '.$student['class'] : '-');
+            $sheet->setCellValue('E'.$row, ucfirst($student['status']));
+            $sheet->setCellValue('F'.$row, $student['arrears_count']);
+            $sheet->setCellValue('G'.$row, $student['total_arrears']);
+            $sheet->setCellValue('H'.$row, $unpaidStr);
+
+            $totalArrears += $student['total_arrears'];
+            $no++;
+            $row++;
+        }
+
+        $sheet->setCellValue('F'.$row, 'TOTAL AKUMULASI');
+        $sheet->setCellValue('G'.$row, $totalArrears);
+        $sheet->getStyle('F'.$row.':G'.$row)->getFont()->setBold(true);
+
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'tunggakan_spp_kelas_'.($class ?: 'semua').'_'.date('Y-m-d').'.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.xlsx');
         header('Content-Disposition: attachment;filename="'.$filename.'"');
@@ -237,47 +311,73 @@ class TuitionArrearsController extends Controller
         $sppMonth = SppMonth::findOrFail($request->spp_month_id);
         $monthScore = ($sppMonth->year * 12) + $sppMonth->month;
 
-        $students = Student::where('status', 'aktif')
-            ->whereRaw('(entry_year * 12 + entry_month) <= ?', [$monthScore])
-            ->with('sppPayments')
-            ->get()
-            ->filter(function ($student) use ($sppMonth) {
-                return $student->sppPayments->where('spp_month_id', $sppMonth->id)->where('status', 'paid')->isEmpty();
-            });
+        $status = $request->input('status', 'all'); // 'active', 'inactive', 'all'
+        $query = Student::whereRaw('(entry_year * 12 + entry_month) <= ?', [$monthScore]);
+
+        if ($status === 'active' || $status === 'aktif') {
+            $query->where('status', 'aktif');
+        } elseif ($status === 'inactive' || $status === 'nonaktif') {
+            $query->where('status', '!=', 'aktif');
+        }
+
+        $students = $query->with('sppPayments')->get()->filter(function ($student) use ($sppMonth, $monthScore) {
+            // Jika siswa sudah keluar/lulus sebelum bulan ini, jangan ditagihkan
+            if ($student->exit_year && $student->exit_month) {
+                $exitScore = ($student->exit_year * 12) + $student->exit_month;
+                if ($monthScore > $exitScore) {
+                    return false;
+                }
+            } elseif ($student->status !== 'aktif') {
+                $exitScore = ((int) $student->updated_at->format('Y') * 12) + (int) $student->updated_at->format('n');
+                if ($monthScore > $exitScore) {
+                    return false;
+                }
+            }
+
+            return $student->sppPayments->where('spp_month_id', $sppMonth->id)->where('status', 'paid')->isEmpty();
+        })->values();
 
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $monthName = $this->getMonthName($sppMonth->month);
-        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN SPP '.$monthName.' '.$sppMonth->year);
-        $sheet->mergeCells('A1:E1');
-        $sheet->getStyle('A1')->getFont()->setBold(true);
+        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN SPP BULAN '.$monthName.' '.$sppMonth->year);
+        $sheet->mergeCells('A1:F1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 
         $sheet->setCellValue('A3', 'No');
         $sheet->setCellValue('B3', 'Nama Siswa');
         $sheet->setCellValue('C3', 'NISN');
         $sheet->setCellValue('D3', 'Kelas');
-        $sheet->setCellValue('E3', 'Total Tunggakan');
+        $sheet->setCellValue('E3', 'Status Siswa');
+        $sheet->setCellValue('F3', 'Total Tunggakan (Rp)');
+
+        $sheet->getStyle('A3:F3')->getFont()->setBold(true);
 
         $row = 4;
         $no = 1;
         $totalArrears = 0;
         foreach ($students as $student) {
+            $payment = $student->sppPayments->where('spp_month_id', $sppMonth->id)->first();
+            $paidAmount = $payment ? $payment->paid_amount : 0;
+            $kekurangan = $sppMonth->amount - $paidAmount;
+
             $sheet->setCellValue('A'.$row, $no);
             $sheet->setCellValue('B'.$row, $student->name);
             $sheet->setCellValue('C'.$row, $student->nisn);
-            $sheet->setCellValue('D'.$row, $student->class ?: '-');
-            $sheet->setCellValue('E'.$row, $sppMonth->amount);
-            $totalArrears += $sppMonth->amount;
+            $sheet->setCellValue('D'.$row, $student->class ? 'Kelas '.$student->class : '-');
+            $sheet->setCellValue('E'.$row, ucfirst($student->status));
+            $sheet->setCellValue('F'.$row, $kekurangan);
+            $totalArrears += $kekurangan;
             $no++;
             $row++;
         }
 
-        $sheet->setCellValue('D'.$row, 'TOTAL');
-        $sheet->setCellValue('E'.$row, $totalArrears);
-        $sheet->getStyle('D'.$row.':E'.$row)->getFont()->setBold(true);
+        $sheet->setCellValue('E'.$row, 'TOTAL AKUMULASI');
+        $sheet->setCellValue('F'.$row, $totalArrears);
+        $sheet->getStyle('E'.$row.':F'.$row)->getFont()->setBold(true);
 
-        foreach (range('A', 'E') as $col) {
+        foreach (range('A', 'F') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 

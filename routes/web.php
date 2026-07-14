@@ -89,6 +89,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tuition-arrears/export-month', [TuitionArrearsController::class, 'exportByMonth'])
         ->name('tuition-arrears.export-month')
         ->middleware(['permission:spp.tunggakan']);
+    Route::get('/tuition-arrears/export-class', [TuitionArrearsController::class, 'exportByClass'])
+        ->name('tuition-arrears.export-class')
+        ->middleware(['permission:spp.tunggakan']);
 
     // Update Spp
     Route::get('/tuition-per-month', [SppPaymentController::class, 'pengaturanMassal'])

@@ -177,9 +177,9 @@ export default function Index({ categories }: Props) {
                 )}
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    {renderCategoryList('Pemasukan', categories.in || [], 'Pemasukan')}
-                    {renderCategoryList('Pengeluaran', categories.out || [], 'Pengeluaran')}
-                    {renderCategoryList('Kedua', categories.both || [], 'Kedua')}
+                    {renderCategoryList('Pemasukan', categories.in || [])}
+                    {renderCategoryList('Pengeluaran', categories.out || [])}
+                    {renderCategoryList('Kedua', categories.both || [])}
                 </div>
             </div>
         </AppLayout>
