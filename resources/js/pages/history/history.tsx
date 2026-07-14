@@ -44,9 +44,32 @@ interface Props {
         in: string[];
         out: string[];
     };
+    allowedTypes: string[];
 }
 
-export default function Index({ transactions, summary, filters, categories }: Props) {
+const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+function formatSppMonthsCompact(sppPayments: { sppMonth: { year: number; month: number } }[]): string {
+    if (!sppPayments || sppPayments.length === 0) return '';
+
+    const grouped: Record<number, number[]> = {};
+    for (const sp of sppPayments) {
+        const year = sp.sppMonth.year;
+        const month = sp.sppMonth.month;
+        if (!grouped[year]) grouped[year] = [];
+        grouped[year].push(month);
+    }
+
+    const parts: string[] = [];
+    for (const year of Object.keys(grouped).map(Number).sort()) {
+        const names = grouped[year].sort((a, b) => a - b).map(m => shortMonths[m - 1]);
+        parts.push(`${names.join(', ')} ${year}`);
+    }
+    return parts.join(', ');
+}
+
+export default function Index({ transactions, summary, filters, categories, allowedTypes }: Props) {
     const [showFilters, setShowFilters] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithLogs | null>(null);
     const [localFilters, setLocalFilters] = useState({
@@ -61,8 +84,10 @@ export default function Index({ transactions, summary, filters, categories }: Pr
     });
 
     useEffect(() => {
+        const currentType = filters.type || '';
+        const validType = currentType && allowedTypes.includes(currentType) ? currentType : '';
         setLocalFilters({
-            type: filters.type || '',
+            type: validType,
             category: filters.category || '',
             date_from: filters.date_from || '',
             date_to: filters.date_to || '',
@@ -71,7 +96,7 @@ export default function Index({ transactions, summary, filters, categories }: Pr
             sort_dir: filters.sort_dir || 'desc',
             per_page: filters.per_page || '10',
         });
-    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search, filters.sort_by, filters.sort_dir, filters.per_page]);
+    }, [filters.type, filters.category, filters.date_from, filters.date_to, filters.search, filters.sort_by, filters.sort_dir, filters.per_page, allowedTypes]);
 
     const applyFilters = (newFilters: Record<string, string>) => {
         router.get(
@@ -128,18 +153,24 @@ export default function Index({ transactions, summary, filters, categories }: Pr
 
                 {/* SUMMARY CARDS RINGKAS */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Masuk (Tersaring)</span>
-                        <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.total_in)}</p>
-                    </div>
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Keluar (Tersaring)</span>
-                        <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400">{formatRupiah(summary.total_out)}</p>
-                    </div>
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Selisih Arus Kas</span>
-                        <p className="mt-1 text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatRupiah(summary.balance)}</p>
-                    </div>
+                    {(allowedTypes.includes('in') || allowedTypes.length === 0) && (
+                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Masuk (Tersaring)</span>
+                            <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.total_in)}</p>
+                        </div>
+                    )}
+                    {(allowedTypes.includes('out') || allowedTypes.length === 0) && (
+                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Keluar (Tersaring)</span>
+                            <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400">{formatRupiah(summary.total_out)}</p>
+                        </div>
+                    )}
+                    {allowedTypes.length !== 1 && (
+                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Selisih Arus Kas</span>
+                            <p className="mt-1 text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatRupiah(summary.balance)}</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* MODAL DETAIL DAN JEJAK AUDIT */}
@@ -228,6 +259,41 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                     </div>
                                 </div>
 
+                                {/* BULAN SPP */}
+                                {selectedTransaction.category === 'SPP' && selectedTransaction.sppPayments && selectedTransaction.sppPayments.length > 0 && (
+                                    <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
+                                        <p className="mb-3 flex items-center gap-1.5 text-xs font-bold tracking-wider text-indigo-700 uppercase dark:text-indigo-400">
+                                            Bulan SPP yang Dibayar
+                                        </p>
+                                        <div className="space-y-2">
+                                            {selectedTransaction.sppPayments.map((sp: SppPayment) => (
+                                                <div
+                                                    key={sp.id}
+                                                    className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-800/30"
+                                                >
+                                                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-200">
+                                                        {months[sp.sppMonth.month - 1]} {sp.sppMonth.year}
+                                                    </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                            {formatRupiah(sp.paid_amount)}
+                                                        </span>
+                                                        <span
+                                                            className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                                                sp.status === 'paid'
+                                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                                            }`}
+                                                        >
+                                                            {sp.status === 'paid' ? 'Lunas' : 'Cicilan'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* JEJAK PERUBAHAN */}
                                 {selectedTransaction.logs && selectedTransaction.logs.length > 0 && (
                                     <div className="col-span-2 mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
@@ -312,9 +378,9 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">Semua Arus</SelectItem>
-                                        <SelectItem value="in">Uang Masuk</SelectItem>
-                                        <SelectItem value="out">Uang Keluar</SelectItem>
+                                        {allowedTypes.length !== 1 && <SelectItem value="all">Semua Arus</SelectItem>}
+                                        {allowedTypes.includes('in') && <SelectItem value="in">Uang Masuk</SelectItem>}
+                                        {allowedTypes.includes('out') && <SelectItem value="out">Uang Keluar</SelectItem>}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -429,6 +495,13 @@ export default function Index({ transactions, summary, filters, categories }: Pr
                                                             {transaction.student.name}
                                                         </span>
                                                     ) : null}
+                                                    {transaction.category === 'SPP' && transaction.sppPayments && transaction.sppPayments.length > 0 && (
+                                                        <span className="mt-0.5 inline-flex flex-wrap gap-1">
+                                                            <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
+                                                                {formatSppMonthsCompact(transaction.sppPayments)}
+                                                            </span>
+                                                        </span>
+                                                    )}
                                                     <span className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
                                                         {transaction.note || <span className="italic opacity-50">Tanpa catatan</span>}
                                                     </span>

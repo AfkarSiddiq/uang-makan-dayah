@@ -158,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment/{payment}/edit', [PaymentController::class, 'edit'])
         ->name('payment.edit')
         ->middleware(['permission:pembayaran.edit']);
-    Route::put('/payment/{payment}', [PaymentController::class, 'update'])
+    Route::match(['put', 'patch'], '/payment/{payment}', [PaymentController::class, 'update'])
         ->name('payment.update')
         ->middleware(['permission:pembayaran.edit']);
     Route::delete('/payment/{payment}', [PaymentController::class, 'destroy'])
