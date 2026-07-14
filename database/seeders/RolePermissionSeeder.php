@@ -10,6 +10,8 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
+        Permission::where('name', 'pembayaran.create')->delete();
+
         $permissions = [
             'dashboard.view' => ['Dashboard', 'Melihat dashboard'],
 
@@ -20,9 +22,10 @@ class RolePermissionSeeder extends Seeder
             'siswa.import' => ['Siswa', 'Mengimport data siswa'],
             'siswa.export' => ['Siswa', 'Mengexport data siswa'],
 
-            'pembayaran.masuk.view' => ['Pembayaran', 'Melihat transaksi pemasukan'],
-            'pembayaran.keluar.view' => ['Pembayaran', 'Melihat transaksi pengeluaran'],
-            'pembayaran.create' => ['Pembayaran', 'Menambah transaksi baru'],
+            'pembayaran.masuk.view' => ['Pembayaran', 'Melihat transaksi pemasukan (Uang Masuk)'],
+            'pembayaran.keluar.view' => ['Pembayaran', 'Melihat transaksi pengeluaran (Uang Keluar)'],
+            'pembayaran.masuk.create' => ['Pembayaran', 'Menambah transaksi pemasukan saja (Uang Masuk)'],
+            'pembayaran.keluar.create' => ['Pembayaran', 'Menambah transaksi pengeluaran saja (Uang Keluar)'],
             'pembayaran.edit' => ['Pembayaran', 'Mengedit transaksi'],
             'pembayaran.delete' => ['Pembayaran', 'Menghapus transaksi'],
             'pembayaran.export' => ['Pembayaran', 'Mengexport transaksi'],
@@ -89,7 +92,8 @@ class RolePermissionSeeder extends Seeder
             'siswa.export',
             'pembayaran.masuk.view',
             'pembayaran.keluar.view',
-            'pembayaran.create',
+            'pembayaran.masuk.create',
+            'pembayaran.keluar.create',
             'pembayaran.edit',
             'pembayaran.delete',
             'pembayaran.export',
@@ -118,7 +122,8 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'pembayaran.masuk.view',
             'pembayaran.keluar.view',
-            'pembayaran.create',
+            'pembayaran.masuk.create',
+            'pembayaran.keluar.create',
         ])->pluck('id')->toArray());
     }
 }

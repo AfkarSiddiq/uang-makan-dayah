@@ -151,10 +151,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware(['permission:pembayaran.masuk.view|pembayaran.keluar.view']);
     Route::get('/payment/create', [PaymentController::class, 'create'])
         ->name('payment.create')
-        ->middleware(['permission:pembayaran.create']);
+        ->middleware(['permission:pembayaran.masuk.create|pembayaran.keluar.create']);
     Route::post('/payment', [PaymentController::class, 'store'])
         ->name('payment.store')
-        ->middleware(['permission:pembayaran.create']);
+        ->middleware(['permission:pembayaran.masuk.create|pembayaran.keluar.create']);
     Route::get('/payment/{payment}/edit', [PaymentController::class, 'edit'])
         ->name('payment.edit')
         ->middleware(['permission:pembayaran.edit']);

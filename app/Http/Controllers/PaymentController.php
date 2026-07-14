@@ -125,8 +125,17 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $user = $request->user();
+        $allowedCreateTypes = [];
+        if ($user->hasPermission('pembayaran.masuk.create')) {
+            $allowedCreateTypes[] = 'in';
+        }
+        if ($user->hasPermission('pembayaran.keluar.create')) {
+            $allowedCreateTypes[] = 'out';
+        }
+
         $studentsByGender = Student::where('status', 'aktif')
             ->orderBy('class')
             ->orderBy('name')
@@ -143,13 +152,23 @@ class PaymentController extends Controller
             'studentsByGender' => $studentsByGender,
             'classes' => $classes,
             'categories' => $this->getCategories(),
+            'allowedCreateTypes' => $allowedCreateTypes,
         ]);
     }
 
     public function store(Request $request)
     {
+        $user = $request->user();
+        $allowedCreateTypes = [];
+        if ($user->hasPermission('pembayaran.masuk.create')) {
+            $allowedCreateTypes[] = 'in';
+        }
+        if ($user->hasPermission('pembayaran.keluar.create')) {
+            $allowedCreateTypes[] = 'out';
+        }
+
         $validated = $request->validate([
-            'type' => ['required', Rule::in(['in', 'out'])],
+            'type' => ['required', Rule::in(count($allowedCreateTypes) > 0 ? $allowedCreateTypes : ['in', 'out'])],
             'category' => ['required', 'string', 'max:50'],
             'amount' => ['required', 'integer', 'min:1'],
             'student_id' => [

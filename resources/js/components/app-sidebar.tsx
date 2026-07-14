@@ -7,9 +7,9 @@ import { Link, usePage } from '@inertiajs/react';
 import { type LucideIcon, AlarmCheck, Banknote, BookText, CalendarArrowUp, GraduationCap, History, LayoutGrid, Mars, School, Shield, Tags, Users, Venus } from 'lucide-react';
 import AppLogo from './app-logo';
 
-interface NavItemWithPermission extends NavItem {
-    permission?: string;
-    items?: { title: string; url: string; icon: LucideIcon | null; permission?: string }[];
+interface NavItemWithPermission extends Omit<NavItem, 'items'> {
+    permission?: string | string[];
+    items?: { title: string; url: string; icon: LucideIcon | null; permission?: string | string[] }[];
 }
 
 const mainNavItems: NavItemWithPermission[] = [
@@ -23,7 +23,7 @@ const mainNavItems: NavItemWithPermission[] = [
         title: 'Transaksi',
         url: '/payment',
         icon: Banknote,
-        permission: 'pembayaran.masuk.view' | 'pembayaran.keluar.view',
+        permission: ['pembayaran.masuk.view', 'pembayaran.keluar.view'],
     },
     {
         title: 'Tagihan bulan',
@@ -60,7 +60,7 @@ const mainNavItems: NavItemWithPermission[] = [
         title: 'Riwayat',
         url: '/payment-history',
         icon: History,
-        permission: 'pembayaran.masuk.view' | 'pembayaran.keluar.view',
+        permission: ['pembayaran.masuk.view', 'pembayaran.keluar.view'],
     },
     {
         title: 'Data & Input Siswa',
@@ -100,9 +100,12 @@ export function AppSidebar() {
     const permissions = (usePage().props.auth as { permissions?: string[] } | undefined)?.permissions ?? [];
 
     const filterNavItems = (items: NavItemWithPermission[]): NavItem[] => {
-        return items
+        const mapped = items
             .filter((item) => {
                 if (!item.permission) return true;
+                if (Array.isArray(item.permission)) {
+                    return item.permission.some((p) => permissions.includes(p));
+                }
                 return permissions.includes(item.permission);
             })
             .map((item) => ({
@@ -110,11 +113,15 @@ export function AppSidebar() {
                 items: item.items
                     ? item.items.filter((sub) => {
                         if (!sub.permission) return true;
+                        if (Array.isArray(sub.permission)) {
+                            return sub.permission.some((p) => permissions.includes(p));
+                        }
                         return permissions.includes(sub.permission);
                     })
                     : undefined,
-            }))
-            .filter((item) => !item.items || item.items.length > 0);
+            })) as NavItem[];
+
+        return mapped.filter((item) => !item.items || item.items.length > 0);
     };
 
     return (

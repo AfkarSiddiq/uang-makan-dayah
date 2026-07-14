@@ -26,6 +26,8 @@ interface Props {
         date_from?: string;
         date_to?: string;
         search?: string;
+        sort_by?: string;
+        sort_dir?: string;
     };
     categories: {
         in: string[];
@@ -77,7 +79,7 @@ export default function Index({ transactions, summary, filters, categories, allo
     };
 
     const clearFilters = () => {
-        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '' });
+        setLocalFilters({ type: '', category: '', date_from: '', date_to: '', search: '', sort_by: 'transaction_date', sort_dir: 'desc' });
         router.get(route('payment.index'));
     };
 
@@ -125,7 +127,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 </Button>
                             </a>
                         )}
-                        {can('pembayaran.create') && (
+                        {(can('pembayaran.masuk.create') || can('pembayaran.keluar.create')) && (
                             <Link href={route('payment.create')}>
                                 <Button>
                                     <Plus className="mr-2 h-4 w-4" />

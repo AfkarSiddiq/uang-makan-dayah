@@ -18,19 +18,24 @@ interface Props {
         in: string[];
         out: string[];
     };
+    allowedCreateTypes?: string[];
 }
 
-export default function Create({ studentsByGender, classes, categories }: Props) {
+export default function Create({ studentsByGender, classes, categories, allowedCreateTypes }: Props) {
+    const defaultType = allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in') && allowedCreateTypes.includes('out')
+        ? 'out'
+        : 'in';
+
     const { data, setData, post, processing, errors } = useForm({
-        type: 'in' as 'in' | 'out',
-        category: categories.in[0] ?? undefined,
+        type: defaultType as 'in' | 'out',
+        category: (defaultType === 'in' ? categories.in[0] : categories.out[0]) ?? undefined,
         amount: '',
         student_id: undefined as string | undefined,
         transaction_date: new Date().toISOString().split('T')[0],
         note: '',
     });
 
-    const [type, setType] = useState<'in' | 'out'>('in');
+    const [type, setType] = useState<'in' | 'out'>(defaultType);
     const [selectedGender, setSelectedGender] = useState<string>('');
     const [selectedClass, setSelectedClass] = useState<string>('');
 
@@ -76,24 +81,30 @@ export default function Create({ studentsByGender, classes, categories }: Props)
                                 <button
                                     type="button"
                                     onClick={() => handleTypeChange('in')}
+                                    disabled={allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in')}
                                     className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
-                                        type === 'in'
+                                        allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in')
+                                            ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
+                                            : type === 'in'
                                             ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
                                             : 'border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'
                                     }`}
                                 >
-                                    ↓ Pemasukan
+                                    ↓ Pemasukan {allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in') && '(Tidak Ada Izin)'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => handleTypeChange('out')}
+                                    disabled={allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out')}
                                     className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
-                                        type === 'out'
+                                        allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out')
+                                            ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
+                                            : type === 'out'
                                             ? 'border-rose-500 bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400'
                                             : 'border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'
                                     }`}
                                 >
-                                    ↑ Pengeluaran
+                                    ↑ Pengeluaran {allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out') && '(Tidak Ada Izin)'}
                                 </button>
                             </div>
                             {errors.type && <p className="mt-1 text-sm text-rose-600">{errors.type}</p>}
