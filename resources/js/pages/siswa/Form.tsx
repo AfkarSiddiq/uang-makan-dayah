@@ -62,7 +62,7 @@ export default function StudentForm({
         if (!isEdit && defaultClass && defaultClass !== 'all') {
             setData('class', defaultClass === 'none' ? '' : defaultClass);
         }
-    }, [defaultClass, isEdit]);
+    }, [defaultClass, isEdit, setData]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

@@ -70,7 +70,7 @@ export default function ProfilSiswa({ student }: Props) {
 
     const getMonthName = (monthNumber?: number) => {
         if (!monthNumber || monthNumber < 1 || monthNumber > 12) return '-';
-        return months[monthNumber - 1];F
+        return months[monthNumber - 1];
     };
 
     const formatRupiah = (angka: number) => {

@@ -1,4 +1,3 @@
-import { SearchInput } from '@/components/ui/search-input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, Download, FileSpreadsheet, Search, User, Wallet, X, Check, GraduationCap, Users, BookOpen, Clock, ChevronDown, ChevronUp } from 'lucide-react';
@@ -46,7 +45,7 @@ interface Props {
     selectedMonth: string | null;
 }
 
-export default function Index({ students, summary, availableMonths, selectedMonth }: Props) {
+export default function Index({ students, summary, availableMonths }: Props) {
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState<'active' | 'inactive'>('active');
     
@@ -65,6 +64,10 @@ export default function Index({ students, summary, availableMonths, selectedMont
             ...prev,
             [key]: !prev[key],
         }));
+    };
+
+    const toggleExpand = (id: number) => {
+        setExpandedStudent(expandedStudent === id ? null : id);
     };
 
     // =========================================================================
@@ -148,15 +151,6 @@ export default function Index({ students, summary, availableMonths, selectedMont
             currency: 'IDR',
             maximumFractionDigits: 0,
         }).format(angka);
-    };
-
-    const handleMonthChange = (value: string) => {
-        setFilterMonth(value);
-        if (value) {
-            router.get('/tuition-arrears', { spp_month_id: value });
-        } else {
-            router.get('/tuition-arrears');
-        }
     };
 
     const handleExportSubmit = () => {
