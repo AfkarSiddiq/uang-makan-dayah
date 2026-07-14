@@ -3,14 +3,33 @@ import { Input } from '@/components/ui/input';
 import { SearchInput } from '@/components/ui/search-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { TransactionSummary } from '@/types';
+import { Transaction, TransactionSummary } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Clock, Download, Eye, Filter, History, Printer, Search, ShieldAlert, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+interface SppPayment {
+    id: number;
+    sppMonth: { month: number; year: number };
+    paid_amount: number;
+    status: string;
+}
+
+interface AuditLog {
+    id: number;
+    user?: { name: string };
+    action: string;
+    created_at: string;
+}
+
+interface TransactionDetail extends Transaction {
+    logs?: AuditLog[];
+    sppPayments?: SppPayment[];
+}
+
 interface Props {
     transactions: {
-        data: any[];
+        data: Transaction[];
         current_page: number;
         last_page: number;
         per_page: number;
@@ -39,7 +58,7 @@ interface Props {
 const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-function formatSppMonthsCompact(sppPayments: any[]): string {
+function formatSppMonthsCompact(sppPayments: { sppMonth: { year: number; month: number } }[]): string {
     if (!sppPayments || sppPayments.length === 0) return '';
 
     const grouped: Record<number, number[]> = {};
@@ -60,7 +79,7 @@ function formatSppMonthsCompact(sppPayments: any[]): string {
 
 export default function Index({ transactions, summary, filters, categories, allowedTypes }: Props) {
     const [showFilters, setShowFilters] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState<any | null>(null);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetail | null>(null);
     const [localFilters, setLocalFilters] = useState({
         type: filters.type || '',
         category: filters.category || '',
@@ -255,7 +274,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                             Bulan SPP yang Dibayar
                                         </p>
                                         <div className="space-y-2">
-                                            {selectedTransaction.sppPayments.map((sp: any) => (
+                                            {selectedTransaction.sppPayments.map((sp: SppPayment) => (
                                                 <div
                                                     key={sp.id}
                                                     className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-800/30"
@@ -290,7 +309,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                             <ShieldAlert className="h-4 w-4" /> Jejak Perubahan Data (Audit Trail)
                                         </p>
                                         <div className="max-h-36 space-y-2.5 overflow-y-auto pr-2">
-                                            {selectedTransaction.logs.map((log: any) => (
+                                            {selectedTransaction.logs.map((log: AuditLog) => (
                                                 <div
                                                     key={log.id}
                                                     className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"

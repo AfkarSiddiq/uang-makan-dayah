@@ -89,24 +89,7 @@ export default function ProfilSiswa({ student }: Props) {
     // State untuk akordion tahun ajaran (default terbuka tahun terbaru)
     const [expandedYear, setExpandedYear] = useState<string | null>(sortedYears[0] || null);
 
-    const toggleYear = (year: string) => {
-        setExpandedYear(expandedYear === year ? null : year);
-    };
 
-    // Hitung ringkasan total tagihan
-    const summary = useMemo(() => {
-        let totalBill = 0;
-        let totalPaid = 0;
-        let totalUnpaid = 0;
-
-        student.spp_payments.forEach((p) => {
-            totalBill += p.amount;
-            totalPaid += p.paid_amount;
-            totalUnpaid += p.amount - p.paid_amount;
-        });
-
-        return { totalBill, totalPaid, totalUnpaid };
-    }, [student.spp_payments]);
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Daftar Siswa', href: '#' }, { title: student.name }]}>

@@ -53,8 +53,6 @@ export default function Index({ students, summary, availableMonths, selectedMont
     const [selectedClass, setSelectedClass] = useState<string>('all');
     const [selectedGender, setSelectedGender] = useState<string>('all');
 
-    const [expandedStudent, setExpandedStudent] = useState<number | null>(null);
-
     // =========================================================================
     // STATE & FORM UNTUK MODAL PEMBAYARAN
     // =========================================================================
@@ -157,10 +155,6 @@ export default function Index({ students, summary, availableMonths, selectedMont
         } else {
             router.get('/tuition-arrears');
         }
-    };
-
-    const toggleExpand = (id: number) => {
-        setExpandedStudent(expandedStudent === id ? null : id);
     };
 
     return (

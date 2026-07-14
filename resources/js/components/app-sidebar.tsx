@@ -4,12 +4,12 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { AlarmCheck, Banknote, BookText, CalendarArrowUp, GraduationCap, History, LayoutGrid, Mars, School, Shield, Tags, Users, Venus } from 'lucide-react';
+import { type LucideIcon, AlarmCheck, Banknote, BookText, CalendarArrowUp, GraduationCap, History, LayoutGrid, Mars, School, Shield, Tags, Users, Venus } from 'lucide-react';
 import AppLogo from './app-logo';
 
 interface NavItemWithPermission extends NavItem {
     permission?: string;
-    items?: { title: string; url: string; icon: any; permission?: string }[];
+    items?: { title: string; url: string; icon: LucideIcon | null; permission?: string }[];
 }
 
 const mainNavItems: NavItemWithPermission[] = [

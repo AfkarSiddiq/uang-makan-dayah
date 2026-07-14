@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Plus, Trash2, X } from 'lucide-react';
@@ -64,7 +63,7 @@ export default function Index({ categories }: Props) {
         }
     };
 
-    const renderCategoryList = (title: string, list: Category[], typeLabel: string) => (
+    const renderCategoryList = (title: string, list: Category[]) => (
         <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>
             {list.length === 0 ? (
