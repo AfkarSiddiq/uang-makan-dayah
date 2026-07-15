@@ -18,8 +18,15 @@ class AlumniController extends Controller
             ->orderBy('exit_year', 'desc') // Urutkan dari angkatan terbaru
             ->get();
 
+        // Cari siswa non-aktif (pindah, berhenti, keluar)
+        $siswaPindah = Student::whereIn('status', ['pindah', 'berhenti', 'keluar'])
+            ->orderBy('exit_year', 'desc')
+            ->orderBy('name', 'asc')
+            ->get();
+
         return Inertia::render('alumni/index', [
             'tahunLulus' => $tahunLulus,
+            'siswaPindah' => $siswaPindah,
         ]);
     }
 

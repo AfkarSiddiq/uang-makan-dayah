@@ -39,8 +39,22 @@ class StudentController extends Controller
 
     private function getStudentsByClassAndGender($kelas, $gender)
     {
+        $currentMonth = (int) date('n');
+        $currentYear = (int) date('Y');
+        $currentAcademicYearStart = $currentMonth >= 7 ? $currentYear : $currentYear - 1;
+
         return Student::where('gender', $gender)
             ->where('class', $kelas)
+            ->where(function ($query) use ($currentAcademicYearStart) {
+                $query->where('status', 'aktif')
+                    ->orWhere(function ($sub) use ($currentAcademicYearStart) {
+                        $sub->whereIn('status', ['pindah', 'berhenti', 'keluar'])
+                            ->where(function ($q2) use ($currentAcademicYearStart) {
+                                $q2->whereNull('exit_year')
+                                   ->orWhere('exit_year', '>=', $currentAcademicYearStart);
+                            });
+                    });
+            })
             ->orderBy('name')
             ->get();
     }

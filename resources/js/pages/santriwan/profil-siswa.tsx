@@ -101,10 +101,31 @@ export default function ProfilSiswa({ student }: Props) {
     const sortedYears = Object.keys(groupedPayments).sort().reverse();
     const [expandedYear, setExpandedYear] = useState<string | null>(sortedYears[0] || null);
 
+    const backNav = useMemo(() => {
+        if (typeof window !== 'undefined' && document.referrer) {
+            try {
+                const refUrl = new URL(document.referrer);
+                if (refUrl.pathname.startsWith('/alumni')) {
+                    return { href: '/alumni', text: 'Kembali ke Arsip & Alumni', parentTitle: 'Arsip & Alumni', parentHref: '/alumni' };
+                }
+            } catch (e) {}
+        }
+        const isNotActive = student.status !== 'aktif';
+        if (isNotActive) {
+            return { href: '/alumni', text: 'Kembali ke Arsip & Alumni', parentTitle: 'Arsip & Alumni', parentHref: '/alumni' };
+        }
+        return {
+            href: route('santriwan.detail', { kelas: student.class || 'none' }),
+            text: 'Kembali ke Kelas Putra',
+            parentTitle: 'Remaja Putra',
+            parentHref: '/santriwan'
+        };
+    }, [student]);
+
     return (
         <AppLayout
             breadcrumbs={[
-                { title: 'Remaja Putra', href: '/santriwan' },
+                { title: backNav.parentTitle, href: backNav.parentHref },
                 { title: student.name, href: '#' },
             ]}
         >
@@ -112,10 +133,10 @@ export default function ProfilSiswa({ student }: Props) {
 
             <div className="space-y-6 p-6">
                 <Link
-                    href={route('santriwan.detail', { kelas: student.class || 'none' })}
+                    href={backNav.href}
                     className="inline-flex items-center text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
                 >
-                    <ArrowLeft className="mr-1 h-4 w-4" /> Kembali ke Kelas Putra
+                    <ArrowLeft className="mr-1 h-4 w-4" /> {backNav.text}
                 </Link>
 
                 {/* BAGIAN ATAS: INFORMASI BIODATA SISWA (DISAMAKAN DENGAN SISWA/SHOW) */}

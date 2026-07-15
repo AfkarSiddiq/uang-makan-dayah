@@ -69,7 +69,7 @@ const mainNavItems: NavItemWithPermission[] = [
         permission: 'siswa.view',
     },
     {
-        title: 'Data Alumni',
+        title: 'Arsip & Alumni',
         url: '/alumni',
         icon: GraduationCap,
         permission: 'siswa.view',
