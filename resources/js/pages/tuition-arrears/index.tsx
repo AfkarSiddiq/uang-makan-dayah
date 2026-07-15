@@ -62,8 +62,30 @@ export default function Index({ students, summary, availableMonths }: Props) {
     const toggleSectionCollapse = (key: string) => {
         setCollapsedSections((prev) => ({
             ...prev,
-            [key]: !prev[key],
+            [key]: !(prev[key] ?? true),
         }));
+    };
+
+    const expandAllSections = () => {
+        const next: Record<string, boolean> = {};
+        activeClassesList.forEach((cls) => {
+            next[`class-${cls}`] = false;
+        });
+        inactiveStatusList.forEach((st) => {
+            next[`status-${st.key}`] = false;
+        });
+        setCollapsedSections(next);
+    };
+
+    const collapseAllSections = () => {
+        const next: Record<string, boolean> = {};
+        activeClassesList.forEach((cls) => {
+            next[`class-${cls}`] = true;
+        });
+        inactiveStatusList.forEach((st) => {
+            next[`status-${st.key}`] = true;
+        });
+        setCollapsedSections(next);
     };
 
     const toggleExpand = (id: number) => {
@@ -208,9 +230,9 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
             {/* MODAL PEMBAYARAN */}
             {paymentModal.isOpen && paymentModal.student && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-md rounded-2xl bg-white shadow-xl dark:bg-slate-900 overflow-hidden border border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-3 sm:p-4">
+                    <div className="w-full max-w-md max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-xl dark:bg-slate-900 overflow-hidden border border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 sm:px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50 shrink-0">
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <Wallet className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Terima Pembayaran
                             </h3>
@@ -219,7 +241,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             </button>
                         </div>
 
-                        <form onSubmit={submitPayment} className="p-6">
+                        <form onSubmit={submitPayment} className="p-5 sm:p-6 overflow-y-auto">
                             <div className="mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
@@ -286,8 +308,8 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
             {/* MODAL EXPORT DATA */}
             {showExportModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-3 sm:p-4">
+                    <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <FileSpreadsheet className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Export Data Tunggakan SPP
@@ -412,7 +434,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                 </div>
             )}
 
-            <div className="space-y-6 p-6">
+            <div className="space-y-6 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                         <a href="/dashboard">
@@ -428,7 +450,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                     <div>
                         <button
                             onClick={() => setShowExportModal(true)}
-                            className="flex items-center gap-2.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition active:scale-95"
+                            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition active:scale-95"
                         >
                             <Download className="h-4 w-4" />
                             <span>Export Data Tunggakan</span>
@@ -438,33 +460,33 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                 {/* 2 SUMMARY CARDS */}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-br from-rose-50 to-white p-6 shadow-sm dark:border-rose-900/50 dark:from-rose-950/30 dark:to-slate-900 transition hover:shadow-md">
+                    <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-br from-rose-50 to-white p-5 sm:p-6 shadow-sm dark:border-rose-900/50 dark:from-rose-950/30 dark:to-slate-900 transition hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 shrink-0">
                                     <Users className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold text-rose-600/90 dark:text-rose-400">Total Siswa Menunggak</p>
-                                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">{summary.total_students} <span className="text-base font-medium text-slate-500">Siswa</span></h3>
+                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">{summary.total_students} <span className="text-base font-medium text-slate-500">Siswa</span></h3>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 pt-3 border-t border-rose-100 dark:border-rose-900/40 flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <div className="mt-4 pt-3 border-t border-rose-100 dark:border-rose-900/40 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-400">
                             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-rose-500"></span> {summary.active_students_count ?? 0} Siswa Aktif</span>
                             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500"></span> {summary.inactive_students_count ?? 0} Non-Aktif / Alumni</span>
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 to-white p-6 shadow-sm dark:border-amber-900/50 dark:from-amber-950/30 dark:to-slate-900 transition hover:shadow-md">
+                    <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 to-white p-5 sm:p-6 shadow-sm dark:border-amber-900/50 dark:from-amber-950/30 dark:to-slate-900 transition hover:shadow-md">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
+                            <div className="flex items-center gap-4 min-w-0">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 shrink-0">
                                     <Wallet className="h-6 w-6" />
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <p className="text-sm font-semibold text-amber-600/90 dark:text-amber-400">Total Nominal Tunggakan</p>
-                                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">{formatRupiahText(summary.total_arrears)}</h3>
+                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 truncate" title={formatRupiahText(summary.total_arrears)}>{formatRupiahText(summary.total_arrears)}</h3>
                                 </div>
                             </div>
                         </div>
@@ -476,15 +498,15 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                 {/* TABS SELECTOR (AKTIF VS NON-AKTIF/ALUMNI) */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-2">
-                    <div className="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-fit">
+                    <div className="flex flex-col sm:flex-row gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-full sm:w-fit">
                         <button
                             onClick={() => {
                                 setActiveTab('active');
                                 setSelectedClass('all');
                             }}
-                            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition ${activeTab === 'active' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
+                            className={`flex items-center justify-center sm:justify-start gap-2.5 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition ${activeTab === 'active' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
                         >
-                            <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            <Users className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                             <span>Siswa Aktif Menunggak</span>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'active' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
                                 {summary.active_students_count ?? 0}
@@ -496,9 +518,9 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                 setActiveTab('inactive');
                                 setSelectedClass('all');
                             }}
-                            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition ${activeTab === 'inactive' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
+                            className={`flex items-center justify-center sm:justify-start gap-2.5 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition ${activeTab === 'inactive' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
                         >
-                            <GraduationCap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                            <GraduationCap className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                             <span>Siswa Non-Aktif / Alumni Menunggak</span>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'inactive' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
                                 {summary.inactive_students_count ?? 0}
@@ -508,54 +530,75 @@ export default function Index({ students, summary, availableMonths }: Props) {
                 </div>
 
                 {/* FILTER CONTROLS */}
-                <div className="flex flex-col gap-3 sm:flex-row">
-                    <div className="relative flex-1">
-                        <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Cari nama siswa atau NISN..."
-                            className="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
+                    <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                        <div className="relative flex-1">
+                            <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari nama siswa atau NISN..."
+                                className="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+
+                        {activeTab === 'active' ? (
+                            <select
+                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto"
+                                value={selectedClass}
+                                onChange={(e) => setSelectedClass(e.target.value)}
+                            >
+                                <option value="all">Semua Kelas (Per Kelas)</option>
+                                <option value="1">Khusus Kelas 1</option>
+                                <option value="2">Khusus Kelas 2</option>
+                                <option value="3">Khusus Kelas 3</option>
+                                <option value="4">Khusus Kelas 4</option>
+                                <option value="5">Khusus Kelas 5</option>
+                                <option value="6">Khusus Kelas 6</option>
+                            </select>
+                        ) : (
+                            <select
+                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto"
+                                value={selectedInactiveStatus}
+                                onChange={(e) => setSelectedInactiveStatus(e.target.value)}
+                            >
+                                <option value="all">Semua Status Non-Aktif</option>
+                                <option value="lulus">Alumni / Lulus</option>
+                                <option value="pindah">Pindah Sekolah</option>
+                                <option value="berhenti">Berhenti / Keluar</option>
+                            </select>
+                        )}
+
+                        <select
+                            className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto"
+                            value={selectedGender}
+                            onChange={(e) => setSelectedGender(e.target.value)}
+                        >
+                            <option value="all">Semua Gender</option>
+                            <option value="L">Putra (L)</option>
+                            <option value="P">Putri (P)</option>
+                        </select>
                     </div>
 
-                    {activeTab === 'active' ? (
-                        <select
-                            className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                            value={selectedClass}
-                            onChange={(e) => setSelectedClass(e.target.value)}
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            onClick={expandAllSections}
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                         >
-                            <option value="all">Semua Kelas (Tampilan Per Kelas)</option>
-                            <option value="1">Khusus Kelas 1</option>
-                            <option value="2">Khusus Kelas 2</option>
-                            <option value="3">Khusus Kelas 3</option>
-                            <option value="4">Khusus Kelas 4</option>
-                            <option value="5">Khusus Kelas 5</option>
-                            <option value="6">Khusus Kelas 6</option>
-                        </select>
-                    ) : (
-                        <select
-                            className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                            value={selectedInactiveStatus}
-                            onChange={(e) => setSelectedInactiveStatus(e.target.value)}
+                            <ChevronDown className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                            <span>Buka Semua</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={collapseAllSections}
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                         >
-                            <option value="all">Semua Status Non-Aktif (Alumni/Pindah/Berhenti)</option>
-                            <option value="lulus">Alumni / Lulus</option>
-                            <option value="pindah">Pindah Sekolah</option>
-                            <option value="berhenti">Berhenti / Keluar</option>
-                        </select>
-                    )}
-
-                    <select
-                        className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                        value={selectedGender}
-                        onChange={(e) => setSelectedGender(e.target.value)}
-                    >
-                        <option value="all">Semua Gender</option>
-                        <option value="L">Laki-laki (Putra)</option>
-                        <option value="P">Perempuan (Putri)</option>
-                    </select>
+                            <ChevronUp className="w-4 h-4 text-slate-500" />
+                            <span>Tutup Semua</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* TAB SISWA AKTIF: DYNAMIC COLLAPSIBLE PER KELAS */}
@@ -565,21 +608,21 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             const classStudents = getStudentsByClass(cls);
                             const totalClassArrears = classStudents.reduce((acc, curr) => acc + curr.total_arrears, 0);
                             const totalClassMonths = classStudents.reduce((acc, curr) => acc + curr.arrears_count, 0);
-                            const isCollapsed = collapsedSections[`class-${cls}`] ?? false;
+                            const isCollapsed = collapsedSections[`class-${cls}`] ?? (selectedClass === 'all' && search === '');
 
                             return (
                                 <div key={cls} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 transition">
                                     {/* COLLAPSIBLE HEADER BOX */}
                                     <div
                                         onClick={() => toggleSectionCollapse(`class-${cls}`)}
-                                        className="bg-gradient-to-r from-slate-50 via-slate-50/80 to-white dark:from-slate-800/80 dark:via-slate-800/50 dark:to-slate-900 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition"
+                                        className="bg-gradient-to-r from-slate-50 via-slate-50/80 to-white dark:from-slate-800/80 dark:via-slate-800/50 dark:to-slate-900 px-4 py-3.5 sm:px-6 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white font-bold text-lg shadow-sm shrink-0">
                                                 {cls}
                                             </div>
                                             <div>
-                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                                     {`Kelas ${cls}`}
                                                     <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${classStudents.length > 0 ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}>
                                                         {classStudents.length} Siswa Menunggak
@@ -593,123 +636,195 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                         <div className="flex items-center gap-4 justify-between sm:justify-end">
                                             <div className="text-left sm:text-right">
                                                 <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Total Tunggakan</p>
-                                                <p className={`text-lg font-extrabold ${classStudents.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                                <p className={`text-base sm:text-lg font-extrabold ${classStudents.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                     {formatRupiahText(totalClassArrears)}
                                                 </p>
                                             </div>
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
                                                 {isCollapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* COLLAPSIBLE BODY (TABLE / EMPTY STATE) */}
+                                    {/* COLLAPSIBLE BODY (TABLE & MOBILE CARDS / EMPTY STATE) */}
                                     {!isCollapsed && (
                                         classStudents.length === 0 ? (
-                                            <div className="p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
+                                            <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
                                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelas Ini Bersih dari Tunggakan</p>
                                                 <p className="text-xs text-slate-500 mt-0.5">Tidak ada siswa aktif di {`Kelas ${cls}`} yang memiliki tagihan SPP tertunggak.</p>
                                             </div>
                                         ) : (
-                                            <div className="overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
-                                                <table className="w-full whitespace-nowrap min-w-[750px]">
-                                                    <thead>
-                                                        <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800/80 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
-                                                            <th className="px-6 py-3.5 text-left">Nama Siswa / NISN</th>
-                                                            <th className="px-6 py-3.5 text-center">Gender</th>
-                                                            <th className="px-6 py-3.5 text-center">Lama Tunggakan</th>
-                                                            <th className="px-6 py-3.5 text-right">Total Nominal</th>
-                                                            <th className="px-6 py-3.5 text-center">Aksi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                                        {classStudents.map((student) => (
-                                                            <Fragment key={student.id}>
-                                                                <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                                                                    <td className="px-6 py-4">
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
-                                                                                {student.name.charAt(0).toUpperCase()}
-                                                                            </div>
-                                                                            <div>
-                                                                                <p className="font-bold text-slate-900 dark:text-white">{student.name}</p>
-                                                                                <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${student.gender === 'L' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300'}`}>
-                                                                            {student.gender === 'L' ? 'Putra (L)' : 'Putri (P)'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
-                                                                            <AlertTriangle className="w-3 h-3" /> {student.arrears_count} Bulan
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-right">
-                                                                        <span className="text-base font-extrabold text-rose-600 dark:text-rose-400">
-                                                                            {formatRupiahText(student.total_arrears)}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <button
-                                                                            onClick={() => toggleExpand(student.id)}
-                                                                            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-                                                                        >
-                                                                            <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
-                                                                            {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                                {expandedStudent === student.id && (
-                                                                    <tr>
-                                                                        <td colSpan={5} className="bg-slate-50/70 dark:bg-slate-800/30 px-6 py-5 border-y border-slate-100 dark:border-slate-800">
-                                                                            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 border-l-4 border-l-rose-500">
-                                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                                                                                    <div>
-                                                                                        <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                                                                            <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
-                                                                                        </h4>
-                                                                                        <p className="text-xs text-slate-500 mt-0.5">Sistem memprioritaskan pelunasan pada bulan paling lama/tertua.</p>
-                                                                                    </div>
-                                                                                    <div className="flex gap-2">
-                                                                                        <a
-                                                                                            href={`/siswa/${student.id}`}
-                                                                                            className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
-                                                                                        >
-                                                                                            <User className="w-3.5 h-3.5" /> Buka Profil Siswa
-                                                                                        </a>
-                                                                                        <button
-                                                                                            onClick={() => openPaymentModal(student)}
-                                                                                            className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
-                                                                                        >
-                                                                                            <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
-                                                                                        </button>
-                                                                                    </div>
+                                            <>
+                                                {/* DESKTOP VIEW: TABLE */}
+                                                <div className="hidden md:block overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
+                                                    <table className="w-full whitespace-nowrap min-w-[750px]">
+                                                        <thead>
+                                                            <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800/80 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
+                                                                <th className="px-6 py-3.5 text-left">Nama Siswa / NISN</th>
+                                                                <th className="px-6 py-3.5 text-center">Gender</th>
+                                                                <th className="px-6 py-3.5 text-center">Lama Tunggakan</th>
+                                                                <th className="px-6 py-3.5 text-right">Total Nominal</th>
+                                                                <th className="px-6 py-3.5 text-center">Aksi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                            {classStudents.map((student) => (
+                                                                <Fragment key={student.id}>
+                                                                    <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                                                                        <td className="px-6 py-4">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
+                                                                                    {student.name.charAt(0).toUpperCase()}
                                                                                 </div>
-
-                                                                                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                                                                                    {student.unpaid_months.map((month) => (
-                                                                                        <div
-                                                                                            key={month.id}
-                                                                                            className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
-                                                                                        >
-                                                                                            <span className="font-semibold text-rose-900 dark:text-rose-300">{month.month_name}</span>
-                                                                                            <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
-                                                                                        </div>
-                                                                                    ))}
+                                                                                <div>
+                                                                                    <p className="font-bold text-slate-900 dark:text-white">{student.name}</p>
+                                                                                    <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
+                                                                        <td className="px-6 py-4 text-center">
+                                                                            <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${student.gender === 'L' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300'}`}>
+                                                                                {student.gender === 'L' ? 'Putra (L)' : 'Putri (P)'}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-center">
+                                                                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                                                                                <AlertTriangle className="w-3 h-3" /> {student.arrears_count} Bulan
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-right">
+                                                                            <span className="text-base font-extrabold text-rose-600 dark:text-rose-400">
+                                                                                {formatRupiahText(student.total_arrears)}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-center">
+                                                                            <button
+                                                                                onClick={() => toggleExpand(student.id)}
+                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                            >
+                                                                                <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
+                                                                                {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                                            </button>
+                                                                        </td>
                                                                     </tr>
-                                                                )}
-                                                            </Fragment>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                                    {expandedStudent === student.id && (
+                                                                        <tr>
+                                                                            <td colSpan={5} className="bg-slate-50/70 dark:bg-slate-800/30 px-6 py-5 border-y border-slate-100 dark:border-slate-800">
+                                                                                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 border-l-4 border-l-rose-500">
+                                                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                                                                        <div>
+                                                                                            <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                                            </h4>
+                                                                                            <p className="text-xs text-slate-500 mt-0.5">Sistem memprioritaskan pelunasan pada bulan paling lama/tertua.</p>
+                                                                                        </div>
+                                                                                        <div className="flex gap-2">
+                                                                                            <a
+                                                                                                href={`/siswa/${student.id}`}
+                                                                                                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                                                                                            >
+                                                                                                <User className="w-3.5 h-3.5" /> Buka Profil Siswa
+                                                                                            </a>
+                                                                                            <button
+                                                                                                onClick={() => openPaymentModal(student)}
+                                                                                                className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
+                                                                                            >
+                                                                                                <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                                                                                        {student.unpaid_months.map((month) => (
+                                                                                            <div
+                                                                                                key={month.id}
+                                                                                                className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
+                                                                                            >
+                                                                                                <span className="font-semibold text-rose-900 dark:text-rose-300">{month.month_name}</span>
+                                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
+                                                                </Fragment>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                {/* MOBILE VIEW: CARDS */}
+                                                <div className="block md:hidden border-t border-slate-200/60 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800">
+                                                    {classStudents.map((student) => (
+                                                        <div key={student.id} className="p-4 bg-white dark:bg-slate-900 space-y-3">
+                                                            <div className="flex items-start justify-between gap-3">
+                                                                <div className="flex items-center gap-3 min-w-0">
+                                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
+                                                                        {student.name.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm">{student.name}</h4>
+                                                                        <p className="text-xs text-slate-500 truncate">NISN: {student.nisn}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${student.gender === 'L' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300'}`}>
+                                                                    {student.gender === 'L' ? 'Putra (L)' : 'Putri (P)'}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                                                                        <AlertTriangle className="w-3 h-3" /> {student.arrears_count} Bulan
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-sm font-extrabold text-rose-600 dark:text-rose-400">
+                                                                        {formatRupiahText(student.total_arrears)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="pt-1">
+                                                                <button
+                                                                    onClick={() => toggleExpand(student.id)}
+                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                >
+                                                                    <span>{expandedStudent === student.id ? 'Tutup Rincian Tagihan' : 'Lihat Rincian Tagihan'}</span>
+                                                                    {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                                </button>
+                                                            </div>
+
+                                                            {expandedStudent === student.id && (
+                                                                <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
+                                                                    <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                    </h5>
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        {student.unpaid_months.map(month => (
+                                                                            <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-slate-900 px-2.5 py-1.5 text-xs flex justify-between items-center">
+                                                                                <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
+                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                                                                        <a href={`/siswa/${student.id}`} className="w-full text-center py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition">
+                                                                            Buka Profil Siswa
+                                                                        </a>
+                                                                        <button onClick={() => openPaymentModal(student)} className="w-full py-2 rounded-lg bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
+                                                                            <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </>
                                         )
                                     )}
                                 </div>
@@ -736,21 +851,21 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             const totalStatusArrears = statusStudents.reduce((acc, curr) => acc + curr.total_arrears, 0);
                             const totalStatusMonths = statusStudents.reduce((acc, curr) => acc + curr.arrears_count, 0);
                             const StatusIcon = statusObj.icon;
-                            const isCollapsed = collapsedSections[`status-${statusObj.key}`] ?? false;
+                            const isCollapsed = collapsedSections[`status-${statusObj.key}`] ?? (selectedInactiveStatus === 'all' && search === '');
 
                             return (
                                 <div key={statusObj.key} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 transition">
                                     {/* COLLAPSIBLE HEADER BOX */}
                                     <div
                                         onClick={() => toggleSectionCollapse(`status-${statusObj.key}`)}
-                                        className="bg-gradient-to-r from-slate-50 via-slate-50/80 to-white dark:from-slate-800/80 dark:via-slate-800/50 dark:to-slate-900 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition"
+                                        className="bg-gradient-to-r from-slate-50 via-slate-50/80 to-white dark:from-slate-800/80 dark:via-slate-800/50 dark:to-slate-900 px-4 py-3.5 sm:px-6 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600 text-white font-bold text-lg shadow-sm shrink-0">
                                                 <StatusIcon className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                                     {statusObj.label}
                                                     <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusStudents.length > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-200 dark:border-amber-800' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}>
                                                         {statusStudents.length} Siswa Menunggak
@@ -764,128 +879,208 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                         <div className="flex items-center gap-4 justify-between sm:justify-end">
                                             <div className="text-left sm:text-right">
                                                 <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Total Tunggakan</p>
-                                                <p className={`text-lg font-extrabold ${statusStudents.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                                <p className={`text-base sm:text-lg font-extrabold ${statusStudents.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                     {formatRupiahText(totalStatusArrears)}
                                                 </p>
                                             </div>
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
                                                 {isCollapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* COLLAPSIBLE BODY */}
+                                    {/* COLLAPSIBLE BODY (TABLE & MOBILE CARDS / EMPTY STATE) */}
                                     {!isCollapsed && (
                                         statusStudents.length === 0 ? (
-                                            <div className="p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
+                                            <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
                                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategori Ini Bersih dari Tunggakan</p>
                                                 <p className="text-xs text-slate-500 mt-0.5">Alhamdulillah, tidak ada siswa dengan status {statusObj.label.toLowerCase()} yang menyisakan tagihan SPP.</p>
                                             </div>
                                         ) : (
-                                            <div className="overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
-                                                <table className="w-full whitespace-nowrap min-w-[750px]">
-                                                    <thead>
-                                                        <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800/80 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
-                                                            <th className="px-6 py-3.5 text-left">Nama Siswa / NISN</th>
-                                                            <th className="px-6 py-3.5 text-center">Status & Kelas Terakhir</th>
-                                                            <th className="px-6 py-3.5 text-center">Lama Tunggakan</th>
-                                                            <th className="px-6 py-3.5 text-right">Total Nominal</th>
-                                                            <th className="px-6 py-3.5 text-center">Aksi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                                        {statusStudents.map((student) => (
-                                                            <Fragment key={student.id}>
-                                                                <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                                                                    <td className="px-6 py-4">
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
-                                                                                {student.name.charAt(0).toUpperCase()}
-                                                                            </div>
-                                                                            <div>
-                                                                                <p className="font-bold text-slate-900 dark:text-white">{student.name}</p>
-                                                                                <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <div className="flex flex-col items-center gap-1">
-                                                                            <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full uppercase ${statusObj.color}`}>
-                                                                                {student.status}
-                                                                            </span>
-                                                                            <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                                                                                {student.class ? `Kelas Terakhir: ${student.class}` : 'Tanpa Kelas'}
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
-                                                                            <AlertTriangle className="w-3 h-3" /> {student.arrears_count} Bulan
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-right">
-                                                                        <span className="text-base font-extrabold text-rose-600 dark:text-rose-400">
-                                                                            {formatRupiahText(student.total_arrears)}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-6 py-4 text-center">
-                                                                        <button
-                                                                            onClick={() => toggleExpand(student.id)}
-                                                                            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-                                                                        >
-                                                                            <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
-                                                                            {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                                {expandedStudent === student.id && (
-                                                                    <tr>
-                                                                        <td colSpan={5} className="bg-slate-50/70 dark:bg-slate-800/30 px-6 py-5 border-y border-slate-100 dark:border-slate-800">
-                                                                            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 border-l-4 border-l-amber-500">
-                                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                                                                                    <div>
-                                                                                        <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                                                                            <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
-                                                                                        </h4>
-                                                                                        <p className="text-xs text-slate-500 mt-0.5">Meskipun siswa sudah non-aktif/lulus, tagihan masa lalu tetap dapat dilunasi di sini.</p>
-                                                                                    </div>
-                                                                                    <div className="flex gap-2">
-                                                                                        <a
-                                                                                            href={`/siswa/${student.id}`}
-                                                                                            className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
-                                                                                        >
-                                                                                            <User className="w-3.5 h-3.5" /> Buka Profil Siswa
-                                                                                        </a>
-                                                                                        <button
-                                                                                            onClick={() => openPaymentModal(student)}
-                                                                                            className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
-                                                                                        >
-                                                                                            <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
-                                                                                        </button>
-                                                                                    </div>
+                                            <>
+                                                {/* DESKTOP VIEW: TABLE */}
+                                                <div className="hidden md:block overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
+                                                    <table className="w-full whitespace-nowrap min-w-[750px]">
+                                                        <thead>
+                                                            <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800/80 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
+                                                                <th className="px-6 py-3.5 text-left">Nama Siswa / NISN</th>
+                                                                <th className="px-6 py-3.5 text-center">Status & Kelas Terakhir</th>
+                                                                <th className="px-6 py-3.5 text-center">Lama Tunggakan</th>
+                                                                <th className="px-6 py-3.5 text-right">Total Nominal</th>
+                                                                <th className="px-6 py-3.5 text-center">Aksi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                            {statusStudents.map((student) => (
+                                                                <Fragment key={student.id}>
+                                                                    <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                                                                        <td className="px-6 py-4">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
+                                                                                    {student.name.charAt(0).toUpperCase()}
                                                                                 </div>
-
-                                                                                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                                                                                    {student.unpaid_months.map((month) => (
-                                                                                        <div
-                                                                                            key={month.id}
-                                                                                            className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
-                                                                                        >
-                                                                                            <span className="font-semibold text-rose-900 dark:text-rose-300">{month.month_name}</span>
-                                                                                            <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
-                                                                                        </div>
-                                                                                    ))}
+                                                                                <div>
+                                                                                    <p className="font-bold text-slate-900 dark:text-white">{student.name}</p>
+                                                                                    <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
+                                                                        <td className="px-6 py-4 text-center">
+                                                                            <div className="flex flex-col items-center gap-1">
+                                                                                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full uppercase ${statusObj.color}`}>
+                                                                                    {student.status}
+                                                                                </span>
+                                                                                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                                                    {student.class ? `Kelas Terakhir: ${student.class}` : 'Tanpa Kelas'}
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-center">
+                                                                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                                                                                <AlertTriangle className="w-3 h-3" /> {student.arrears_count} Bulan
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-right">
+                                                                            <span className="text-base font-extrabold text-rose-600 dark:text-rose-400">
+                                                                                {formatRupiahText(student.total_arrears)}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-center">
+                                                                            <button
+                                                                                onClick={() => toggleExpand(student.id)}
+                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                            >
+                                                                                <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
+                                                                                {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                                            </button>
+                                                                        </td>
                                                                     </tr>
-                                                                )}
-                                                            </Fragment>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                                    {expandedStudent === student.id && (
+                                                                        <tr>
+                                                                            <td colSpan={5} className="bg-slate-50/70 dark:bg-slate-800/30 px-6 py-5 border-y border-slate-100 dark:border-slate-800">
+                                                                                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 border-l-4 border-l-amber-500">
+                                                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                                                                        <div>
+                                                                                            <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                                            </h4>
+                                                                                            <p className="text-xs text-slate-500 mt-0.5">Meskipun siswa sudah non-aktif/lulus, tagihan masa lalu tetap dapat dilunasi di sini.</p>
+                                                                                        </div>
+                                                                                        <div className="flex gap-2">
+                                                                                            <a
+                                                                                                href={`/siswa/${student.id}`}
+                                                                                                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                                                                                            >
+                                                                                                <User className="w-3.5 h-3.5" /> Buka Profil Siswa
+                                                                                            </a>
+                                                                                            <button
+                                                                                                onClick={() => openPaymentModal(student)}
+                                                                                                className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
+                                                                                            >
+                                                                                                <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                                                                                        {student.unpaid_months.map((month) => (
+                                                                                            <div
+                                                                                                key={month.id}
+                                                                                                className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
+                                                                                            >
+                                                                                                <span className="font-semibold text-rose-900 dark:text-rose-300">{month.month_name}</span>
+                                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
+                                                                </Fragment>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                {/* MOBILE VIEW: CARDS */}
+                                                <div className="block md:hidden border-t border-slate-200/60 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800">
+                                                    {statusStudents.map((student) => (
+                                                        <div key={student.id} className="p-4 bg-white dark:bg-slate-900 space-y-3">
+                                                            <div className="flex items-start justify-between gap-3">
+                                                                <div className="flex items-center gap-3 min-w-0">
+                                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
+                                                                        {student.name.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm">{student.name}</h4>
+                                                                        <p className="text-xs text-slate-500 truncate">NISN: {student.nisn}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${student.gender === 'L' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300'}`}>
+                                                                    {student.gender === 'L' ? 'Putra (L)' : 'Putri (P)'}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs">
+                                                                <div className="flex flex-col gap-1 min-w-0">
+                                                                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase w-fit ${statusObj.color}`}>
+                                                                        {student.status}
+                                                                    </span>
+                                                                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                                        {student.class ? `Kelas: ${student.class}` : 'Tanpa Kelas'}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-right shrink-0">
+                                                                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900 mb-1">
+                                                                        <AlertTriangle className="w-3 h-3" /> {student.arrears_count} Bulan
+                                                                    </span>
+                                                                    <div>
+                                                                        <span className="text-sm font-extrabold text-rose-600 dark:text-rose-400">
+                                                                            {formatRupiahText(student.total_arrears)}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="pt-1">
+                                                                <button
+                                                                    onClick={() => toggleExpand(student.id)}
+                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                >
+                                                                    <span>{expandedStudent === student.id ? 'Tutup Rincian Tagihan' : 'Lihat Rincian Tagihan'}</span>
+                                                                    {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                                </button>
+                                                            </div>
+
+                                                            {expandedStudent === student.id && (
+                                                                <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
+                                                                    <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                    </h5>
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        {student.unpaid_months.map(month => (
+                                                                            <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-slate-900 px-2.5 py-1.5 text-xs flex justify-between items-center">
+                                                                                <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
+                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                                                                        <a href={`/siswa/${student.id}`} className="w-full text-center py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition">
+                                                                            Buka Profil Siswa
+                                                                        </a>
+                                                                        <button onClick={() => openPaymentModal(student)} className="w-full py-2 rounded-lg bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
+                                                                            <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </>
                                         )
                                     )}
                                 </div>
