@@ -105,7 +105,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
     // STATE & FORM UNTUK MODAL PEMBAYARAN
     // =========================================================================
     const [paymentModal, setPaymentModal] = useState<{ isOpen: boolean; student: Student | null }>({ isOpen: false, student: null });
-    const [displayAmount, setDisplayAmount] = useState<string>('0');
+    const [displayAmount, setDisplayAmount] = useState<string>('');
     
     const { data: payData, setData: setPayData, post: payPost, processing: payProcessing, reset: payReset } = useForm({
         amount: 0,
@@ -132,8 +132,10 @@ export default function Index({ students, summary, availableMonths }: Props) {
         if (value.length > 1 && value.startsWith('0')) {
             value = value.substring(1);
         }
-        if (value === '') {
-            value = '0';
+        if (value === '' || value === '0') {
+            setDisplayAmount('');
+            setPayData('amount', 0);
+            return;
         }
 
         const numericValue = parseInt(value, 10);
@@ -145,13 +147,13 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
     const openPaymentModal = (student: Student) => {
         setPaymentModal({ isOpen: true, student });
-        setDisplayAmount('0');
+        setDisplayAmount('');
         setPayData('amount', 0);
     };
 
     const closePaymentModal = () => {
         setPaymentModal({ isOpen: false, student: null });
-        setDisplayAmount('0');
+        setDisplayAmount('');
         payReset();
     };
 
@@ -266,10 +268,12 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">Rp</span>
                                     <input 
                                         type="text" 
+                                        inputMode="numeric"
+                                        placeholder="0"
                                         required
                                         value={displayAmount}
                                         onChange={handleAmountChange}
-                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xl font-bold focus:ring-indigo-500 focus:border-indigo-500 dark:text-white text-right tracking-wider"
+                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xl font-bold focus:ring-indigo-500 focus:border-indigo-500 dark:text-white text-right tracking-wider placeholder:text-slate-300 dark:placeholder:text-slate-700"
                                     />
                                 </div>
                                 <div className="flex justify-between items-center mt-2">

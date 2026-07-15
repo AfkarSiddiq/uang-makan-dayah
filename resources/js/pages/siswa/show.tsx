@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { formatNumberToRupiah, parseRupiahToString } from '@/lib/utils';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, CalendarDays, ChevronDown, ChevronUp, Edit, User, Wallet } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -304,12 +305,12 @@ export default function Show({ student }: Props) {
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Nominal Uang (Rp)</label>
                                 <input
-                                    type="number"
-                                    value={payData.amount}
-                                    onChange={(e) => setPayData('amount', e.target.value)}
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={formatNumberToRupiah(payData.amount)}
+                                    onChange={(e) => setPayData('amount', parseRupiahToString(e.target.value))}
                                     className={`w-full rounded-md border bg-white px-3 py-2 text-sm transition focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-white ${payErrors.amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-indigo-500 dark:border-slate-700'}`}
-                                    placeholder="Contoh: 1500000"
-                                    min="1"
+                                    placeholder="Contoh: 1.500.000"
                                     required
                                 />
                                 {payErrors.amount && <p className="mt-1 text-xs text-red-500">{payErrors.amount}</p>}

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { formatNumberToRupiah, parseRupiahToString } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { Student } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
@@ -143,11 +144,11 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                 </Label>
                                 <Input
                                     id="amount"
-                                    type="number"
-                                    min="1"
+                                    type="text"
+                                    inputMode="numeric"
                                     placeholder="0"
-                                    value={data.amount}
-                                    onChange={(e) => setData('amount', e.target.value)}
+                                    value={formatNumberToRupiah(data.amount)}
+                                    onChange={(e) => setData('amount', parseRupiahToString(e.target.value))}
                                     className="mt-1"
                                 />
                                 {errors.amount && <p className="mt-1 text-sm text-rose-600">{errors.amount}</p>}

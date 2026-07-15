@@ -1,4 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
+import { formatNumberToRupiah, parseRupiahToNumber } from '@/lib/utils';
 import { Head, useForm } from '@inertiajs/react';
 import { FileText, Pencil, Check, X, Calendar, AlertCircle, PlusCircle } from 'lucide-react';
 import { useState, useMemo } from 'react';
@@ -152,52 +153,52 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
 
                 {/* UX: Panel Generate Tahun Ajaran Baru */}
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-5 rounded-xl border border-indigo-100 dark:border-indigo-800 shadow-sm flex flex-col md:flex-row md:items-end gap-4">
-                        <div className="flex-1">
-                            <h2 className="text-sm font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-1">
-                                <PlusCircle className="w-4 h-4" /> Generate Tahun Ajaran Baru
-                            </h2>
-                            <p className="text-xs text-indigo-700 dark:text-indigo-400">
-                                Buat otomatis 12 bulan (Juli - Juni) ke dalam database master.
-                            </p>
-                        </div>
-                        
-                        <div className="flex flex-col sm:flex-row items-end gap-3">
-                            <div>
-                                <label className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 block mb-1">Pilih Tahun Ajaran</label>
-                                {/* SEKARANG MENJADI DROPDOWN DINAMIS */}
-                                <select 
-                                    value={genData.start_year}
-                                    onChange={e => setGenData('start_year', parseInt(e.target.value))}
-                                    className="w-full sm:w-auto rounded-md border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:ring-indigo-500 font-medium"
-                                >
-                                    {nextYearOptions.map(year => (
-                                        <option key={`gen-${year}`} value={year}>
-                                            {year}/{year + 1}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 block mb-1">Harga SPP (Rp)</label>
-                                <input 
-                                    type="number" 
-                                    value={genData.base_amount}
-                                    onChange={e => setGenData('base_amount', parseInt(e.target.value))}
-                                    className="w-full sm:w-36 rounded-md border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:ring-indigo-500"
-                                />
-                            </div>
-                            <button 
-                                onClick={handleGenerate}
-                                disabled={genProcessing}
-                                className="w-full sm:w-auto px-5 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition"
-                            >
-                                {genProcessing ? 'Memproses...' : 'Generate'}
-                            </button>
-                        </div>
+                    <div className="flex-1">
+                        <h2 className="text-sm font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-1">
+                            <PlusCircle className="w-4 h-4" /> Generate Tahun Ajaran Baru
+                        </h2>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-400">
+                            Buat otomatis 12 bulan (Juli - Juni) ke dalam database master.
+                        </p>
                     </div>
+                        
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full md:w-auto">
+                        <div className="flex-1 sm:flex-initial">
+                            <label className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 block mb-1">Pilih Tahun Ajaran</label>
+                            <select 
+                                value={genData.start_year}
+                                onChange={e => setGenData('start_year', parseInt(e.target.value))}
+                                className="w-full sm:w-auto rounded-md border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:ring-indigo-500 font-medium"
+                            >
+                                {nextYearOptions.map(year => (
+                                    <option key={`gen-${year}`} value={year}>
+                                        {year}/{year + 1}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex-1 sm:flex-initial">
+                            <label className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 block mb-1">Harga SPP (Rp)</label>
+                            <input 
+                                type="text" 
+                                inputMode="numeric"
+                                value={formatNumberToRupiah(genData.base_amount)}
+                                onChange={e => setGenData('base_amount', parseRupiahToNumber(e.target.value))}
+                                className="w-full sm:w-36 rounded-md border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:ring-indigo-500"
+                            />
+                        </div>
+                        <button 
+                            onClick={handleGenerate}
+                            disabled={genProcessing}
+                            className="w-full sm:w-auto px-5 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition text-center"
+                        >
+                            {genProcessing ? 'Memproses...' : 'Generate'}
+                        </button>
+                    </div>
+                </div>
 
                 {/* Filter Tahun Data Tabel */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
                         <Calendar className="w-5 h-5 text-indigo-500" />
                         <span>Filter Tabel Tahun Ajaran:</span>
@@ -206,7 +207,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                     <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
-                        className="rounded-md border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-2 text-sm focus:ring-indigo-500 font-semibold text-indigo-700 dark:text-indigo-400 min-w-[200px]"
+                        className="w-full sm:w-auto rounded-md border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-2 text-sm focus:ring-indigo-500 font-semibold text-indigo-700 dark:text-indigo-400 min-w-[200px]"
                     >
                         {dbYears.map(year => (
                             <option key={`opt-${year}`} value={year}>Tahun Ajaran {year}/{year + 1}</option>
@@ -214,8 +215,8 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                     </select>
                 </div>
 
-                {/* Tabel Master SPP */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden overflow-x-auto">
+                {/* Tabel Master SPP - Desktop View */}
+                <div className="hidden md:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
                         <thead className="bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 border-b border-slate-200 dark:border-slate-800">
                             <tr>
@@ -254,9 +255,10 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-slate-500 font-medium">Rp</span>
                                                         <input 
-                                                            type="number" 
-                                                            value={editData.new_amount}
-                                                            onChange={e => setEditData('new_amount', parseInt(e.target.value) || 0)}
+                                                            type="text" 
+                                                            inputMode="numeric"
+                                                            value={formatNumberToRupiah(editData.new_amount)}
+                                                            onChange={e => setEditData('new_amount', parseRupiahToNumber(e.target.value))}
                                                             className={`w-32 rounded-md bg-white dark:bg-slate-950 px-3 py-1.5 text-sm dark:text-white ${editErrors.new_amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-indigo-500'}`}
                                                         />
                                                     </div>
@@ -292,6 +294,82 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                             })}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Tabel Master SPP - Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                    {displayedSPP.map((item) => {
+                        const key = `${item.month}-${item.year}`;
+                        const isEditing = editingKey === key;
+
+                        return (
+                            <div 
+                                key={key} 
+                                className={`p-4 rounded-xl border transition-all shadow-sm bg-white dark:bg-slate-900 ${
+                                    item.is_active 
+                                        ? 'border-slate-200 dark:border-slate-800' 
+                                        : 'border-dashed border-slate-300 dark:border-slate-700 opacity-75 bg-slate-50/50 dark:bg-slate-900/50'
+                                }`}
+                            >
+                                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-3">
+                                    <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
+                                        {getMonthName(item.month)} {item.year}
+                                    </span>
+                                    {item.is_active ? (
+                                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-md text-xs font-semibold">
+                                            <Check className="w-3.5 h-3.5" /> Tersedia
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs font-medium">
+                                            <AlertCircle className="w-3.5 h-3.5" /> Belum di-generate
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="space-y-3">
+                                    {isEditing ? (
+                                        <div className="space-y-2 bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                                            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Harga Baru (Rp):</label>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-slate-500 font-medium text-sm">Rp</span>
+                                                <input 
+                                                    type="text" 
+                                                    inputMode="numeric"
+                                                    value={formatNumberToRupiah(editData.new_amount)}
+                                                    onChange={e => setEditData('new_amount', parseRupiahToNumber(e.target.value))}
+                                                    className={`w-full rounded-md bg-white dark:bg-slate-900 px-3 py-2 text-sm font-semibold dark:text-white ${editErrors.new_amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-indigo-500'}`}
+                                                />
+                                            </div>
+                                            {editErrors.new_amount && <span className="text-xs text-red-500 block">{editErrors.new_amount}</span>}
+                                            <div className="flex items-center justify-end gap-2 pt-1">
+                                                <button onClick={cancelEditing} className="flex-1 py-1.5 px-3 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition text-xs font-medium dark:bg-slate-800 dark:text-slate-300 flex items-center justify-center gap-1">
+                                                    <X className="w-3.5 h-3.5" /> Batal
+                                                </button>
+                                                <button onClick={submitEdit} disabled={editProcessing} className="flex-1 py-1.5 px-3 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition text-xs font-medium flex items-center justify-center gap-1">
+                                                    <Check className="w-3.5 h-3.5" /> Simpan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-0.5">Harga Master SPP:</span>
+                                                <span className={`text-base font-bold ${item.is_active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-600'}`}>
+                                                    {item.is_active ? formatRupiah(item.current_amount) : '-'}
+                                                </span>
+                                            </div>
+
+                                            {item.is_active && (
+                                                <button onClick={() => startEditing(item)} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium text-xs dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition shadow-sm">
+                                                    <Pencil className="w-3.5 h-3.5 text-indigo-500" /> Ubah Harga
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
             </div>
