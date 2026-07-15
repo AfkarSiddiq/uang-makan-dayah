@@ -187,8 +187,8 @@ export default function Index({ transactions, summary, filters, categories, allo
                 {/* MODAL DETAIL DAN JEJAK AUDIT */}
                 {selectedTransaction && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-                        <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
+                        <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+                            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
                                 <div className="flex items-center gap-2">
                                     <History className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Detail Audit Transaksi</h3>
@@ -201,7 +201,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 </button>
                             </div>
 
-                            <div className="space-y-4 p-6">
+                            <div className="space-y-4 overflow-y-auto p-6">
                                 <div className="border-b border-slate-100 pb-4 text-center dark:border-slate-800">
                                     <p className="mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nominal Transaksi</p>
                                     <p
@@ -220,7 +220,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                     </span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Pencatat / Admin</p>
                                         <p className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-200">
@@ -262,7 +262,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                             </span>
                                         )}
                                     </div>
-                                    <div className="col-span-2 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+                                    <div className="col-span-1 sm:col-span-2 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                         <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Catatan Transaksi</p>
                                         <p className="font-medium text-slate-900 dark:text-slate-200">
                                             {selectedTransaction.note || <span className="italic opacity-50">Tidak ada catatan</span>}
@@ -307,7 +307,7 @@ export default function Index({ transactions, summary, filters, categories, allo
 
                                 {/* JEJAK PERUBAHAN */}
                                 {selectedTransaction.logs && selectedTransaction.logs.length > 0 && (
-                                    <div className="col-span-2 mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
+                                    <div className="col-span-1 sm:col-span-2 mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
                                         <p className="mb-3 flex items-center gap-1.5 text-xs font-bold tracking-wider text-amber-700 uppercase dark:text-amber-400">
                                             <ShieldAlert className="h-4 w-4" /> Jejak Perubahan Data (Audit Trail)
                                         </p>
@@ -335,7 +335,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 )}
                             </div>
 
-                            <div className="flex justify-end gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
+                            <div className="flex shrink-0 justify-end gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
                                 <Button variant="outline" onClick={() => setSelectedTransaction(null)} className="bg-white dark:bg-slate-900">
                                     Tutup
                                 </Button>
@@ -437,7 +437,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                         value={localFilters.date_to}
                                         onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
                                     />
-                                    <Button onClick={applyFilter} className="shrink-0 bg-indigo-600 hover:bg-indigo-700">
+                                    <Button onClick={applyFilter} className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white">
                                         <Search className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -445,8 +445,8 @@ export default function Index({ transactions, summary, filters, categories, allo
                         </div>
                     )}
 
-                    {/* TABEL AUDIT TRAIL KHUSUS RIWAYAT */}
-                    <div className="overflow-x-auto">
+                    {/* DESKTOP TABLE VIEW KHUSUS RIWAYAT */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-800/30">
@@ -565,16 +565,112 @@ export default function Index({ transactions, summary, filters, categories, allo
                         </table>
                     </div>
 
+                    {/* MOBILE CARD VIEW KHUSUS RIWAYAT */}
+                    <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                        {transactions.data.length === 0 ? (
+                            <div className="px-4 py-14 text-center">
+                                <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
+                                    <History className="h-10 w-10 opacity-40" />
+                                    <p className="text-base font-medium text-slate-500">Log riwayat tidak ditemukan</p>
+                                    <p className="text-xs">Tidak ada catatan transaksi yang sesuai dengan filter Anda.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            transactions.data.map((transaction) => (
+                                <div
+                                    key={transaction.id}
+                                    onClick={() => setSelectedTransaction(transaction)}
+                                    className="group cursor-pointer p-4 space-y-3 transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
+                                >
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 rounded bg-slate-100 dark:bg-slate-800 px-2 py-0.5">
+                                                {transaction.transaction_id}
+                                            </span>
+                                            <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                                {transaction.category}
+                                            </span>
+                                        </div>
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                                            {formatDate(transaction.transaction_date)}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                                            <User className="h-3.5 w-3.5 text-indigo-500" />
+                                            {transaction.user?.name || 'Sistem'}
+                                        </span>
+                                        {transaction.logs && transaction.logs.length > 0 ? (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                                                <ShieldAlert className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                                                Diedit ({transaction.logs.length}x)
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                <Clock className="h-3 w-3 text-slate-400" />
+                                                Rekam Asli
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {transaction.student && (
+                                        <div className="flex items-center justify-between bg-indigo-50/50 dark:bg-indigo-950/30 rounded-lg p-2.5">
+                                            <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 truncate max-w-[180px]">
+                                                {transaction.student.name}
+                                            </span>
+                                            {transaction.category === 'SPP' && transaction.sppPayments && transaction.sppPayments.length > 0 && (
+                                                <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                                                    {formatSppMonthsCompact(transaction.sppPayments)}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {transaction.note && (
+                                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                                            {transaction.note}
+                                        </p>
+                                    )}
+
+                                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                                        <span
+                                            className={`text-base font-bold ${
+                                                transaction.type === 'in'
+                                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                                    : 'text-rose-600 dark:text-rose-400'
+                                            }`}
+                                        >
+                                            {transaction.type === 'in' ? '+' : '-'} {formatRupiah(transaction.amount)}
+                                        </span>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedTransaction(transaction);
+                                            }}
+                                            className="text-xs text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/50"
+                                        >
+                                            <Eye className="mr-1 h-3.5 w-3.5" /> Lihat Detail
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
                     {/* PAGINATION */}
                     <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 bg-slate-50/50 px-6 py-4 sm:flex-row dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex flex-col items-center gap-4 text-sm text-slate-500 sm:flex-row dark:text-slate-400">
-                            <p>
+                            <p className="text-center sm:text-left">
                                 Menampilkan <span className="font-semibold text-slate-900 dark:text-white">{transactions.from || 0}</span> -{' '}
                                 <span className="font-semibold text-slate-900 dark:text-white">{transactions.to || 0}</span> dari{' '}
                                 <span className="font-semibold text-slate-900 dark:text-white">{transactions.total}</span> data log
                             </p>
 
-                            <div className="flex items-center gap-2 border-l border-slate-300 pl-4 dark:border-slate-700">
+                            <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-slate-300 pt-2 sm:pt-0 sm:pl-4 dark:border-slate-700">
                                 <span>Tampilkan:</span>
                                 <Select
                                     value={String(localFilters.per_page || '10')}

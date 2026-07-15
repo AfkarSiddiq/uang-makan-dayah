@@ -102,15 +102,15 @@ export default function Index({ transactions, summary, filters, categories, allo
             <Head title="Transaksi" />
 
             <div className="space-y-6 p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Transaksi</h1>
                         <p className="text-sm text-slate-500">Kelola semua pemasukan dan pengeluaran</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         {can('pembayaran.import') && (
                             <Link href={route('transaction.import.create')}>
-                                <Button variant="outline">
+                                <Button variant="outline" className="bg-white dark:bg-slate-900">
                                     <Upload className="mr-2 h-4 w-4" />
                                     Import
                                 </Button>
@@ -121,7 +121,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 href={route('transaction.export', localFilters)}
                                 download
                             >
-                                <Button variant="outline">
+                                <Button variant="outline" className="bg-white dark:bg-slate-900">
                                     <Download className="mr-2 h-4 w-4" />
                                     Export{localFilters.date_from || localFilters.date_to || localFilters.type || localFilters.category || localFilters.search ? ' (Filtered)' : ''}
                                 </Button>
@@ -129,7 +129,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                         )}
                         {(can('pembayaran.masuk.create') || can('pembayaran.keluar.create')) && (
                             <Link href={route('payment.create')}>
-                                <Button>
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
                                     <Plus className="mr-2 h-4 w-4" />
                                     Tambah Transaksi
                                 </Button>
@@ -142,7 +142,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                     {(allowedTypes.includes('in') || allowedTypes.length === 0) && (
                         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
                                     <ArrowDownRight className="h-5 w-5 text-emerald-600" />
                                 </div>
                                 <div>
@@ -156,7 +156,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                     {(allowedTypes.includes('out') || allowedTypes.length === 0) && (
                         <div className="rounded-xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-900 dark:bg-rose-950/30">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/50">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/50">
                                     <ArrowUpRight className="h-5 w-5 text-rose-600" />
                                 </div>
                                 <div>
@@ -170,7 +170,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                     {allowedTypes.length !== 1 && (
                         <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-900 dark:bg-indigo-950/30">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
                                     <ArrowUpDown className="h-5 w-5 text-indigo-600" />
                                 </div>
                                 <div>
@@ -192,14 +192,14 @@ export default function Index({ transactions, summary, filters, categories, allo
                             placeholder="Cari nomor transaksi, catatan, siswa..."
                             showButton
                         />
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
+                        <div className="flex gap-2 shrink-0">
+                            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="bg-white dark:bg-slate-900">
                                 <Filter className="mr-2 h-4 w-4" />
                                 Filter
                                 {hasActiveFilters && <span className="ml-2 h-2 w-2 rounded-full bg-indigo-500" />}
                             </Button>
                             {hasActiveFilters && (
-                                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-slate-500 hover:text-slate-700">
                                     <X className="mr-1 h-4 w-4" />
                                     Reset
                                 </Button>
@@ -210,9 +210,9 @@ export default function Index({ transactions, summary, filters, categories, allo
                     {showFilters && (
                         <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Tipe</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Tipe</label>
                                 <Select value={localFilters.type || 'all'} onValueChange={(value) => setLocalFilters({ ...localFilters, type: value === 'all' ? '' : value })}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="bg-white dark:bg-slate-900">
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -227,12 +227,12 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 </Select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Kategori</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Kategori</label>
                                 <Select
                                     value={localFilters.category || 'all'}
                                     onValueChange={(value) => setLocalFilters({ ...localFilters, category: value === 'all' ? '' : value })}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="bg-white dark:bg-slate-900">
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -257,30 +257,33 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 </Select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Dari Tanggal</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Dari Tanggal</label>
                                 <Input
                                     type="date"
                                     value={localFilters.date_from}
                                     onChange={(e) => setLocalFilters({ ...localFilters, date_from: e.target.value })}
+                                    className="bg-white dark:bg-slate-900"
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Sampai Tanggal</label>
-                                <Input
-                                    type="date"
-                                    value={localFilters.date_to}
-                                    onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
-                                />
-                            </div>
-                            <div className="flex items-end">
-                                <Button onClick={applyFilter} className="w-full">
-                                    Terapkan Filter
-                                </Button>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Sampai Tanggal</label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        type="date"
+                                        value={localFilters.date_to}
+                                        onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
+                                        className="bg-white dark:bg-slate-900"
+                                    />
+                                    <Button onClick={applyFilter} className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white">
+                                        <Search className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    <div className="overflow-x-auto">
+                    {/* DESKTOP TABLE VIEW */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
@@ -336,12 +339,12 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                     {transaction.transaction_id}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                                 {formatDate(transaction.transaction_date)}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${
                                                         transaction.type === 'in'
                                                             ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                                                             : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
@@ -353,16 +356,16 @@ export default function Index({ transactions, summary, filters, categories, allo
                                             </td>
                                             <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                                                 {transaction.student ? (
-                                                    <span>{transaction.student.name}</span>
+                                                    <span className="font-medium text-slate-800 dark:text-slate-200">{transaction.student.name}</span>
                                                 ) : (
                                                     <span className="text-slate-400">-</span>
                                                 )}
                                             </td>
-                                            <td className="max-w-[200px] truncate px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+                                            <td className="max-w-[220px] truncate px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                                                 {transaction.note || '-'}
                                             </td>
                                             <td
-                                                className={`px-4 py-3 text-right text-sm font-semibold ${
+                                                className={`px-4 py-3 text-right text-sm font-bold whitespace-nowrap ${
                                                     transaction.type === 'in'
                                                         ? 'text-emerald-600 dark:text-emerald-400'
                                                         : 'text-rose-600 dark:text-rose-400'
@@ -371,46 +374,46 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                 {transaction.type === 'in' ? '+' : '-'}
                                                 {formatRupiah(transaction.amount)}
                                             </td>
-                                                    <td className="px-4 py-3 text-center">
-                                                        <div className="flex items-center justify-center gap-1">
-                                                            {transaction.id && (
-                                                                <>
-                                                                    {can('pembayaran.print') && (
-                                                                        <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
-                                                                            <Button variant="ghost" size="sm">
-                                                                                <Printer className="h-4 w-4" />
-                                                                            </Button>
-                                                                        </a>
-                                                                    )}
-                                                                    {can('pembayaran.edit') && (
-                                                                        <a href={`/payment/${transaction.id}/edit`}>
-                                                                            <Button variant="ghost" size="sm">
-                                                                                Edit
-                                                                            </Button>
-                                                                        </a>
-                                                                    )}
-                                                                </>
-                                                            )}
-                                                            {can('pembayaran.delete') && (
-                                                                <form
-                                                                    onSubmit={(e) => {
-                                                                        e.preventDefault();
-                                                                        if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                                                                            router.delete(`/payment/${transaction.id}`);
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                                                    >
-                                                                        <Trash2 className="h-4 w-4" />
+                                            <td className="px-4 py-3 text-center whitespace-nowrap">
+                                                <div className="flex items-center justify-center gap-1">
+                                                    {transaction.id && (
+                                                        <>
+                                                            {can('pembayaran.print') && (
+                                                                <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
+                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-600 hover:text-indigo-600 dark:text-slate-400">
+                                                                        <Printer className="h-4 w-4" />
                                                                     </Button>
-                                                                </form>
+                                                                </a>
                                                             )}
-                                                        </div>
-                                                    </td>
+                                                            {can('pembayaran.edit') && (
+                                                                <a href={`/payment/${transaction.id}/edit`}>
+                                                                    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                                                                        Edit
+                                                                    </Button>
+                                                                </a>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                    {can('pembayaran.delete') && (
+                                                        <form
+                                                            onSubmit={(e) => {
+                                                                e.preventDefault();
+                                                                if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                                                                    router.delete(`/payment/${transaction.id}`);
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:hover:bg-rose-950/40"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </form>
+                                                    )}
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -418,19 +421,119 @@ export default function Index({ transactions, summary, filters, categories, allo
                         </table>
                     </div>
 
+                    {/* MOBILE CARD VIEW */}
+                    <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                        {transactions.data.length === 0 ? (
+                            <div className="px-4 py-12 text-center text-slate-500">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Search className="h-8 w-8 text-slate-300" />
+                                    <p>Tidak ada transaksi ditemukan</p>
+                                </div>
+                            </div>
+                        ) : (
+                            transactions.data.map((transaction) => (
+                                <div key={transaction.id} className="p-4 space-y-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white rounded bg-slate-100 dark:bg-slate-800 px-2.5 py-1">
+                                            {transaction.transaction_id}
+                                        </span>
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                                            {formatDate(transaction.transaction_date)}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span
+                                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                                transaction.type === 'in'
+                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                    : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                                            }`}
+                                        >
+                                            {transaction.type === 'in' ? '↓ ' : '↑ '}
+                                            {transaction.category}
+                                        </span>
+                                        <span className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[180px]">
+                                            {transaction.student ? transaction.student.name : <span className="text-slate-400 font-normal">-</span>}
+                                        </span>
+                                    </div>
+
+                                    {transaction.note && (
+                                        <p className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2.5 line-clamp-2">
+                                            {transaction.note}
+                                        </p>
+                                    )}
+
+                                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                                        <span
+                                            className={`text-base font-bold ${
+                                                transaction.type === 'in'
+                                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                                    : 'text-rose-600 dark:text-rose-400'
+                                            }`}
+                                        >
+                                            {transaction.type === 'in' ? '+' : '-'}
+                                            {formatRupiah(transaction.amount)}
+                                        </span>
+
+                                        <div className="flex items-center gap-1.5">
+                                            {transaction.id && (
+                                                <>
+                                                    {can('pembayaran.print') && (
+                                                        <a href={`/payment/${transaction.id}/print`} target="_blank" title="Cetak PDF">
+                                                            <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs bg-white dark:bg-slate-900">
+                                                                <Printer className="h-3.5 w-3.5 mr-1" />
+                                                                Cetak
+                                                            </Button>
+                                                        </a>
+                                                    )}
+                                                    {can('pembayaran.edit') && (
+                                                        <a href={`/payment/${transaction.id}/edit`}>
+                                                            <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs bg-white dark:bg-slate-900">
+                                                                Edit
+                                                            </Button>
+                                                        </a>
+                                                    )}
+                                                </>
+                                            )}
+                                            {can('pembayaran.delete') && (
+                                                <form
+                                                    onSubmit={(e) => {
+                                                        e.preventDefault();
+                                                        if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                                                            router.delete(`/payment/${transaction.id}`);
+                                                        }
+                                                    }}
+                                                >
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:hover:bg-rose-950/40 bg-white dark:bg-slate-900"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </form>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
                     {transactions.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-800">
-                            <p className="text-sm text-slate-500">
-                                Menampilkan {transactions.from} - {transactions.to} dari {transactions.total} transaksi
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20">
+                            <p className="text-sm text-slate-500 text-center sm:text-left">
+                                Menampilkan <span className="font-semibold text-slate-900 dark:text-white">{transactions.from || 0}</span> - <span className="font-semibold text-slate-900 dark:text-white">{transactions.to || 0}</span> dari <span className="font-semibold text-slate-900 dark:text-white">{transactions.total}</span> transaksi
                             </p>
-                            <div className="flex gap-1">
+                            <div className="flex gap-2">
                                 {transactions.current_page > 1 && (
-                                    <Button variant="outline" size="sm" onClick={() => applyFilters({ page: String(transactions.current_page - 1) })}>
+                                    <Button variant="outline" size="sm" onClick={() => applyFilters({ page: String(transactions.current_page - 1) })} className="bg-white dark:bg-slate-900">
                                         Previous
                                     </Button>
                                 )}
                                 {transactions.current_page < transactions.last_page && (
-                                    <Button variant="outline" size="sm" onClick={() => applyFilters({ page: String(transactions.current_page + 1) })}>
+                                    <Button variant="outline" size="sm" onClick={() => applyFilters({ page: String(transactions.current_page + 1) })} className="bg-white dark:bg-slate-900">
                                         Next
                                     </Button>
                                 )}
