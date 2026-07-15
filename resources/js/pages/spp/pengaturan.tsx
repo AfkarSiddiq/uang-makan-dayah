@@ -27,6 +27,7 @@ interface Props {
 
 export default function Pengaturan({ ringkasanSPP }: Props) {
     const [editingKey, setEditingKey] = useState<string | null>(null);
+    const [isGenerateModalOpen, setIsGenerateModalOpen] = useState<boolean>(false);
 
     const { data: editData, setData: setEditData, post: editPost, processing: editProcessing, reset: editReset, errors: editErrors, clearErrors: editClearErrors } = useForm({
         month: 0,
@@ -67,14 +68,32 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
         });
     }, [ringkasanSPP, selectedYear]);
 
-    const nextYearOptions = useMemo(() => {
-        const latestYearInDb = dbYears[0];
-        // Sistem menyarankan tahun terakhir di DB, dan 2 tahun ke depan
-        return [latestYearInDb, latestYearInDb + 1, latestYearInDb + 2].sort((a, b) => a - b);
-    }, [dbYears]);
+    const generateYearOptions = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        const minYear = dbYears.length > 0 ? Math.min(...dbYears, currentYear) - 1 : currentYear - 1;
+        const maxYear = dbYears.length > 0 ? Math.max(...dbYears, currentYear) + 3 : currentYear + 3;
+
+        const options = [];
+        for (let y = minYear; y <= maxYear; y++) {
+            // Cek apakah tahun ini sudah ter-generate di database (minimal 1 bulan)
+            const isGenerated = ringkasanSPP.some(
+                item => (item.month >= 7 && Number(item.year) === y) || (item.month < 7 && Number(item.year) === y + 1)
+            );
+            options.push({
+                year: y,
+                label: `${y}/${y + 1}`,
+                isGenerated
+            });
+        }
+        return options;
+    }, [dbYears, ringkasanSPP]);
+
+    const firstNewYear = useMemo(() => {
+        return generateYearOptions.find(opt => !opt.isGenerated)?.year || (dbYears[0] ? dbYears[0] + 1 : new Date().getFullYear());
+    }, [generateYearOptions, dbYears]);
 
     const { data: genData, setData: setGenData, post: genPost, processing: genProcessing } = useForm({
-        start_year: dbYears[0] + 1, // Default langsung menyarankan tahun depannya
+        start_year: firstNewYear,
         base_amount: 500000,
     });
 
@@ -120,13 +139,20 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
     };
 
     // --- Handler Generate ---
-    const handleGenerate = () => {
+    const openGenerateModal = () => {
+        const targetYear = generateYearOptions.find(opt => !opt.isGenerated)?.year || (dbYears[0] ? dbYears[0] + 1 : new Date().getFullYear());
+        setGenData('start_year', targetYear);
+        setIsGenerateModalOpen(true);
+    };
+
+    const handleGenerate = (e: React.FormEvent) => {
+        e.preventDefault();
         if (confirm(`Generate tagihan master untuk Tahun Ajaran ${genData.start_year}/${genData.start_year + 1} dengan harga dasar Rp ${formatRupiah(genData.base_amount)}?`)) {
             genPost(route('spp.generate_tahun'), { 
                 preserveScroll: true,
                 onSuccess: () => {
-                    // Opsional: Langsung ubah filter ke tahun yang baru digenerate
                     setSelectedYear(genData.start_year);
+                    setIsGenerateModalOpen(false);
                 }
             });
         }
@@ -142,59 +168,23 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
             <div className="p-6 max-w-5xl mx-auto space-y-6">
                 
                 {/* Header Section */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <FileText className="w-6 h-6 text-indigo-600" /> Master Data SPP
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">
-                        Kelola nominal tagihan bulanan. Data di sini akan menjadi acuan saat siswa melakukan pembayaran.
-                    </p>
-                </div>
-
-                {/* UX: Panel Generate Tahun Ajaran Baru */}
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-5 rounded-xl border border-indigo-100 dark:border-indigo-800 shadow-sm flex flex-col md:flex-row md:items-end gap-4">
-                    <div className="flex-1">
-                        <h2 className="text-sm font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-1">
-                            <PlusCircle className="w-4 h-4" /> Generate Tahun Ajaran Baru
-                        </h2>
-                        <p className="text-xs text-indigo-700 dark:text-indigo-400">
-                            Buat otomatis 12 bulan (Juli - Juni) ke dalam database master.
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <FileText className="w-6 h-6 text-indigo-600" /> Master Data SPP
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1">
+                            Kelola nominal tagihan bulanan. Data di sini akan menjadi acuan saat siswa melakukan pembayaran.
                         </p>
                     </div>
-                        
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full md:w-auto">
-                        <div className="flex-1 sm:flex-initial">
-                            <label className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 block mb-1">Pilih Tahun Ajaran</label>
-                            <select 
-                                value={genData.start_year}
-                                onChange={e => setGenData('start_year', parseInt(e.target.value))}
-                                className="w-full sm:w-auto rounded-md border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:ring-indigo-500 font-medium"
-                            >
-                                {nextYearOptions.map(year => (
-                                    <option key={`gen-${year}`} value={year}>
-                                        {year}/{year + 1}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="flex-1 sm:flex-initial">
-                            <label className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 block mb-1">Harga SPP (Rp)</label>
-                            <input 
-                                type="text" 
-                                inputMode="numeric"
-                                value={formatNumberToRupiah(genData.base_amount)}
-                                onChange={e => setGenData('base_amount', parseRupiahToNumber(e.target.value))}
-                                className="w-full sm:w-36 rounded-md border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm focus:ring-indigo-500"
-                            />
-                        </div>
-                        <button 
-                            onClick={handleGenerate}
-                            disabled={genProcessing}
-                            className="w-full sm:w-auto px-5 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition text-center"
-                        >
-                            {genProcessing ? 'Memproses...' : 'Generate'}
-                        </button>
-                    </div>
+                    <button
+                        onClick={openGenerateModal}
+                        type="button"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-sm transition transform active:scale-95 flex-shrink-0"
+                    >
+                        <PlusCircle className="w-4 h-4" />
+                        <span>Generate Tahun Ajaran</span>
+                    </button>
                 </div>
 
                 {/* Filter Tahun Data Tabel */}
@@ -373,6 +363,122 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                 </div>
 
             </div>
+
+            {/* Modal Generate Tahun Ajaran Baru */}
+            {isGenerateModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
+                                    <PlusCircle className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Generate Tahun Ajaran</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">Buat otomatis 12 tagihan bulanan master</p>
+                                </div>
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => setIsGenerateModalOpen(false)}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleGenerate} className="space-y-4">
+                            <div>
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                                    Pilih Tahun Ajaran <span className="text-red-500">*</span>
+                                </label>
+                                <select 
+                                    value={genData.start_year}
+                                    onChange={e => setGenData('start_year', parseInt(e.target.value))}
+                                    className="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-sm focus:ring-indigo-500 focus:border-indigo-500 font-semibold text-slate-900 dark:text-white"
+                                    required
+                                >
+                                    {generateYearOptions.map(opt => (
+                                        <option key={`modal-gen-${opt.year}`} value={opt.year}>
+                                            Tahun Ajaran {opt.label} {opt.isGenerated ? '— (Sudah Ada Data)' : '— (Baru / Rekomendasi)'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                                    Harga SPP per Bulan (Rp) <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-sm">Rp</span>
+                                    <input 
+                                        type="text" 
+                                        inputMode="numeric"
+                                        required
+                                        value={formatNumberToRupiah(genData.base_amount)}
+                                        onChange={e => setGenData('base_amount', parseRupiahToNumber(e.target.value))}
+                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-base font-bold focus:ring-indigo-500 focus:border-indigo-500 dark:text-white"
+                                        placeholder="0"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Dynamic Info Box */}
+                            {(() => {
+                                const selectedOpt = generateYearOptions.find(o => o.year === genData.start_year);
+                                if (selectedOpt?.isGenerated) {
+                                    return (
+                                        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+                                            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-semibold">Tahun Ajaran ini sudah memiliki data master.</p>
+                                                <p className="mt-0.5 opacity-90">Jika digenerate ulang, bulan yang belum ada akan ditambahkan dan bulan yang sudah tersedia tidak akan tertimpa/rusak.</p>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return (
+                                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl flex items-start gap-2.5 text-xs text-indigo-800 dark:text-indigo-300">
+                                        <PlusCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="font-semibold">Tahun Ajaran Baru (Rekomendasi)</p>
+                                            <p className="mt-0.5 opacity-90">Sistem akan otomatis membuat 12 bulan tagihan (Juli {genData.start_year} - Juni {genData.start_year + 1}) dengan nominal Rp {formatNumberToRupiah(genData.base_amount)}.</p>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsGenerateModalOpen(false)}
+                                    className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                                >
+                                    Batal
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={genProcessing}
+                                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {genProcessing ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span>Memproses...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Check className="w-4 h-4" />
+                                            <span>Generate Master Data</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }
