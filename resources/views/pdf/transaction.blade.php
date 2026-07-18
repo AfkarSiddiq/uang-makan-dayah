@@ -15,20 +15,42 @@
             padding: 40px;
             color: #333;
         }
-        .header {
+        .header-table {
+            width: 100%;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header-logo {
+            width: 80px;
+            height: auto;
+        }
+        .header-text {
+            text-align: left;
+            padding-left: 20px;
+        }
+        .header-small {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #333;
+        }
+        .header-large {
+            font-size: 28px;
+            font-weight: bold;
+            color: #17803d; /* Hijau logo minhajussalam */
+            margin: 3px 0;
+            letter-spacing: 2px;
+        }
+        .title {
             text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
+        .title h1 {
+            font-size: 20px;
+            text-decoration: underline;
         }
-        .header p {
-            font-size: 12px;
-            color: #666;
-        }
+
         .info-box {
             border: 1px solid #ddd;
             padding: 20px;
@@ -86,9 +108,20 @@
     </style>
 </head>
 <body>
-    <div class="header">
+    <table class="header-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="80" style="vertical-align: middle;">
+                <img src="{{ public_path('minhajussalam.png') }}" class="header-logo" alt="Logo">
+            </td>
+            <td class="header-text">
+                <div class="header-small">Dayah Perbatasan</div>
+                <div class="header-large">MINHAJUSSALAM</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="title">
         <h1>BUKTI TRANSAKSI</h1>
-        <p>{{ $transaction->institution_name ?? 'Pondok PesanTran Modern' }}</p>
     </div>
 
     <div class="info-box">

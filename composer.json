@@ -10,8 +10,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ar-php/ar-php": "*",
         "barryvdh/laravel-dompdf": "^3.1",
         "inertiajs/inertia-laravel": "^2.0",
+        "khaled.alshamaa/ar-php": "*",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpspreadsheet": "*",
