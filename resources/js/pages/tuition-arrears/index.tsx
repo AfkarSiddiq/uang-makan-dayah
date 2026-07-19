@@ -232,13 +232,13 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
             {/* MODAL PEMBAYARAN */}
             {paymentModal.isOpen && paymentModal.student && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-3 sm:p-4">
-                    <div className="w-full max-w-md max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-xl dark:bg-slate-900 overflow-hidden border border-slate-200 dark:border-slate-800">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-card/50 backdrop-blur-sm p-3 sm:p-4">
+                    <div className="w-full max-w-md max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-xl dark:bg-card overflow-hidden border border-border dark:border-slate-800">
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 sm:px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50 shrink-0">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <Wallet className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Terima Pembayaran
+                            <h3 className="text-lg font-bold text-foreground dark:text-white flex items-center gap-2">
+                                <Wallet className="w-5 h-5 text-primary dark:text-primary" /> Terima Pembayaran
                             </h3>
-                            <button onClick={closePaymentModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                            <button onClick={closePaymentModal} className="text-muted-foreground hover:text-slate-600 dark:hover:text-slate-300">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -247,25 +247,25 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             <div className="mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Siswa</p>
-                                        <p className="font-bold text-slate-900 dark:text-white text-base">{paymentModal.student.name}</p>
-                                        <p className="text-xs text-slate-500">NISN: {paymentModal.student.nisn} {paymentModal.student.class ? `• Kelas ${paymentModal.student.class}` : ''}</p>
+                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Siswa</p>
+                                        <p className="font-bold text-foreground dark:text-white text-base">{paymentModal.student.name}</p>
+                                        <p className="text-xs text-muted-foreground">NISN: {paymentModal.student.nisn} {paymentModal.student.class ? `• Kelas ${paymentModal.student.class}` : ''}</p>
                                     </div>
                                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${paymentModal.student.status === 'aktif' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'}`}>
                                         {paymentModal.student.status.toUpperCase()}
                                     </span>
                                 </div>
                                 
-                                <div className="mt-3 flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">Total Tunggakan ({paymentModal.student.arrears_count} bulan)</p>
+                                <div className="mt-3 flex justify-between items-center pt-3 border-t border-border dark:border-border">
+                                    <p className="text-sm text-slate-600 dark:text-muted-foreground">Total Tunggakan ({paymentModal.student.arrears_count} bulan)</p>
                                     <p className="font-bold text-rose-600 dark:text-rose-400 text-base">{formatRupiahText(paymentModal.student.total_arrears)}</p>
                                 </div>
                             </div>
 
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Jumlah Uang Diterima (Rp)</label>
+                                <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300 mb-2">Jumlah Uang Diterima (Rp)</label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">Rp</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">Rp</span>
                                     <input 
                                         type="text" 
                                         inputMode="numeric"
@@ -273,11 +273,11 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                         required
                                         value={displayAmount}
                                         onChange={handleAmountChange}
-                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xl font-bold focus:ring-indigo-500 focus:border-indigo-500 dark:text-white text-right tracking-wider placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-border bg-white dark:bg-slate-950 text-xl font-bold focus:ring-primary focus:border-primary dark:text-white text-right tracking-wider placeholder:text-slate-300 dark:placeholder:text-foreground/90"
                                     />
                                 </div>
                                 <div className="flex justify-between items-center mt-2">
-                                    <p className="text-xs text-slate-500">
+                                    <p className="text-xs text-muted-foreground">
                                         *Sistem akan melunasi bulan tertua lebih dulu.
                                     </p>
                                     <button 
@@ -286,7 +286,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                             setDisplayAmount(formatNumberToRupiah(paymentModal.student!.total_arrears));
                                             setPayData('amount', paymentModal.student!.total_arrears);
                                         }}
-                                        className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                                        className="text-xs font-semibold text-primary hover:text-indigo-700 dark:text-primary"
                                     >
                                         Isi Lunas Semua
                                     </button>
@@ -294,13 +294,13 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             </div>
 
                             <div className="flex justify-end gap-3">
-                                <button type="button" onClick={closePaymentModal} className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+                                <button type="button" onClick={closePaymentModal} className="px-5 py-2.5 rounded-xl text-sm font-medium text-foreground/90 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={payProcessing || payData.amount <= 0}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition"
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-primary hover:bg-indigo-700 disabled:opacity-50 transition"
                                 >
                                     <Check className="w-4 h-4" /> {payProcessing ? 'Memproses...' : 'Proses Pembayaran'}
                                 </button>
@@ -312,25 +312,25 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
             {/* MODAL EXPORT DATA */}
             {showExportModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-3 sm:p-4">
-                    <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-card/50 backdrop-blur-sm p-3 sm:p-4">
+                    <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-xl dark:bg-card border border-border dark:border-slate-800">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <FileSpreadsheet className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Export Data Tunggakan SPP
+                            <h3 className="text-lg font-bold text-foreground dark:text-white flex items-center gap-2">
+                                <FileSpreadsheet className="w-5 h-5 text-primary dark:text-primary" /> Export Data Tunggakan SPP
                             </h3>
-                            <button onClick={() => setShowExportModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                            <button onClick={() => setShowExportModal(false)} className="text-muted-foreground hover:text-slate-600 dark:hover:text-slate-300">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
                         <div className="space-y-5">
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">1. Pilih Kategori Export</label>
+                                <label className="block text-sm font-semibold text-foreground/90 dark:text-slate-300 mb-2">1. Pilih Kategori Export</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     <button
                                         type="button"
                                         onClick={() => setExportCategory('all')}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'all' ? 'border-indigo-600 bg-indigo-50/80 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-300' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}`}
+                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'all' ? 'border-indigo-600 bg-primary/5/80 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
                                     >
                                         <Users className="w-5 h-5" />
                                         <span>Semua Siswa</span>
@@ -338,7 +338,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setExportCategory('class')}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'class' ? 'border-indigo-600 bg-indigo-50/80 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-300' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}`}
+                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'class' ? 'border-indigo-600 bg-primary/5/80 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
                                     >
                                         <BookOpen className="w-5 h-5" />
                                         <span>Per Kelas</span>
@@ -346,7 +346,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setExportCategory('month')}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'month' ? 'border-indigo-600 bg-indigo-50/80 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-300' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}`}
+                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'month' ? 'border-indigo-600 bg-primary/5/80 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
                                     >
                                         <Clock className="w-5 h-5" />
                                         <span>Per Bulan</span>
@@ -356,9 +356,9 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                             {exportCategory === 'class' && (
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-3">
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Pilih Kelas yang Ingin Di-export</label>
+                                    <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300">Pilih Kelas yang Ingin Di-export</label>
                                     <select
-                                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 dark:border-border dark:bg-card dark:text-white"
                                         value={exportClass}
                                         onChange={(e) => setExportClass(e.target.value)}
                                     >
@@ -375,9 +375,9 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                             {exportCategory === 'month' && (
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-3">
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Pilih Bulan Tagihan SPP</label>
+                                    <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300">Pilih Bulan Tagihan SPP</label>
                                     <select
-                                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 dark:border-border dark:bg-card dark:text-white"
                                         value={exportMonthId}
                                         onChange={(e) => setExportMonthId(e.target.value)}
                                     >
@@ -392,26 +392,26 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             )}
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">2. Pilih Status Siswa</label>
+                                <label className="block text-sm font-semibold text-foreground/90 dark:text-slate-300 mb-2">2. Pilih Status Siswa</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     <button
                                         type="button"
                                         onClick={() => setExportStatus('all')}
-                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'all' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/50 dark:text-indigo-300' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
+                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'all' ? 'border-indigo-600 bg-primary/5 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
                                     >
                                         Semua Status
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setExportStatus('active')}
-                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'active' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/50 dark:text-indigo-300' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
+                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'active' ? 'border-indigo-600 bg-primary/5 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
                                     >
                                         Siswa Aktif Saja
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setExportStatus('inactive')}
-                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'inactive' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/50 dark:text-indigo-300' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
+                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'inactive' ? 'border-indigo-600 bg-primary/5 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
                                     >
                                         Non-Aktif / Alumni
                                     </button>
@@ -422,14 +422,14 @@ export default function Index({ students, summary, availableMonths }: Props) {
                         <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
                             <button
                                 onClick={() => setShowExportModal(false)}
-                                className="rounded-xl px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                                className="rounded-xl px-5 py-2.5 text-sm font-medium text-foreground/90 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition"
                             >
                                 Batal
                             </button>
                             <button
                                 onClick={handleExportSubmit}
                                 disabled={exportCategory === 'month' && !exportMonthId}
-                                className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-sm transition"
+                                className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-sm transition"
                             >
                                 <Download className="w-4 h-4" /> Export Excel
                             </button>
@@ -442,19 +442,19 @@ export default function Index({ students, summary, availableMonths }: Props) {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                         <a href="/dashboard">
-                            <button className="rounded-xl p-2.5 border border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800 transition">
-                                <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+                            <button className="rounded-xl p-2.5 border border-border hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800 transition">
+                                <ArrowLeft className="h-5 w-5 text-foreground/90 dark:text-slate-300" />
                             </button>
                         </a>
                         <div>
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Tunggakan SPP</h1>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Monitoring & pengelolaan tunggakan siswa per kelas maupun non-aktif</p>
+                            <h1 className="text-2xl font-bold text-foreground dark:text-white tracking-tight">Tunggakan SPP</h1>
+                            <p className="text-sm text-muted-foreground dark:text-muted-foreground">Monitoring & pengelolaan tunggakan siswa per kelas maupun non-aktif</p>
                         </div>
                     </div>
                     <div>
                         <button
                             onClick={() => setShowExportModal(true)}
-                            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition active:scale-95"
+                            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition active:scale-95"
                         >
                             <Download className="h-4 w-4" />
                             <span>Export Data Tunggakan</span>
@@ -472,11 +472,11 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold text-rose-600/90 dark:text-rose-400">Total Siswa Menunggak</p>
-                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">{summary.total_students} <span className="text-base font-medium text-slate-500">Siswa</span></h3>
+                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground dark:text-white mt-0.5">{summary.total_students} <span className="text-base font-medium text-muted-foreground">Siswa</span></h3>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 pt-3 border-t border-rose-100 dark:border-rose-900/40 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <div className="mt-4 pt-3 border-t border-rose-100 dark:border-rose-900/40 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 dark:text-muted-foreground">
                             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-rose-500"></span> {summary.active_students_count ?? 0} Siswa Aktif</span>
                             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500"></span> {summary.inactive_students_count ?? 0} Non-Aktif / Alumni</span>
                         </div>
@@ -490,29 +490,29 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-sm font-semibold text-amber-600/90 dark:text-amber-400">Total Nominal Tunggakan</p>
-                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 truncate" title={formatRupiahText(summary.total_arrears)}>{formatRupiahText(summary.total_arrears)}</h3>
+                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground dark:text-white mt-0.5 truncate" title={formatRupiahText(summary.total_arrears)}>{formatRupiahText(summary.total_arrears)}</h3>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 pt-3 border-t border-amber-100 dark:border-amber-900/40 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <div className="mt-4 pt-3 border-t border-amber-100 dark:border-amber-900/40 text-xs font-medium text-slate-600 dark:text-muted-foreground">
                             Akumulasi seluruh tagihan SPP dari siswa aktif maupun non-aktif
                         </div>
                     </div>
                 </div>
 
                 {/* TABS SELECTOR (AKTIF VS NON-AKTIF/ALUMNI) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border dark:border-slate-800 pb-2">
                     <div className="flex flex-col sm:flex-row gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-full sm:w-fit">
                         <button
                             onClick={() => {
                                 setActiveTab('active');
                                 setSelectedClass('all');
                             }}
-                            className={`flex items-center justify-center sm:justify-start gap-2.5 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition ${activeTab === 'active' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
+                            className={`flex items-center justify-center sm:justify-start gap-2.5 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition ${activeTab === 'active' ? 'bg-white text-foreground shadow-sm dark:bg-card dark:text-white' : 'text-slate-600 hover:text-foreground dark:text-muted-foreground dark:hover:text-white'}`}
                         >
                             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                             <span>Siswa Aktif Menunggak</span>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'active' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'active' ? 'bg-primary/20 text-primary dark:bg-primary/30 dark:text-primary' : 'bg-slate-200 text-foreground/90 dark:bg-slate-700 dark:text-muted-foreground'}`}>
                                 {summary.active_students_count ?? 0}
                             </span>
                         </button>
@@ -522,11 +522,11 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                 setActiveTab('inactive');
                                 setSelectedClass('all');
                             }}
-                            className={`flex items-center justify-center sm:justify-start gap-2.5 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition ${activeTab === 'inactive' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
+                            className={`flex items-center justify-center sm:justify-start gap-2.5 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition ${activeTab === 'inactive' ? 'bg-white text-foreground shadow-sm dark:bg-card dark:text-white' : 'text-slate-600 hover:text-foreground dark:text-muted-foreground dark:hover:text-white'}`}
                         >
                             <GraduationCap className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                             <span>Siswa Non-Aktif / Alumni Menunggak</span>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'inactive' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'inactive' ? 'bg-secondary text-foreground dark:bg-secondary/20 dark:text-foreground' : 'bg-slate-200 text-foreground/90 dark:bg-slate-700 dark:text-muted-foreground'}`}>
                                 {summary.inactive_students_count ?? 0}
                             </span>
                         </button>
@@ -537,11 +537,11 @@ export default function Index({ students, summary, availableMonths }: Props) {
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
                     <div className="flex flex-col sm:flex-row gap-3 flex-1">
                         <div className="relative flex-1">
-                            <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <input
                                 type="text"
                                 placeholder="Cari nama siswa atau NISN..."
-                                className="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary dark:border-border dark:bg-card dark:text-white"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -549,7 +549,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                         {activeTab === 'active' ? (
                             <select
-                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto"
+                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-border dark:bg-card dark:text-white sm:w-auto"
                                 value={selectedClass}
                                 onChange={(e) => setSelectedClass(e.target.value)}
                             >
@@ -563,7 +563,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             </select>
                         ) : (
                             <select
-                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto"
+                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-border dark:bg-card dark:text-white sm:w-auto"
                                 value={selectedInactiveStatus}
                                 onChange={(e) => setSelectedInactiveStatus(e.target.value)}
                             >
@@ -575,7 +575,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                         )}
 
                         <select
-                            className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto"
+                            className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm dark:border-border dark:bg-card dark:text-white sm:w-auto"
                             value={selectedGender}
                             onChange={(e) => setSelectedGender(e.target.value)}
                         >
@@ -589,17 +589,17 @@ export default function Index({ students, summary, availableMonths }: Props) {
                         <button
                             type="button"
                             onClick={expandAllSections}
-                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-border text-xs font-semibold text-foreground/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                         >
-                            <ChevronDown className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                            <ChevronDown className="w-4 h-4 text-primary dark:text-primary" />
                             <span>Buka Semua</span>
                         </button>
                         <button
                             type="button"
                             onClick={collapseAllSections}
-                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-border text-xs font-semibold text-foreground/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                         >
-                            <ChevronUp className="w-4 h-4 text-slate-500" />
+                            <ChevronUp className="w-4 h-4 text-muted-foreground" />
                             <span>Tutup Semua</span>
                         </button>
                     </div>
@@ -615,31 +615,31 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             const isCollapsed = collapsedSections[`class-${cls}`] ?? (selectedClass === 'all' && search === '');
 
                             return (
-                                <div key={cls} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 transition">
+                                <div key={cls} className="overflow-hidden rounded-2xl border-transparent bg-card shadow-lg shadow-primary/5 ring-1 ring-black/5 dark:ring-white/10 transition">
                                     {/* COLLAPSIBLE HEADER BOX */}
                                     <div
                                         onClick={() => toggleSectionCollapse(`class-${cls}`)}
                                         className="bg-gradient-to-r from-slate-50 via-slate-50/80 to-white dark:from-slate-800/80 dark:via-slate-800/50 dark:to-slate-900 px-4 py-3.5 sm:px-6 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white font-bold text-lg shadow-sm shrink-0">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-lg shadow-sm shrink-0">
                                                 {cls}
                                             </div>
                                             <div>
-                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
+                                                <h3 className="text-base sm:text-lg font-bold text-foreground dark:text-white flex flex-wrap items-center gap-2">
                                                     {`Kelas ${cls}`}
-                                                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${classStudents.length > 0 ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}>
+                                                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${classStudents.length > 0 ? 'bg-primary/10 text-indigo-700 dark:bg-indigo-950 dark:text-primary/80 border-primary/30 dark:border-indigo-800' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}>
                                                         {classStudents.length} Siswa Menunggak
                                                     </span>
                                                 </h3>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
                                                     {classStudents.length > 0 ? `Total ${totalClassMonths} bulan tagihan belum terbayar di kelas ini` : 'Kelas ini bersih dari tunggakan SPP'}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4 justify-between sm:justify-end">
                                             <div className="text-left sm:text-right">
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Total Tunggakan</p>
+                                                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Total Tunggakan</p>
                                                 <p className={`text-base sm:text-lg font-extrabold ${classStudents.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                     {formatRupiahText(totalClassArrears)}
                                                 </p>
@@ -653,18 +653,18 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     {/* COLLAPSIBLE BODY (TABLE & MOBILE CARDS / EMPTY STATE) */}
                                     {!isCollapsed && (
                                         classStudents.length === 0 ? (
-                                            <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
+                                            <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-border/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
-                                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelas Ini Bersih dari Tunggakan</p>
-                                                <p className="text-xs text-slate-500 mt-0.5">Tidak ada siswa aktif di {`Kelas ${cls}`} yang memiliki tagihan SPP tertunggak.</p>
+                                                <p className="text-sm font-semibold text-foreground/90 dark:text-slate-300">Kelas Ini Bersih dari Tunggakan</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Tidak ada siswa aktif di {`Kelas ${cls}`} yang memiliki tagihan SPP tertunggak.</p>
                                             </div>
                                         ) : (
                                             <>
                                                 {/* DESKTOP VIEW: TABLE */}
-                                                <div className="hidden md:block overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
+                                                <div className="hidden md:block overflow-x-auto border-t border-border/60 dark:border-slate-800/60">
                                                     <table className="w-full whitespace-nowrap min-w-[750px]">
                                                         <thead>
-                                                            <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800/80 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
+                                                            <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-border dark:bg-slate-800/30 text-muted-foreground dark:text-muted-foreground text-xs uppercase font-semibold">
                                                                 <th className="px-6 py-3.5 text-left">Nama Siswa / NISN</th>
                                                                 <th className="px-6 py-3.5 text-center">Gender</th>
                                                                 <th className="px-6 py-3.5 text-center">Lama Tunggakan</th>
@@ -682,8 +682,8 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     {student.name.charAt(0).toUpperCase()}
                                                                                 </div>
                                                                                 <div>
-                                                                                    <p className="font-bold text-slate-900 dark:text-white">{student.name}</p>
-                                                                                    <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
+                                                                                    <p className="font-bold text-foreground dark:text-white">{student.name}</p>
+                                                                                    <p className="text-xs text-muted-foreground">NISN: {student.nisn}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
@@ -705,7 +705,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                         <td className="px-6 py-4 text-center">
                                                                             <button
                                                                                 onClick={() => toggleExpand(student.id)}
-                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                             >
                                                                                 <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
                                                                                 {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -715,24 +715,24 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                     {expandedStudent === student.id && (
                                                                         <tr>
                                                                             <td colSpan={5} className="bg-slate-50/70 dark:bg-slate-800/30 px-6 py-5 border-y border-slate-100 dark:border-slate-800">
-                                                                                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 border-l-4 border-l-rose-500">
+                                                                                <div className="rounded-xl border border-border bg-white p-5 shadow-sm dark:border-border dark:bg-card border-destructive/30 bg-destructive/5 dark:bg-destructive/10">
                                                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                                                                         <div>
-                                                                                            <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                                                            <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
                                                                                                 <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
                                                                                             </h4>
-                                                                                            <p className="text-xs text-slate-500 mt-0.5">Sistem memprioritaskan pelunasan pada bulan paling lama/tertua.</p>
+                                                                                            <p className="text-xs text-muted-foreground mt-0.5">Sistem memprioritaskan pelunasan pada bulan paling lama/tertua.</p>
                                                                                         </div>
                                                                                         <div className="flex gap-2">
                                                                                             <a
                                                                                                 href={`/siswa/${student.id}`}
-                                                                                                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                                                                                                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-foreground/90 hover:bg-slate-50 dark:border-border dark:text-slate-300 dark:hover:bg-slate-800 transition"
                                                                                             >
                                                                                                 <User className="w-3.5 h-3.5" /> Buka Profil Siswa
                                                                                             </a>
                                                                                             <button
                                                                                                 onClick={() => openPaymentModal(student)}
-                                                                                                className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
+                                                                                                className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
                                                                                             >
                                                                                                 <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
                                                                                             </button>
@@ -746,7 +746,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                                 className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
                                                                                             >
                                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300">{month.month_name}</span>
-                                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
+                                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-card px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
                                                                                             </div>
                                                                                         ))}
                                                                                     </div>
@@ -761,17 +761,17 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                 </div>
 
                                                 {/* MOBILE VIEW: CARDS */}
-                                                <div className="block md:hidden border-t border-slate-200/60 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800">
+                                                <div className="block md:hidden border-t border-border/60 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800">
                                                     {classStudents.map((student) => (
-                                                        <div key={student.id} className="p-4 bg-white dark:bg-slate-900 space-y-3">
+                                                        <div key={student.id} className="p-4 bg-white dark:bg-card space-y-3">
                                                             <div className="flex items-start justify-between gap-3">
                                                                 <div className="flex items-center gap-3 min-w-0">
                                                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
                                                                         {student.name.charAt(0).toUpperCase()}
                                                                     </div>
                                                                     <div className="min-w-0">
-                                                                        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm">{student.name}</h4>
-                                                                        <p className="text-xs text-slate-500 truncate">NISN: {student.nisn}</p>
+                                                                        <h4 className="font-bold text-foreground dark:text-white truncate text-sm">{student.name}</h4>
+                                                                        <p className="text-xs text-muted-foreground truncate">NISN: {student.nisn}</p>
                                                                     </div>
                                                                 </div>
                                                                 <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${student.gender === 'L' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300'}`}>
@@ -795,7 +795,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             <div className="pt-1">
                                                                 <button
                                                                     onClick={() => toggleExpand(student.id)}
-                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                 >
                                                                     <span>{expandedStudent === student.id ? 'Tutup Rincian Tagihan' : 'Lihat Rincian Tagihan'}</span>
                                                                     {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -804,22 +804,22 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                                                             {expandedStudent === student.id && (
                                                                 <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
-                                                                    <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                                                                    <h5 className="font-bold text-xs text-foreground dark:text-white flex items-center gap-1.5">
                                                                         <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
                                                                     </h5>
                                                                     <div className="grid grid-cols-2 gap-2">
                                                                         {student.unpaid_months.map(month => (
-                                                                            <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-slate-900 px-2.5 py-1.5 text-xs flex justify-between items-center">
+                                                                            <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-card px-2.5 py-1.5 text-xs flex justify-between items-center">
                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
                                                                                 <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
                                                                             </div>
                                                                         ))}
                                                                     </div>
                                                                     <div className="flex flex-col sm:flex-row gap-2 pt-1">
-                                                                        <a href={`/siswa/${student.id}`} className="w-full text-center py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition">
+                                                                        <a href={`/siswa/${student.id}`} className="w-full text-center py-2 rounded-lg border border-slate-300 text-xs font-semibold text-foreground/90 hover:bg-slate-50 dark:border-border dark:text-slate-300 dark:hover:bg-slate-800 transition">
                                                                             Buka Profil Siswa
                                                                         </a>
-                                                                        <button onClick={() => openPaymentModal(student)} className="w-full py-2 rounded-lg bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
+                                                                        <button onClick={() => openPaymentModal(student)} className="w-full py-2 rounded-lg bg-primary text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
                                                                             <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
                                                                         </button>
                                                                     </div>
@@ -858,7 +858,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             const isCollapsed = collapsedSections[`status-${statusObj.key}`] ?? (selectedInactiveStatus === 'all' && search === '');
 
                             return (
-                                <div key={statusObj.key} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 transition">
+                                <div key={statusObj.key} className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm dark:border-slate-800 dark:bg-card transition">
                                     {/* COLLAPSIBLE HEADER BOX */}
                                     <div
                                         onClick={() => toggleSectionCollapse(`status-${statusObj.key}`)}
@@ -869,20 +869,20 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                 <StatusIcon className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
+                                                <h3 className="text-base sm:text-lg font-bold text-foreground dark:text-white flex flex-wrap items-center gap-2">
                                                     {statusObj.label}
                                                     <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusStudents.length > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-200 dark:border-amber-800' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}>
                                                         {statusStudents.length} Siswa Menunggak
                                                     </span>
                                                 </h3>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
                                                     {statusStudents.length > 0 ? `Total ${totalStatusMonths} bulan tagihan belum diselesaikan oleh kategori ini` : 'Kategori ini bersih dari tunggakan SPP'}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4 justify-between sm:justify-end">
                                             <div className="text-left sm:text-right">
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Total Tunggakan</p>
+                                                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Total Tunggakan</p>
                                                 <p className={`text-base sm:text-lg font-extrabold ${statusStudents.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                     {formatRupiahText(totalStatusArrears)}
                                                 </p>
@@ -896,18 +896,18 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     {/* COLLAPSIBLE BODY (TABLE & MOBILE CARDS / EMPTY STATE) */}
                                     {!isCollapsed && (
                                         statusStudents.length === 0 ? (
-                                            <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-slate-200/60 dark:border-slate-800/60">
+                                            <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-border/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
-                                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategori Ini Bersih dari Tunggakan</p>
-                                                <p className="text-xs text-slate-500 mt-0.5">Alhamdulillah, tidak ada siswa dengan status {statusObj.label.toLowerCase()} yang menyisakan tagihan SPP.</p>
+                                                <p className="text-sm font-semibold text-foreground/90 dark:text-slate-300">Kategori Ini Bersih dari Tunggakan</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Alhamdulillah, tidak ada siswa dengan status {statusObj.label.toLowerCase()} yang menyisakan tagihan SPP.</p>
                                             </div>
                                         ) : (
                                             <>
                                                 {/* DESKTOP VIEW: TABLE */}
-                                                <div className="hidden md:block overflow-x-auto border-t border-slate-200/60 dark:border-slate-800/60">
+                                                <div className="hidden md:block overflow-x-auto border-t border-border/60 dark:border-slate-800/60">
                                                     <table className="w-full whitespace-nowrap min-w-[750px]">
                                                         <thead>
-                                                            <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800/80 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
+                                                            <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-border dark:bg-slate-800/30 text-muted-foreground dark:text-muted-foreground text-xs uppercase font-semibold">
                                                                 <th className="px-6 py-3.5 text-left">Nama Siswa / NISN</th>
                                                                 <th className="px-6 py-3.5 text-center">Status & Kelas Terakhir</th>
                                                                 <th className="px-6 py-3.5 text-center">Lama Tunggakan</th>
@@ -925,8 +925,8 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     {student.name.charAt(0).toUpperCase()}
                                                                                 </div>
                                                                                 <div>
-                                                                                    <p className="font-bold text-slate-900 dark:text-white">{student.name}</p>
-                                                                                    <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
+                                                                                    <p className="font-bold text-foreground dark:text-white">{student.name}</p>
+                                                                                    <p className="text-xs text-muted-foreground">NISN: {student.nisn}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
@@ -935,7 +935,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                 <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full uppercase ${statusObj.color}`}>
                                                                                     {student.status}
                                                                                 </span>
-                                                                                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                                                <span className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                                                                                     {student.class ? `Kelas Terakhir: ${student.class}` : 'Tanpa Kelas'}
                                                                                 </span>
                                                                             </div>
@@ -953,7 +953,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                         <td className="px-6 py-4 text-center">
                                                                             <button
                                                                                 onClick={() => toggleExpand(student.id)}
-                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                             >
                                                                                 <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
                                                                                 {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -963,24 +963,24 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                     {expandedStudent === student.id && (
                                                                         <tr>
                                                                             <td colSpan={5} className="bg-slate-50/70 dark:bg-slate-800/30 px-6 py-5 border-y border-slate-100 dark:border-slate-800">
-                                                                                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 border-l-4 border-l-amber-500">
+                                                                                <div className="rounded-xl border border-border bg-white p-5 shadow-sm dark:border-border dark:bg-card border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10">
                                                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                                                                         <div>
-                                                                                            <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                                                            <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
                                                                                                 <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
                                                                                             </h4>
-                                                                                            <p className="text-xs text-slate-500 mt-0.5">Meskipun siswa sudah non-aktif/lulus, tagihan masa lalu tetap dapat dilunasi di sini.</p>
+                                                                                            <p className="text-xs text-muted-foreground mt-0.5">Meskipun siswa sudah non-aktif/lulus, tagihan masa lalu tetap dapat dilunasi di sini.</p>
                                                                                         </div>
                                                                                         <div className="flex gap-2">
                                                                                             <a
                                                                                                 href={`/siswa/${student.id}`}
-                                                                                                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                                                                                                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold text-foreground/90 hover:bg-slate-50 dark:border-border dark:text-slate-300 dark:hover:bg-slate-800 transition"
                                                                                             >
                                                                                                 <User className="w-3.5 h-3.5" /> Buka Profil Siswa
                                                                                             </a>
                                                                                             <button
                                                                                                 onClick={() => openPaymentModal(student)}
-                                                                                                className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
+                                                                                                className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition transform active:scale-95"
                                                                                             >
                                                                                                 <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
                                                                                             </button>
@@ -994,7 +994,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                                 className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
                                                                                             >
                                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300">{month.month_name}</span>
-                                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
+                                                                                                <span className="text-rose-700 dark:text-rose-400 font-bold bg-white dark:bg-card px-1.5 py-0.5 rounded shadow-2xs"> {month.year}</span>
                                                                                             </div>
                                                                                         ))}
                                                                                     </div>
@@ -1009,17 +1009,17 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                 </div>
 
                                                 {/* MOBILE VIEW: CARDS */}
-                                                <div className="block md:hidden border-t border-slate-200/60 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800">
+                                                <div className="block md:hidden border-t border-border/60 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800">
                                                     {statusStudents.map((student) => (
-                                                        <div key={student.id} className="p-4 bg-white dark:bg-slate-900 space-y-3">
+                                                        <div key={student.id} className="p-4 bg-white dark:bg-card space-y-3">
                                                             <div className="flex items-start justify-between gap-3">
                                                                 <div className="flex items-center gap-3 min-w-0">
                                                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${student.gender === 'L' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300'}`}>
                                                                         {student.name.charAt(0).toUpperCase()}
                                                                     </div>
                                                                     <div className="min-w-0">
-                                                                        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm">{student.name}</h4>
-                                                                        <p className="text-xs text-slate-500 truncate">NISN: {student.nisn}</p>
+                                                                        <h4 className="font-bold text-foreground dark:text-white truncate text-sm">{student.name}</h4>
+                                                                        <p className="text-xs text-muted-foreground truncate">NISN: {student.nisn}</p>
                                                                     </div>
                                                                 </div>
                                                                 <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${student.gender === 'L' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300'}`}>
@@ -1032,7 +1032,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase w-fit ${statusObj.color}`}>
                                                                         {student.status}
                                                                     </span>
-                                                                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                                    <span className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                                                                         {student.class ? `Kelas: ${student.class}` : 'Tanpa Kelas'}
                                                                     </span>
                                                                 </div>
@@ -1051,7 +1051,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             <div className="pt-1">
                                                                 <button
                                                                     onClick={() => toggleExpand(student.id)}
-                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                 >
                                                                     <span>{expandedStudent === student.id ? 'Tutup Rincian Tagihan' : 'Lihat Rincian Tagihan'}</span>
                                                                     {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1060,22 +1060,22 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                                                             {expandedStudent === student.id && (
                                                                 <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
-                                                                    <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                                                                    <h5 className="font-bold text-xs text-foreground dark:text-white flex items-center gap-1.5">
                                                                         <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
                                                                     </h5>
                                                                     <div className="grid grid-cols-2 gap-2">
                                                                         {student.unpaid_months.map(month => (
-                                                                            <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-slate-900 px-2.5 py-1.5 text-xs flex justify-between items-center">
+                                                                            <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-card px-2.5 py-1.5 text-xs flex justify-between items-center">
                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
                                                                                 <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
                                                                             </div>
                                                                         ))}
                                                                     </div>
                                                                     <div className="flex flex-col sm:flex-row gap-2 pt-1">
-                                                                        <a href={`/siswa/${student.id}`} className="w-full text-center py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition">
+                                                                        <a href={`/siswa/${student.id}`} className="w-full text-center py-2 rounded-lg border border-slate-300 text-xs font-semibold text-foreground/90 hover:bg-slate-50 dark:border-border dark:text-slate-300 dark:hover:bg-slate-800 transition">
                                                                             Buka Profil Siswa
                                                                         </a>
-                                                                        <button onClick={() => openPaymentModal(student)} className="w-full py-2 rounded-lg bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
+                                                                        <button onClick={() => openPaymentModal(student)} className="w-full py-2 rounded-lg bg-primary text-xs font-semibold text-white hover:bg-indigo-700 shadow-sm transition flex items-center justify-center gap-1.5">
                                                                             <Wallet className="w-3.5 h-3.5" /> Bayar Sekarang
                                                                         </button>
                                                                     </div>

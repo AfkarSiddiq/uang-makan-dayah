@@ -170,17 +170,17 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <FileText className="w-6 h-6 text-indigo-600" /> Master Data SPP
+                        <h1 className="text-2xl font-bold text-foreground dark:text-white flex items-center gap-2">
+                            <FileText className="w-6 h-6 text-primary" /> Master Data SPP
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-muted-foreground dark:text-muted-foreground mt-1">
                             Kelola nominal tagihan bulanan. Data di sini akan menjadi acuan saat siswa melakukan pembayaran.
                         </p>
                     </div>
                     <button
                         onClick={openGenerateModal}
                         type="button"
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-sm transition transform active:scale-95 flex-shrink-0"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-sm transition transform active:scale-95 flex-shrink-0"
                     >
                         <PlusCircle className="w-4 h-4" />
                         <span>Generate Tahun Ajaran</span>
@@ -188,16 +188,16 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                 </div>
 
                 {/* Filter Tahun Data Tabel */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                        <Calendar className="w-5 h-5 text-indigo-500" />
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-card p-4 rounded-xl border border-border dark:border-slate-800 shadow-sm">
+                    <div className="flex items-center gap-2 text-foreground/90 dark:text-slate-300 font-medium">
+                        <Calendar className="w-5 h-5 text-primary/80" />
                         <span>Filter Tabel Tahun Ajaran:</span>
                     </div>
                     
                     <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
-                        className="w-full sm:w-auto rounded-md border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-2 text-sm focus:ring-indigo-500 font-semibold text-indigo-700 dark:text-indigo-400 min-w-[200px]"
+                        className="w-full sm:w-auto rounded-md border-slate-300 dark:border-border bg-slate-50 dark:bg-slate-950 px-4 py-2 text-sm focus:ring-primary font-semibold text-indigo-700 dark:text-primary min-w-[200px]"
                     >
                         {dbYears.map(year => (
                             <option key={`opt-${year}`} value={year}>Tahun Ajaran {year}/{year + 1}</option>
@@ -206,9 +206,9 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                 </div>
 
                 {/* Tabel Master SPP - Desktop View */}
-                <div className="hidden md:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden overflow-x-auto">
+                <div className="hidden md:block bg-white dark:bg-card border border-border dark:border-slate-800 rounded-xl shadow-sm overflow-hidden overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 border-b border-slate-200 dark:border-slate-800">
+                        <thead className="bg-slate-50/80 dark:bg-slate-800/50 text-muted-foreground border-b border-border dark:border-slate-800">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Bulan & Tahun</th>
                                 <th className="px-6 py-4 font-medium">Status Data</th>
@@ -222,8 +222,8 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                 const isEditing = editingKey === key;
 
                                 return (
-                                    <tr key={key} className={`transition-colors ${item.is_active ? 'hover:bg-slate-50 dark:hover:bg-slate-800/30' : 'bg-slate-50/50 dark:bg-slate-900/50 opacity-75'}`}>
-                                        <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">
+                                    <tr key={key} className={`transition-colors ${item.is_active ? 'hover:bg-slate-50 dark:hover:bg-slate-800/30' : 'bg-slate-50/50 dark:bg-card/50 opacity-75'}`}>
+                                        <td className="px-6 py-4 font-semibold text-foreground dark:text-slate-200">
                                             {getMonthName(item.month)} {item.year}
                                         </td>
                                         
@@ -233,7 +233,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                                     <Check className="w-3.5 h-3.5" /> Tersedia
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs font-medium">
+                                                <span className="inline-flex items-center gap-1 text-muted-foreground dark:text-muted-foreground text-xs font-medium">
                                                     <AlertCircle className="w-3.5 h-3.5" /> Belum di-generate
                                                 </span>
                                             )}
@@ -243,19 +243,19 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                             {isEditing ? (
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-slate-500 font-medium">Rp</span>
+                                                        <span className="text-muted-foreground font-medium">Rp</span>
                                                         <input 
                                                             type="text" 
                                                             inputMode="numeric"
                                                             value={formatNumberToRupiah(editData.new_amount)}
                                                             onChange={e => setEditData('new_amount', parseRupiahToNumber(e.target.value))}
-                                                            className={`w-32 rounded-md bg-white dark:bg-slate-950 px-3 py-1.5 text-sm dark:text-white ${editErrors.new_amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-indigo-500'}`}
+                                                            className={`w-32 rounded-md bg-white dark:bg-slate-950 px-3 py-1.5 text-sm dark:text-white ${editErrors.new_amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-border focus:ring-primary'}`}
                                                         />
                                                     </div>
                                                     {editErrors.new_amount && <span className="text-xs text-red-500">{editErrors.new_amount}</span>}
                                                 </div>
                                             ) : (
-                                                <span className={`font-medium ${item.is_active ? 'text-slate-900 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'}`}>
+                                                <span className={`font-medium ${item.is_active ? 'text-foreground dark:text-slate-300' : 'text-muted-foreground dark:text-slate-600'}`}>
                                                     {item.is_active ? formatRupiah(item.current_amount) : '-'}
                                                 </span>
                                             )}
@@ -295,14 +295,14 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                         return (
                             <div 
                                 key={key} 
-                                className={`p-4 rounded-xl border transition-all shadow-sm bg-white dark:bg-slate-900 ${
+                                className={`p-4 rounded-xl border transition-all shadow-sm bg-white dark:bg-card ${
                                     item.is_active 
-                                        ? 'border-slate-200 dark:border-slate-800' 
-                                        : 'border-dashed border-slate-300 dark:border-slate-700 opacity-75 bg-slate-50/50 dark:bg-slate-900/50'
+                                        ? 'border-border dark:border-slate-800' 
+                                        : 'border-dashed border-slate-300 dark:border-border opacity-75 bg-slate-50/50 dark:bg-card/50'
                                 }`}
                             >
-                                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-3">
-                                    <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
+                                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-border mb-3">
+                                    <span className="font-bold text-foreground dark:text-slate-100 text-base">
                                         {getMonthName(item.month)} {item.year}
                                     </span>
                                     {item.is_active ? (
@@ -310,7 +310,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                             <Check className="w-3.5 h-3.5" /> Tersedia
                                         </span>
                                     ) : (
-                                        <span className="inline-flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs font-medium">
+                                        <span className="inline-flex items-center gap-1 text-muted-foreground dark:text-muted-foreground text-xs font-medium">
                                             <AlertCircle className="w-3.5 h-3.5" /> Belum di-generate
                                         </span>
                                     )}
@@ -318,21 +318,21 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
 
                                 <div className="space-y-3">
                                     {isEditing ? (
-                                        <div className="space-y-2 bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-                                            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Harga Baru (Rp):</label>
+                                        <div className="space-y-2 bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-border dark:border-slate-800">
+                                            <label className="text-xs font-semibold text-slate-600 dark:text-muted-foreground block">Harga Baru (Rp):</label>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-slate-500 font-medium text-sm">Rp</span>
+                                                <span className="text-muted-foreground font-medium text-sm">Rp</span>
                                                 <input 
                                                     type="text" 
                                                     inputMode="numeric"
                                                     value={formatNumberToRupiah(editData.new_amount)}
                                                     onChange={e => setEditData('new_amount', parseRupiahToNumber(e.target.value))}
-                                                    className={`w-full rounded-md bg-white dark:bg-slate-900 px-3 py-2 text-sm font-semibold dark:text-white ${editErrors.new_amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-700 focus:ring-indigo-500'}`}
+                                                    className={`w-full rounded-md bg-white dark:bg-card px-3 py-2 text-sm font-semibold dark:text-white ${editErrors.new_amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-border focus:ring-primary'}`}
                                                 />
                                             </div>
                                             {editErrors.new_amount && <span className="text-xs text-red-500 block">{editErrors.new_amount}</span>}
                                             <div className="flex items-center justify-end gap-2 pt-1">
-                                                <button onClick={cancelEditing} className="flex-1 py-1.5 px-3 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition text-xs font-medium dark:bg-slate-800 dark:text-slate-300 flex items-center justify-center gap-1">
+                                                <button onClick={cancelEditing} className="flex-1 py-1.5 px-3 bg-slate-200 text-foreground/90 rounded-md hover:bg-slate-300 transition text-xs font-medium dark:bg-slate-800 dark:text-slate-300 flex items-center justify-center gap-1">
                                                     <X className="w-3.5 h-3.5" /> Batal
                                                 </button>
                                                 <button onClick={submitEdit} disabled={editProcessing} className="flex-1 py-1.5 px-3 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition text-xs font-medium flex items-center justify-center gap-1">
@@ -343,15 +343,15 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                     ) : (
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-0.5">Harga Master SPP:</span>
-                                                <span className={`text-base font-bold ${item.is_active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-600'}`}>
+                                                <span className="text-xs text-muted-foreground dark:text-muted-foreground block mb-0.5">Harga Master SPP:</span>
+                                                <span className={`text-base font-bold ${item.is_active ? 'text-primary dark:text-primary' : 'text-muted-foreground dark:text-slate-600'}`}>
                                                     {item.is_active ? formatRupiah(item.current_amount) : '-'}
                                                 </span>
                                             </div>
 
                                             {item.is_active && (
-                                                <button onClick={() => startEditing(item)} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium text-xs dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition shadow-sm">
-                                                    <Pencil className="w-3.5 h-3.5 text-indigo-500" /> Ubah Harga
+                                                <button onClick={() => startEditing(item)} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-foreground/90 rounded-lg hover:bg-slate-200 font-medium text-xs dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition shadow-sm">
+                                                    <Pencil className="w-3.5 h-3.5 text-primary/80" /> Ubah Harga
                                                 </button>
                                             )}
                                         </div>
@@ -367,21 +367,21 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
             {/* Modal Generate Tahun Ajaran Baru */}
             {isGenerateModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 animate-in zoom-in-95 duration-200">
+                    <div className="bg-white dark:bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-border dark:border-slate-800 space-y-5 animate-in zoom-in-95 duration-200">
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                             <div className="flex items-center gap-2.5">
-                                <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
+                                <div className="p-2.5 bg-primary/5 dark:bg-primary/20 rounded-xl text-primary dark:text-primary">
                                     <PlusCircle className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Generate Tahun Ajaran</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">Buat otomatis 12 tagihan bulanan master</p>
+                                    <h3 className="text-lg font-bold text-foreground dark:text-white">Generate Tahun Ajaran</h3>
+                                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">Buat otomatis 12 tagihan bulanan master</p>
                                 </div>
                             </div>
                             <button 
                                 type="button"
                                 onClick={() => setIsGenerateModalOpen(false)}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition"
+                                className="text-muted-foreground hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -389,13 +389,13 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
 
                         <form onSubmit={handleGenerate} className="space-y-4">
                             <div>
-                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                                <label className="text-xs font-semibold text-foreground/90 dark:text-slate-300 block mb-1.5">
                                     Pilih Tahun Ajaran <span className="text-red-500">*</span>
                                 </label>
                                 <select 
                                     value={genData.start_year}
                                     onChange={e => setGenData('start_year', parseInt(e.target.value))}
-                                    className="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-sm focus:ring-indigo-500 focus:border-indigo-500 font-semibold text-slate-900 dark:text-white"
+                                    className="w-full rounded-xl border-slate-300 dark:border-border bg-white dark:bg-slate-950 px-4 py-3 text-sm focus:ring-primary focus:border-primary font-semibold text-foreground dark:text-white"
                                     required
                                 >
                                     {generateYearOptions.map(opt => (
@@ -407,18 +407,18 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                             </div>
 
                             <div>
-                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                                <label className="text-xs font-semibold text-foreground/90 dark:text-slate-300 block mb-1.5">
                                     Harga SPP per Bulan (Rp) <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-sm">Rp</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">Rp</span>
                                     <input 
                                         type="text" 
                                         inputMode="numeric"
                                         required
                                         value={formatNumberToRupiah(genData.base_amount)}
                                         onChange={e => setGenData('base_amount', parseRupiahToNumber(e.target.value))}
-                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-base font-bold focus:ring-indigo-500 focus:border-indigo-500 dark:text-white"
+                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-slate-300 dark:border-border bg-white dark:bg-slate-950 text-base font-bold focus:ring-primary focus:border-primary dark:text-white"
                                         placeholder="0"
                                     />
                                 </div>
@@ -439,8 +439,8 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                     );
                                 }
                                 return (
-                                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl flex items-start gap-2.5 text-xs text-indigo-800 dark:text-indigo-300">
-                                        <PlusCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+                                    <div className="p-3 bg-primary/5 dark:bg-primary/20 border border-primary/30 dark:border-indigo-800 rounded-xl flex items-start gap-2.5 text-xs text-indigo-800 dark:text-primary/80">
+                                        <PlusCircle className="w-4 h-4 text-primary dark:text-primary flex-shrink-0 mt-0.5" />
                                         <div>
                                             <p className="font-semibold">Tahun Ajaran Baru (Rekomendasi)</p>
                                             <p className="mt-0.5 opacity-90">Sistem akan otomatis membuat 12 bulan tagihan (Juli {genData.start_year} - Juni {genData.start_year + 1}) dengan nominal Rp {formatNumberToRupiah(genData.base_amount)}.</p>
@@ -453,14 +453,14 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                 <button 
                                     type="button"
                                     onClick={() => setIsGenerateModalOpen(false)}
-                                    className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                                    className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-border bg-white dark:bg-slate-800 text-foreground/90 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition"
                                 >
                                     Batal
                                 </button>
                                 <button 
                                     type="submit"
                                     disabled={genProcessing}
-                                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition disabled:opacity-50 flex items-center gap-2"
+                                    className="px-6 py-2.5 rounded-xl bg-primary hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition disabled:opacity-50 flex items-center gap-2"
                                 >
                                     {genProcessing ? (
                                         <>

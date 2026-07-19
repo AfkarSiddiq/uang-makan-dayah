@@ -144,17 +144,17 @@ export default function Index({ transactions, summary, filters, categories, allo
                 {/* HEADER KHUSUS RIWAYAT */}
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-3.5">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 shadow-sm dark:bg-indigo-950/50 dark:text-indigo-400">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-sm dark:bg-primary/10 dark:text-primary">
                             <History className="h-6 w-6" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Log Riwayat & Audit Transaksi</h1>
-                            <p className="text-sm text-slate-500">Pantau jejak pencatatan, waktu rekam aktivitas, serta riwayat perubahan data keuangan</p>
+                            <h1 className="text-2xl font-bold text-foreground dark:text-white">Log Riwayat & Audit Transaksi</h1>
+                            <p className="text-sm text-muted-foreground">Pantau jejak pencatatan, waktu rekam aktivitas, serta riwayat perubahan data keuangan</p>
                         </div>
                     </div>
                     <div className="flex gap-2">
                         <a href={route('transaction.export', localFilters)} download>
-                            <Button variant="outline" className="bg-white shadow-sm dark:bg-slate-900">
+                            <Button variant="outline" className="bg-white shadow-sm dark:bg-card">
                                 <Download className="mr-2 h-4 w-4" />
                                 Export Log Audit
                             </Button>
@@ -165,37 +165,37 @@ export default function Index({ transactions, summary, filters, categories, allo
                 {/* SUMMARY CARDS RINGKAS */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {(allowedTypes.includes('in') || allowedTypes.length === 0) && (
-                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Masuk (Tersaring)</span>
+                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Masuk (Tersaring)</span>
                             <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.total_in)}</p>
                         </div>
                     )}
                     {(allowedTypes.includes('out') || allowedTypes.length === 0) && (
-                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Keluar (Tersaring)</span>
+                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Keluar (Tersaring)</span>
                             <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400">{formatRupiah(summary.total_out)}</p>
                         </div>
                     )}
                     {allowedTypes.length !== 1 && (
-                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Selisih Arus Kas</span>
-                            <p className="mt-1 text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatRupiah(summary.balance)}</p>
+                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Selisih Arus Kas</span>
+                            <p className="mt-1 text-lg font-bold text-primary dark:text-primary">{formatRupiah(summary.balance)}</p>
                         </div>
                     )}
                 </div>
 
                 {/* MODAL DETAIL DAN JEJAK AUDIT */}
                 {selectedTransaction && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-                        <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-card/50 p-4 backdrop-blur-sm">
+                        <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-card">
                             <div className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
                                 <div className="flex items-center gap-2">
-                                    <History className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Detail Audit Transaksi</h3>
+                                    <History className="h-5 w-5 text-primary dark:text-primary" />
+                                    <h3 className="text-lg font-bold text-foreground dark:text-white">Detail Audit Transaksi</h3>
                                 </div>
                                 <button
                                     onClick={() => setSelectedTransaction(null)}
-                                    className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
+                                    className="text-muted-foreground transition-colors hover:text-slate-600 dark:hover:text-slate-300"
                                 >
                                     <X className="h-5 w-5" />
                                 </button>
@@ -203,7 +203,7 @@ export default function Index({ transactions, summary, filters, categories, allo
 
                             <div className="space-y-4 overflow-y-auto p-6">
                                 <div className="border-b border-slate-100 pb-4 text-center dark:border-slate-800">
-                                    <p className="mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nominal Transaksi</p>
+                                    <p className="mb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nominal Transaksi</p>
                                     <p
                                         className={`text-3xl font-bold ${selectedTransaction.type === 'in' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
                                     >
@@ -222,49 +222,49 @@ export default function Index({ transactions, summary, filters, categories, allo
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Pencatat / Admin</p>
-                                        <p className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-200">
-                                            <User className="h-4 w-4 text-indigo-500" />
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">Pencatat / Admin</p>
+                                        <p className="flex items-center gap-1.5 font-semibold text-foreground dark:text-slate-200">
+                                            <User className="h-4 w-4 text-primary/80" />
                                             {selectedTransaction.user?.name || 'Sistem / Otomatis'}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Waktu Transaksi</p>
-                                        <p className="font-medium text-slate-900 dark:text-slate-200">
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">Waktu Transaksi</p>
+                                        <p className="font-medium text-foreground dark:text-slate-200">
                                             {formatDate(selectedTransaction.transaction_date)}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">ID Referensi</p>
-                                        <p className="font-mono font-medium text-slate-900 dark:text-slate-200">
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">ID Referensi</p>
+                                        <p className="font-mono font-medium text-foreground dark:text-slate-200">
                                             {selectedTransaction.transaction_id}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Kategori</p>
-                                        <p className="font-medium text-slate-900 dark:text-slate-200">{selectedTransaction.category}</p>
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">Kategori</p>
+                                        <p className="font-medium text-foreground dark:text-slate-200">{selectedTransaction.category}</p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Siswa Terkait</p>
-                                        <p className="font-medium text-indigo-600 dark:text-indigo-400">
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">Siswa Terkait</p>
+                                        <p className="font-medium text-primary dark:text-primary">
                                             {selectedTransaction.student ? selectedTransaction.student.name : '-'}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Status Audit</p>
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">Status Audit</p>
                                         {selectedTransaction.logs && selectedTransaction.logs.length > 0 ? (
                                             <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
                                                 <ShieldAlert className="h-4 w-4" /> Pernah Diedit ({selectedTransaction.logs.length}x)
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                                                <Clock className="h-4 w-4 text-slate-400" /> Rekam Asli
+                                            <span className="inline-flex items-center gap-1 text-slate-600 dark:text-muted-foreground">
+                                                <Clock className="h-4 w-4 text-muted-foreground" /> Rekam Asli
                                             </span>
                                         )}
                                     </div>
                                     <div className="col-span-1 sm:col-span-2 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
-                                        <p className="mb-1 text-xs text-slate-400 uppercase font-semibold">Catatan Transaksi</p>
-                                        <p className="font-medium text-slate-900 dark:text-slate-200">
+                                        <p className="mb-1 text-xs text-muted-foreground uppercase font-semibold">Catatan Transaksi</p>
+                                        <p className="font-medium text-foreground dark:text-slate-200">
                                             {selectedTransaction.note || <span className="italic opacity-50">Tidak ada catatan</span>}
                                         </p>
                                     </div>
@@ -273,7 +273,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 {/* BULAN SPP */}
                                 {selectedTransaction.category === 'SPP' && selectedTransaction.sppPayments && selectedTransaction.sppPayments.length > 0 && (
                                     <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
-                                        <p className="mb-3 flex items-center gap-1.5 text-xs font-bold tracking-wider text-indigo-700 uppercase dark:text-indigo-400">
+                                        <p className="mb-3 flex items-center gap-1.5 text-xs font-bold tracking-wider text-indigo-700 uppercase dark:text-primary">
                                             Bulan SPP yang Dibayar
                                         </p>
                                         <div className="space-y-2">
@@ -282,11 +282,11 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                     key={sp.id}
                                                     className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-800/30"
                                                 >
-                                                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-200">
+                                                    <span className="text-sm font-semibold text-foreground dark:text-slate-200">
                                                         {months[sp.sppMonth.month - 1]} {sp.sppMonth.year}
                                                     </span>
                                                     <div className="flex items-center gap-3">
-                                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                        <span className="text-sm font-bold text-foreground/90 dark:text-slate-300">
                                                             {formatRupiah(sp.paid_amount)}
                                                         </span>
                                                         <span
@@ -336,12 +336,12 @@ export default function Index({ transactions, summary, filters, categories, allo
                             </div>
 
                             <div className="flex shrink-0 justify-end gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/30">
-                                <Button variant="outline" onClick={() => setSelectedTransaction(null)} className="bg-white dark:bg-slate-900">
+                                <Button variant="outline" onClick={() => setSelectedTransaction(null)} className="bg-white dark:bg-card">
                                     Tutup
                                 </Button>
                                 {selectedTransaction.id && (
                                     <a href={`/payment/${selectedTransaction.id}/print`} target="_blank" rel="noreferrer">
-                                        <Button className="flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700">
+                                        <Button className="flex items-center gap-2 bg-primary text-white hover:bg-indigo-700">
                                             <Printer className="h-4 w-4" /> Cetak Bukti
                                         </Button>
                                     </a>
@@ -352,8 +352,8 @@ export default function Index({ transactions, summary, filters, categories, allo
                 )}
 
                 {/* PANEL UTAMA LOG AUDIT */}
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/50 p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-800/20">
+                <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm dark:border-slate-800 dark:bg-card">
+                    <div className="flex flex-col gap-4 border-b border-border bg-slate-50/50 p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-800/20">
                         <SearchInput
                             value={localFilters.search}
                             onChange={(value) => setLocalFilters({ ...localFilters, search: value })}
@@ -363,13 +363,13 @@ export default function Index({ transactions, summary, filters, categories, allo
                             showButton
                         />
                         <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="bg-white dark:bg-slate-900">
+                            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="bg-white dark:bg-card">
                                 <Filter className="mr-2 h-4 w-4" />
                                 Filter Log
-                                {hasActiveFilters && <span className="ml-2 h-2 w-2 rounded-full bg-indigo-500" />}
+                                {hasActiveFilters && <span className="ml-2 h-2 w-2 rounded-full bg-primary/50" />}
                             </Button>
                             {hasActiveFilters && (
-                                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-slate-500 hover:text-slate-700">
+                                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground hover:text-foreground/90">
                                     <X className="mr-1 h-4 w-4" />
                                     Reset
                                 </Button>
@@ -378,14 +378,14 @@ export default function Index({ transactions, summary, filters, categories, allo
                     </div>
 
                     {showFilters && (
-                        <div className="grid grid-cols-1 gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
+                        <div className="grid grid-cols-1 gap-4 border-b border-border bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/50">
                             <div>
-                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Tipe Arus</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">Tipe Arus</label>
                                 <Select
                                     value={localFilters.type || 'all'}
                                     onValueChange={(value) => setLocalFilters({ ...localFilters, type: value === 'all' ? '' : value })}
                                 >
-                                    <SelectTrigger className="bg-white dark:bg-slate-900">
+                                    <SelectTrigger className="bg-white dark:bg-card">
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -396,12 +396,12 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 </Select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Kategori</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">Kategori</label>
                                 <Select
                                     value={localFilters.category || 'all'}
                                     onValueChange={(value) => setLocalFilters({ ...localFilters, category: value === 'all' ? '' : value })}
                                 >
-                                    <SelectTrigger className="bg-white dark:bg-slate-900">
+                                    <SelectTrigger className="bg-white dark:bg-card">
                                         <SelectValue placeholder="Semua" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -420,24 +420,24 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 </Select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Dari Tanggal</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">Dari Tanggal</label>
                                 <Input
                                     type="date"
-                                    className="bg-white dark:bg-slate-900"
+                                    className="bg-white dark:bg-card"
                                     value={localFilters.date_from}
                                     onChange={(e) => setLocalFilters({ ...localFilters, date_from: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-semibold tracking-wider text-slate-500 uppercase">Sampai Tanggal</label>
+                                <label className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">Sampai Tanggal</label>
                                 <div className="flex gap-2">
                                     <Input
                                         type="date"
-                                        className="bg-white dark:bg-slate-900"
+                                        className="bg-white dark:bg-card"
                                         value={localFilters.date_to}
                                         onChange={(e) => setLocalFilters({ ...localFilters, date_to: e.target.value })}
                                     />
-                                    <Button onClick={applyFilter} className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white">
+                                    <Button onClick={applyFilter} className="shrink-0 bg-primary hover:bg-indigo-700 text-white">
                                         <Search className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -449,7 +449,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-800/30">
+                                <tr className="border-b border-border bg-slate-50/80 text-xs font-semibold tracking-wider text-muted-foreground uppercase dark:border-slate-800 dark:bg-slate-800/30">
                                     <th className="px-5 py-3.5 text-left">Waktu & Pencatat</th>
                                     <th className="px-5 py-3.5 text-left">ID & Kategori</th>
                                     <th className="px-5 py-3.5 text-left">Subjek / Keterangan</th>
@@ -462,9 +462,9 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 {transactions.data.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-4 py-14 text-center">
-                                            <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
+                                            <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                                                 <History className="h-10 w-10 opacity-40" />
-                                                <p className="text-base font-medium text-slate-500">Log riwayat tidak ditemukan</p>
+                                                <p className="text-base font-medium text-muted-foreground">Log riwayat tidak ditemukan</p>
                                                 <p className="text-xs">Tidak ada catatan transaksi yang sesuai dengan filter Anda.</p>
                                             </div>
                                         </td>
@@ -474,15 +474,15 @@ export default function Index({ transactions, summary, filters, categories, allo
                                         <tr
                                             key={transaction.id}
                                             onClick={() => setSelectedTransaction(transaction)}
-                                            className="group cursor-pointer transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
+                                            className="group cursor-pointer transition-colors hover:bg-primary/5/60 dark:hover:bg-primary/10"
                                         >
                                             <td className="px-5 py-3.5 whitespace-nowrap">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-slate-200 dark:group-hover:text-indigo-400">
+                                                    <span className="font-semibold text-foreground group-hover:text-primary dark:text-slate-200 dark:group-hover:text-primary">
                                                         {formatDate(transaction.transaction_date)}
                                                     </span>
-                                                    <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                                                        <User className="h-3 w-3 text-slate-400" />
+                                                    <span className="flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                                                        <User className="h-3 w-3 text-muted-foreground" />
                                                         {transaction.user?.name || 'Sistem'}
                                                     </span>
                                                 </div>
@@ -490,10 +490,10 @@ export default function Index({ transactions, summary, filters, categories, allo
 
                                             <td className="px-5 py-3.5 whitespace-nowrap">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="font-mono text-xs font-bold text-slate-600 dark:text-slate-400">
+                                                    <span className="font-mono text-xs font-bold text-slate-600 dark:text-muted-foreground">
                                                         {transaction.transaction_id}
                                                     </span>
-                                                    <span className="inline-block w-fit rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                                    <span className="inline-block w-fit rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-foreground/90 dark:bg-slate-800 dark:text-slate-300">
                                                         {transaction.category}
                                                     </span>
                                                 </div>
@@ -502,18 +502,18 @@ export default function Index({ transactions, summary, filters, categories, allo
                                             <td className="min-w-[220px] px-5 py-3.5">
                                                 <div className="flex flex-col">
                                                     {transaction.student ? (
-                                                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                                                        <span className="font-semibold text-primary dark:text-primary">
                                                             {transaction.student.name}
                                                         </span>
                                                     ) : null}
                                                     {transaction.category === 'SPP' && transaction.sppPayments && transaction.sppPayments.length > 0 && (
                                                         <span className="mt-0.5 inline-flex flex-wrap gap-1">
-                                                            <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
+                                                            <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-primary/10 dark:text-primary/80">
                                                                 {formatSppMonthsCompact(transaction.sppPayments)}
                                                             </span>
                                                         </span>
                                                     )}
-                                                    <span className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
+                                                    <span className="line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
                                                         {transaction.note || <span className="italic opacity-50">Tanpa catatan</span>}
                                                     </span>
                                                 </div>
@@ -526,8 +526,8 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                         Diedit ({transaction.logs.length}x)
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                                                        <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-muted-foreground">
+                                                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                                                         Rekam Asli
                                                     </span>
                                                 )}
@@ -553,7 +553,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                         e.stopPropagation();
                                                         setSelectedTransaction(transaction);
                                                     }}
-                                                    className="text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/50"
+                                                    className="text-primary hover:bg-primary/5 hover:text-indigo-700 dark:text-primary dark:hover:bg-primary/10"
                                                 >
                                                     <Eye className="mr-1 h-4 w-4" /> Lihat Log
                                                 </Button>
@@ -569,9 +569,9 @@ export default function Index({ transactions, summary, filters, categories, allo
                     <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
                         {transactions.data.length === 0 ? (
                             <div className="px-4 py-14 text-center">
-                                <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
+                                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                                     <History className="h-10 w-10 opacity-40" />
-                                    <p className="text-base font-medium text-slate-500">Log riwayat tidak ditemukan</p>
+                                    <p className="text-base font-medium text-muted-foreground">Log riwayat tidak ditemukan</p>
                                     <p className="text-xs">Tidak ada catatan transaksi yang sesuai dengan filter Anda.</p>
                                 </div>
                             </div>
@@ -580,25 +580,25 @@ export default function Index({ transactions, summary, filters, categories, allo
                                 <div
                                     key={transaction.id}
                                     onClick={() => setSelectedTransaction(transaction)}
-                                    className="group cursor-pointer p-4 space-y-3 transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
+                                    className="group cursor-pointer p-4 space-y-3 transition-colors hover:bg-primary/5/60 dark:hover:bg-primary/10"
                                 >
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2">
                                             <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 rounded bg-slate-100 dark:bg-slate-800 px-2 py-0.5">
                                                 {transaction.transaction_id}
                                             </span>
-                                            <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                            <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-foreground/90 dark:bg-slate-800 dark:text-slate-300">
                                                 {transaction.category}
                                             </span>
                                         </div>
-                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                                        <span className="text-xs text-muted-foreground dark:text-muted-foreground font-medium">
                                             {formatDate(transaction.transaction_date)}
                                         </span>
                                     </div>
 
                                     <div className="flex items-center justify-between gap-2">
                                         <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                                            <User className="h-3.5 w-3.5 text-indigo-500" />
+                                            <User className="h-3.5 w-3.5 text-primary/80" />
                                             {transaction.user?.name || 'Sistem'}
                                         </span>
                                         {transaction.logs && transaction.logs.length > 0 ? (
@@ -607,20 +607,20 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                 Diedit ({transaction.logs.length}x)
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                                                <Clock className="h-3 w-3 text-slate-400" />
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-muted-foreground">
+                                                <Clock className="h-3 w-3 text-muted-foreground" />
                                                 Rekam Asli
                                             </span>
                                         )}
                                     </div>
 
                                     {transaction.student && (
-                                        <div className="flex items-center justify-between bg-indigo-50/50 dark:bg-indigo-950/30 rounded-lg p-2.5">
-                                            <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 truncate max-w-[180px]">
+                                        <div className="flex items-center justify-between bg-primary/5/50 dark:bg-primary/10 rounded-lg p-2.5">
+                                            <span className="text-xs font-semibold text-indigo-700 dark:text-primary/80 truncate max-w-[180px]">
                                                 {transaction.student.name}
                                             </span>
                                             {transaction.category === 'SPP' && transaction.sppPayments && transaction.sppPayments.length > 0 && (
-                                                <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                                                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-primary/20 dark:text-primary/80">
                                                     {formatSppMonthsCompact(transaction.sppPayments)}
                                                 </span>
                                             )}
@@ -628,7 +628,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                     )}
 
                                     {transaction.note && (
-                                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                                        <p className="text-xs text-slate-600 dark:text-muted-foreground line-clamp-2">
                                             {transaction.note}
                                         </p>
                                     )}
@@ -651,7 +651,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                                 e.stopPropagation();
                                                 setSelectedTransaction(transaction);
                                             }}
-                                            className="text-xs text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/50"
+                                            className="text-xs text-primary hover:bg-primary/5 hover:text-indigo-700 dark:text-primary dark:hover:bg-primary/10"
                                         >
                                             <Eye className="mr-1 h-3.5 w-3.5" /> Lihat Detail
                                         </Button>
@@ -662,15 +662,15 @@ export default function Index({ transactions, summary, filters, categories, allo
                     </div>
 
                     {/* PAGINATION */}
-                    <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 bg-slate-50/50 px-6 py-4 sm:flex-row dark:border-slate-800 dark:bg-slate-900">
-                        <div className="flex flex-col items-center gap-4 text-sm text-slate-500 sm:flex-row dark:text-slate-400">
+                    <div className="flex flex-col items-center justify-between gap-4 border-t border-border bg-slate-50/50 px-6 py-4 sm:flex-row dark:border-slate-800 dark:bg-card">
+                        <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground sm:flex-row dark:text-muted-foreground">
                             <p className="text-center sm:text-left">
-                                Menampilkan <span className="font-semibold text-slate-900 dark:text-white">{transactions.from || 0}</span> -{' '}
-                                <span className="font-semibold text-slate-900 dark:text-white">{transactions.to || 0}</span> dari{' '}
-                                <span className="font-semibold text-slate-900 dark:text-white">{transactions.total}</span> data log
+                                Menampilkan <span className="font-semibold text-foreground dark:text-white">{transactions.from || 0}</span> -{' '}
+                                <span className="font-semibold text-foreground dark:text-white">{transactions.to || 0}</span> dari{' '}
+                                <span className="font-semibold text-foreground dark:text-white">{transactions.total}</span> data log
                             </p>
 
-                            <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-slate-300 pt-2 sm:pt-0 sm:pl-4 dark:border-slate-700">
+                            <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-slate-300 pt-2 sm:pt-0 sm:pl-4 dark:border-border">
                                 <span>Tampilkan:</span>
                                 <Select
                                     value={String(localFilters.per_page || '10')}
@@ -678,7 +678,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                         applyFilters({ per_page: value, page: '1' });
                                     }}
                                 >
-                                    <SelectTrigger className="h-8 w-[70px] bg-white dark:bg-slate-900">
+                                    <SelectTrigger className="h-8 w-[70px] bg-white dark:bg-card">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -698,7 +698,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                     size="sm"
                                     onClick={() => applyFilters({ page: String(transactions.current_page - 1) })}
                                     disabled={transactions.current_page === 1}
-                                    className="bg-white dark:bg-slate-900"
+                                    className="bg-white dark:bg-card"
                                 >
                                     Sebelumnya
                                 </Button>
@@ -707,7 +707,7 @@ export default function Index({ transactions, summary, filters, categories, allo
                                     size="sm"
                                     onClick={() => applyFilters({ page: String(transactions.current_page + 1) })}
                                     disabled={transactions.current_page === transactions.last_page}
-                                    className="bg-white dark:bg-slate-900"
+                                    className="bg-white dark:bg-card"
                                 >
                                     Selanjutnya
                                 </Button>

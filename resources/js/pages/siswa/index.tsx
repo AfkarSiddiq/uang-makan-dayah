@@ -94,7 +94,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
             pindah: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800/60',
             berhenti: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60',
         };
-        return statusStyles[status] || 'bg-slate-100 text-slate-700 border-slate-200';
+        return statusStyles[status] || 'bg-slate-100 text-foreground/90 border-border';
     };
 
     const getProfileRoute = (student: Student) => {
@@ -128,8 +128,8 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                 {/* Header & Quick Actions */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Pusat Data & Registrasi Siswa</h1>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-white">Pusat Data & Registrasi Siswa</h1>
+                        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
                             Kelola data santriwan & santriwati per kelas, riwayat keaktifan, dan pendaftaran siswa baru.
                         </p>
                     </div>
@@ -137,22 +137,22 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                     <div className="flex flex-wrap items-center gap-2">
                         <a href={route('siswa.export')} download>
                             <Button variant="outline" size="sm" className="h-9">
-                                <Download className="mr-1.5 h-4 w-4 text-slate-500" />
+                                <Download className="mr-1.5 h-4 w-4 text-muted-foreground" />
                                 Export
                             </Button>
                         </a>
                         <Link href={route('siswa.import.create')}>
                             <Button variant="outline" size="sm" className="h-9">
-                                <Upload className="mr-1.5 h-4 w-4 text-slate-500" />
+                                <Upload className="mr-1.5 h-4 w-4 text-muted-foreground" />
                                 Import Excel
                             </Button>
                         </Link>
-                        <Button onClick={() => setIsAddSheetOpen(true)} size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+                        <Button onClick={() => setIsAddSheetOpen(true)} size="sm" className="h-9 bg-primary hover:bg-indigo-700 text-white shadow-sm">
                             <Plus className="mr-1.5 h-4 w-4" />
                             Tambah Siswa Cepat
                         </Button>
                         <Link href={route('siswa.create')} title="Buka form di halaman penuh">
-                            <Button variant="outline" size="sm" className="h-9 px-2.5 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
+                            <Button variant="outline" size="sm" className="h-9 px-2.5 text-primary hover:text-indigo-700 dark:text-primary">
                                 <UserPlus className="h-4 w-4" />
                             </Button>
                         </Link>
@@ -161,67 +161,67 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
 
                 {/* Statistics Grid */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/50 to-indigo-50/30 p-5 shadow-xs dark:border-slate-800/80 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/20">
+                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-slate-50/50 to-indigo-50/30 p-5 shadow-xs dark:border-border dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/20">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Santri Aktif</span>
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Total Santri Aktif</span>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/50/10 text-primary dark:bg-primary/50/20 dark:text-primary">
                                 <Users className="h-5 w-5" />
                             </div>
                         </div>
                         <div className="mt-2 flex items-baseline gap-2">
-                            <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.total_aktif || 0}</span>
-                            <span className="text-xs font-medium text-slate-500">Siswa</span>
+                            <span className="text-3xl font-extrabold text-foreground dark:text-white">{stats?.total_aktif || 0}</span>
+                            <span className="text-xs font-medium text-muted-foreground">Siswa</span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Siswa aktif menimba ilmu di dayah</p>
+                        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Siswa aktif menimba ilmu di dayah</p>
                     </div>
 
-                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 p-5 shadow-xs dark:border-slate-800/80 dark:from-slate-900 dark:via-slate-900 dark:to-blue-950/20">
+                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 p-5 shadow-xs dark:border-border dark:from-slate-900 dark:via-slate-900 dark:to-blue-950/20">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Santriwan (Putra)</span>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Santriwan (Putra)</span>
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
                                 <UserCheck className="h-5 w-5" />
                             </div>
                         </div>
                         <div className="mt-2 flex items-baseline gap-2">
                             <span className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">{stats?.santriwan_aktif || 0}</span>
-                            <span className="text-xs font-medium text-slate-500">Siswa</span>
+                            <span className="text-xs font-medium text-muted-foreground">Siswa</span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Remaja putra berstatus aktif</p>
+                        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Remaja putra berstatus aktif</p>
                     </div>
 
-                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/50 to-pink-50/30 p-5 shadow-xs dark:border-slate-800/80 dark:from-slate-900 dark:via-slate-900 dark:to-pink-950/20">
+                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-slate-50/50 to-pink-50/30 p-5 shadow-xs dark:border-border dark:from-slate-900 dark:via-slate-900 dark:to-pink-950/20">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Santriwati (Putri)</span>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Santriwati (Putri)</span>
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/10 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400">
                                 <Users className="h-5 w-5" />
                             </div>
                         </div>
                         <div className="mt-2 flex items-baseline gap-2">
                             <span className="text-3xl font-extrabold text-pink-600 dark:text-pink-400">{stats?.santriwati_aktif || 0}</span>
-                            <span className="text-xs font-medium text-slate-500">Siswa</span>
+                            <span className="text-xs font-medium text-muted-foreground">Siswa</span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Remaja putri berstatus aktif</p>
+                        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Remaja putri berstatus aktif</p>
                     </div>
 
-                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/50 to-amber-50/30 p-5 shadow-xs dark:border-slate-800/80 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/20">
+                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-slate-50/50 to-amber-50/30 p-5 shadow-xs dark:border-border dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/20">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Alumni & Non-Aktif</span>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Alumni & Non-Aktif</span>
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
                                 <GraduationCap className="h-5 w-5" />
                             </div>
                         </div>
                         <div className="mt-2 flex items-baseline gap-2">
-                            <span className="text-3xl font-extrabold text-slate-700 dark:text-slate-300">{stats?.total_non_aktif || 0}</span>
-                            <span className="text-xs font-medium text-slate-500">Siswa</span>
+                            <span className="text-3xl font-extrabold text-foreground/90 dark:text-slate-300">{stats?.total_non_aktif || 0}</span>
+                            <span className="text-xs font-medium text-muted-foreground">Siswa</span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Status lulus, pindah, atau keluar</p>
+                        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Status lulus, pindah, atau keluar</p>
                     </div>
                 </div>
 
                 {/* Main Content Card */}
-                <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800/80 dark:bg-slate-900">
+                <div className="rounded-2xl border border-border/80 bg-white shadow-xs dark:border-border dark:bg-card">
                     {/* Class Navigation Tabs */}
-                    <div className="border-b border-slate-200/80 px-4 pt-4 dark:border-slate-800/80">
+                    <div className="border-b border-border/80 px-4 pt-4 dark:border-border">
                         <div className="flex items-center justify-between pb-3">
                             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                                 {classTabs.map((tab) => {
@@ -232,8 +232,8 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                             onClick={() => applyFilters({ class: tab.id, page: '1' })}
                                             className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
                                                 isActive
-                                                    ? 'bg-indigo-600 text-white shadow-sm dark:bg-indigo-500'
-                                                    : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:bg-slate-800'
+                                                    ? 'bg-primary text-white shadow-sm dark:bg-primary/50'
+                                                    : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 dark:bg-slate-800/60 dark:text-muted-foreground dark:hover:bg-slate-800'
                                             }`}
                                         >
                                             <span>{tab.label}</span>
@@ -241,7 +241,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                                 className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                                                     isActive
                                                         ? 'bg-white/20 text-white'
-                                                        : 'bg-white text-slate-700 shadow-2xs dark:bg-slate-900 dark:text-slate-300'
+                                                        : 'bg-white text-foreground/90 shadow-2xs dark:bg-card dark:text-slate-300'
                                                 }`}
                                             >
                                                 {tab.count}
@@ -254,13 +254,13 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                     </div>
 
                     {/* Filter & View Control Bar */}
-                    <div className="flex flex-col gap-3 border-b border-slate-200/80 bg-slate-50/50 p-4 dark:border-slate-800/80 dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 border-b border-border/80 bg-slate-50/50 p-4 dark:border-border dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex flex-1 flex-wrap items-center gap-2.5">
                             <div className="relative min-w-[240px] flex-1 max-w-sm">
-                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     placeholder="Cari nama siswa atau NISN..."
-                                    className="pl-9 h-9 text-sm bg-white dark:bg-slate-900"
+                                    className="pl-9 h-9 text-sm bg-white dark:bg-card"
                                     defaultValue={filters.search}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
@@ -271,12 +271,12 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                             </div>
 
                             <div className="flex items-center gap-1.5">
-                                <Filter className="h-3.5 w-3.5 text-slate-400 hidden sm:inline" />
+                                <Filter className="h-3.5 w-3.5 text-muted-foreground hidden sm:inline" />
                                 <Select
                                     value={currentStatusFilter}
                                     onValueChange={(value) => applyFilters({ status: value, page: '1' })}
                                 >
-                                    <SelectTrigger className="h-9 w-[135px] bg-white text-xs dark:bg-slate-900">
+                                    <SelectTrigger className="h-9 w-[135px] bg-white text-xs dark:bg-card">
                                         <SelectValue placeholder="Status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -292,7 +292,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                     value={filters.gender || 'all'}
                                     onValueChange={(value) => applyFilters({ gender: value, page: '1' })}
                                 >
-                                    <SelectTrigger className="h-9 w-[140px] bg-white text-xs dark:bg-slate-900">
+                                    <SelectTrigger className="h-9 w-[140px] bg-white text-xs dark:bg-card">
                                         <SelectValue placeholder="Gender" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -306,7 +306,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                     value={filters.student_type || 'all'}
                                     onValueChange={(value) => applyFilters({ student_type: value, page: '1' })}
                                 >
-                                    <SelectTrigger className="h-9 w-[140px] bg-white text-xs dark:bg-slate-900">
+                                    <SelectTrigger className="h-9 w-[140px] bg-white text-xs dark:bg-card">
                                         <SelectValue placeholder="Kategori" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -321,13 +321,13 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                         </div>
 
                         {/* Toggle Table vs Grid View */}
-                        <div className="flex items-center justify-end gap-1 border-l border-slate-200/80 pl-2 dark:border-slate-700/80">
+                        <div className="flex items-center justify-end gap-1 border-l border-border/80 pl-2 dark:border-border/80">
                             <button
                                 onClick={() => setViewMode('table')}
                                 className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
                                     viewMode === 'table'
-                                        ? 'bg-indigo-600 text-white shadow-2xs dark:bg-indigo-500'
-                                        : 'text-slate-500 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                                        ? 'bg-primary text-white shadow-2xs dark:bg-primary/50'
+                                        : 'text-muted-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800'
                                 }`}
                                 title="Tampilan Tabel"
                             >
@@ -337,8 +337,8 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                 onClick={() => setViewMode('grid')}
                                 className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
                                     viewMode === 'grid'
-                                        ? 'bg-indigo-600 text-white shadow-2xs dark:bg-indigo-500'
-                                        : 'text-slate-500 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                                        ? 'bg-primary text-white shadow-2xs dark:bg-primary/50'
+                                        : 'text-muted-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800'
                                 }`}
                                 title="Tampilan Kartu"
                             >
@@ -350,14 +350,14 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                     {/* Data Display */}
                     {students.data.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-muted-foreground dark:bg-slate-800 dark:text-muted-foreground">
                                 <Search className="h-8 w-8" />
                             </div>
-                            <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">Tidak ada data siswa ditemukan</h3>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 max-w-sm">
+                            <h3 className="mt-4 text-base font-semibold text-foreground dark:text-white">Tidak ada data siswa ditemukan</h3>
+                            <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground max-w-sm">
                                 Coba ubah kata kunci pencarian, atau ganti filter status/kelas yang dipilih saat ini.
                             </p>
-                            <Button onClick={() => setIsAddSheetOpen(true)} className="mt-5 bg-indigo-600 hover:bg-indigo-700 text-white">
+                            <Button onClick={() => setIsAddSheetOpen(true)} className="mt-5 bg-primary hover:bg-indigo-700 text-white">
                                 <Plus className="mr-2 h-4 w-4" />
                                 Masukkan Siswa Baru
                             </Button>
@@ -367,30 +367,30 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-slate-200/80 bg-slate-50/70 text-xs font-semibold tracking-wider text-slate-600 uppercase dark:border-slate-800/80 dark:bg-slate-800/40 dark:text-slate-400">
+                                    <tr className="border-b border-border/80 bg-slate-50/70 text-xs font-semibold tracking-wider text-slate-600 uppercase dark:border-border dark:bg-slate-800/40 dark:text-muted-foreground">
                                         <th className="px-5 py-3.5">
-                                            <button onClick={() => handleSort('nisn')} className="flex items-center gap-1 hover:text-indigo-600">
+                                            <button onClick={() => handleSort('nisn')} className="flex items-center gap-1 hover:text-primary">
                                                 NISN {getSortIcon('nisn')}
                                             </button>
                                         </th>
                                         <th className="px-5 py-3.5">
-                                            <button onClick={() => handleSort('name')} className="flex items-center gap-1 hover:text-indigo-600">
+                                            <button onClick={() => handleSort('name')} className="flex items-center gap-1 hover:text-primary">
                                                 Nama Lengkap {getSortIcon('name')}
                                             </button>
                                         </th>
                                         <th className="px-5 py-3.5">
-                                            <button onClick={() => handleSort('gender')} className="flex items-center gap-1 hover:text-indigo-600">
+                                            <button onClick={() => handleSort('gender')} className="flex items-center gap-1 hover:text-primary">
                                                 Gender {getSortIcon('gender')}
                                             </button>
                                         </th>
                                         <th className="px-5 py-3.5">
-                                            <button onClick={() => handleSort('class')} className="flex items-center gap-1 hover:text-indigo-600">
+                                            <button onClick={() => handleSort('class')} className="flex items-center gap-1 hover:text-primary">
                                                 Kelas {getSortIcon('class')}
                                             </button>
                                         </th>
                                         <th className="px-5 py-3.5">Kategori</th>
                                         <th className="px-5 py-3.5">
-                                            <button onClick={() => handleSort('status')} className="flex items-center gap-1 hover:text-indigo-600">
+                                            <button onClick={() => handleSort('status')} className="flex items-center gap-1 hover:text-primary">
                                                 Status {getSortIcon('status')}
                                             </button>
                                         </th>
@@ -399,12 +399,12 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-sm">
                                     {students.data.map((student) => (
-                                        <tr key={student.id} className="transition-colors hover:bg-indigo-50/30 dark:hover:bg-slate-800/50">
+                                        <tr key={student.id} className="transition-colors hover:bg-primary/5/30 dark:hover:bg-slate-800/50">
                                             <td className="px-5 py-3.5">
-                                                <span className="font-mono font-medium text-slate-900 dark:text-white">{student.nisn}</span>
-                                                <span className="block text-[11px] text-slate-400">Masuk: {student.entry_year}</span>
+                                                <span className="font-mono font-medium text-foreground dark:text-white">{student.nisn}</span>
+                                                <span className="block text-[11px] text-muted-foreground">Masuk: {student.entry_year}</span>
                                             </td>
-                                            <td className="px-5 py-3.5 font-medium text-slate-900 dark:text-white">
+                                            <td className="px-5 py-3.5 font-medium text-foreground dark:text-white">
                                                 {student.name}
                                             </td>
                                             <td className="px-5 py-3.5">
@@ -418,17 +418,17 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-5 py-3.5 text-slate-700 dark:text-slate-300">
+                                            <td className="px-5 py-3.5 text-foreground/90 dark:text-slate-300">
                                                 {student.class ? (
-                                                    <span className="inline-flex rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-400">
+                                                    <span className="inline-flex rounded-lg bg-primary/5 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-primary/10 dark:text-primary">
                                                         Kelas {student.class}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-slate-400 italic text-xs">Belum Kelas</span>
+                                                    <span className="text-muted-foreground italic text-xs">Belum Kelas</span>
                                                 )}
                                             </td>
                                             <td className="px-5 py-3.5">
-                                                <span className="capitalize text-xs font-medium text-slate-600 dark:text-slate-400">
+                                                <span className="capitalize text-xs font-medium text-slate-600 dark:text-muted-foreground">
                                                     {student.student_type ? student.student_type.replace('_', ' ') : 'Umum'}
                                                 </span>
                                             </td>
@@ -440,7 +440,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                             <td className="px-5 py-3.5 text-center">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <Link href={getProfileRoute(student)} title="Lihat Profil & Buku SPP">
-                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/50">
+                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-primary hover:bg-primary/5 hover:text-indigo-700 dark:text-primary dark:hover:bg-primary/10">
                                                             <Eye className="h-4 w-4" />
                                                         </Button>
                                                     </Link>
@@ -471,7 +471,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                             {students.data.map((student) => (
                                 <div
                                     key={student.id}
-                                    className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs transition-all hover:border-indigo-500/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                                    className="flex flex-col justify-between rounded-xl border border-border/80 bg-white p-4 shadow-xs transition-all hover:border-primary/50 hover:shadow-md dark:border-slate-800 dark:bg-card"
                                 >
                                     <div>
                                         <div className="flex items-start justify-between gap-2">
@@ -486,10 +486,10 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                                     {student.gender === 'L' ? '♂' : '♀'}
                                                 </div>
                                                 <div className="overflow-hidden">
-                                                    <h3 className="truncate text-base font-bold text-slate-900 dark:text-white" title={student.name}>
+                                                    <h3 className="truncate text-base font-bold text-foreground dark:text-white" title={student.name}>
                                                         {student.name}
                                                     </h3>
-                                                    <p className="font-mono text-xs text-slate-500 dark:text-slate-400">NISN: {student.nisn}</p>
+                                                    <p className="font-mono text-xs text-muted-foreground dark:text-muted-foreground">NISN: {student.nisn}</p>
                                                 </div>
                                             </div>
                                             <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${getStatusBadge(student.status)}`}>
@@ -498,20 +498,20 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                         </div>
 
                                         <div className="mt-4 flex flex-wrap items-center gap-2">
-                                            <span className="rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400">
+                                            <span className="rounded-md bg-primary/5 px-2 py-1 text-xs font-semibold text-indigo-700 dark:bg-primary/10 dark:text-primary">
                                                 {student.class ? `Kelas ${student.class}` : 'Belum Kelas'}
                                             </span>
                                             <span className="rounded-md bg-slate-100 px-2 py-1 text-xs capitalize text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                                 {student.student_type ? student.student_type.replace('_', ' ') : 'Umum'}
                                             </span>
-                                            <span className="text-[11px] text-slate-400 ml-auto">
+                                            <span className="text-[11px] text-muted-foreground ml-auto">
                                                 Masuk {student.entry_year}
                                             </span>
                                         </div>
                                     </div>
 
                                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                                        <Link href={getProfileRoute(student)} className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
+                                        <Link href={getProfileRoute(student)} className="text-xs font-semibold text-primary hover:underline dark:text-primary">
                                             Buka Buku SPP →
                                         </Link>
                                         <div className="flex items-center gap-1">
@@ -536,18 +536,18 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                     )}
 
                     {/* Pagination Bar */}
-                    <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200/80 px-5 py-3.5 dark:border-slate-800/80 sm:flex-row">
+                    <div className="flex flex-col items-center justify-between gap-3 border-t border-border/80 px-5 py-3.5 dark:border-border sm:flex-row">
                         <div className="flex items-center gap-2">
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{students.from || 0}</span> -{' '}
-                                <span className="font-semibold text-slate-700 dark:text-slate-200">{students.to || 0}</span> dari{' '}
-                                <span className="font-semibold text-slate-700 dark:text-slate-200">{students.total}</span> siswa
+                            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                                Menampilkan <span className="font-semibold text-foreground/90 dark:text-slate-200">{students.from || 0}</span> -{' '}
+                                <span className="font-semibold text-foreground/90 dark:text-slate-200">{students.to || 0}</span> dari{' '}
+                                <span className="font-semibold text-foreground/90 dark:text-slate-200">{students.total}</span> siswa
                             </p>
                             <Select
                                 value={String(filters.per_page || students.per_page)}
                                 onValueChange={(value) => applyFilters({ per_page: value, page: '1' })}
                             >
-                                <SelectTrigger className="h-8 w-[70px] text-xs bg-white dark:bg-slate-900">
+                                <SelectTrigger className="h-8 w-[70px] text-xs bg-white dark:bg-card">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent side="top">
@@ -588,12 +588,12 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
             {/* Quick Add Slide-Over Drawer */}
             <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
                 <SheetContent className="w-full sm:max-w-xl overflow-y-auto max-h-screen p-6 shadow-2xl">
-                    <SheetHeader className="pb-4 border-b border-slate-200/80 dark:border-slate-800">
-                        <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                    <SheetHeader className="pb-4 border-b border-border/80 dark:border-slate-800">
+                        <div className="flex items-center gap-2 text-primary dark:text-primary">
                             <UserPlus className="h-5 w-5" />
                             <SheetTitle className="text-xl font-bold">Tambah Siswa & Santri Baru</SheetTitle>
                         </div>
-                        <SheetDescription className="text-xs text-slate-500">
+                        <SheetDescription className="text-xs text-muted-foreground">
                             {currentClassTab !== 'all' && currentClassTab !== 'none'
                                 ? `Formulir akan otomatis menempatkan siswa ke Kelas ${currentClassTab}.`
                                 : 'Lengkapi identitas siswa dan periode masuk untuk memulai pencatatan SPP.'}

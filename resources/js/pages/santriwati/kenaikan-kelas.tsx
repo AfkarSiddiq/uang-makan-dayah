@@ -33,14 +33,14 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
             
             <div className="p-6 max-w-3xl mx-auto space-y-6">
                 
-                <Link href="/santriwati" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition">
+                <Link href="/santriwati" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition">
                     <ArrowLeft className="w-4 h-4 mr-1" /> Kembali
                 </Link>
 
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-                    <div className="mb-6 pb-6 border-b border-slate-200 dark:border-slate-800">
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Proses Kenaikan Kelas & Kelulusan</h1>
-                        <p className="text-sm text-slate-500 mt-1">
+                <div className="bg-white dark:bg-card border border-border dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                    <div className="mb-6 pb-6 border-b border-border dark:border-slate-800">
+                        <h1 className="text-2xl font-bold text-foreground dark:text-white">Proses Kenaikan Kelas & Kelulusan</h1>
+                        <p className="text-sm text-muted-foreground mt-1">
                             Pindahkan seluruh siswa di satu kelas ke kelas baru, atau luluskan siswa menjadi alumni.
                         </p>
                     </div>
@@ -49,11 +49,11 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
                         
                         {/* 1. KELAS ASAL */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pilih Kelas Asal</label>
+                            <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300 mb-1">Pilih Kelas Asal</label>
                             <select 
                                 value={data.old_class} 
                                 onChange={e => setData('old_class', e.target.value)}
-                                className="w-full rounded-md border-slate-300 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-950 dark:border-slate-700 dark:text-white"
+                                className="w-full rounded-md border-slate-300 focus:ring-primary focus:border-primary dark:bg-slate-950 dark:border-border dark:text-white"
                                 required
                             >
                                 <option value="">-- Pilih Kelas --</option>
@@ -65,7 +65,7 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
                         </div>
 
                         {/* 2. OPSI KELULUSAN ATAU KENAIKAN */}
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border dark:border-border space-y-4">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
                                     type="checkbox" 
@@ -74,18 +74,18 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
                                         setData('is_graduating', e.target.checked);
                                         if (e.target.checked) setData('new_class', ''); // Kosongkan kelas baru jika lulus
                                     }}
-                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="rounded border-slate-300 text-primary focus:ring-primary"
                                 />
-                                <span className="text-sm font-medium text-slate-900 dark:text-slate-200">Luluskan semua siswa di kelas ini (Menjadi Alumni)</span>
+                                <span className="text-sm font-medium text-foreground dark:text-slate-200">Luluskan semua siswa di kelas ini (Menjadi Alumni)</span>
                             </label>
 
                             {!data.is_graduating ? (
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Naik Ke Kelas Tujuan</label>
+                                    <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300 mb-1">Naik Ke Kelas Tujuan</label>
                                     <select 
                                         value={data.new_class} 
                                         onChange={e => setData('new_class', e.target.value)}
-                                        className="w-full rounded-md border-slate-300 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-950 dark:border-slate-700 dark:text-white"
+                                        className="w-full rounded-md border-slate-300 focus:ring-primary focus:border-primary dark:bg-slate-950 dark:border-border dark:text-white"
                                         required={!data.is_graduating}
                                     >
                                         <option value="">-- Pilih Kelas Tujuan --</option>
@@ -100,24 +100,24 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
                                 </div>
                             ) : (
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tahun Kelulusan</label>
+                                    <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300 mb-1">Tahun Kelulusan</label>
                                     <input 
                                         type="number" 
                                         value={data.start_year}
                                         onChange={e => setData('start_year', parseInt(e.target.value))}
-                                        className="w-full rounded-md border-slate-300 focus:ring-indigo-500 dark:bg-slate-950 dark:border-slate-700 dark:text-white"
+                                        className="w-full rounded-md border-slate-300 focus:ring-primary dark:bg-slate-950 dark:border-border dark:text-white"
                                         required={data.is_graduating}
                                     />
-                                    <p className="text-xs text-slate-500 mt-1">Siswa akan tercatat lulus pada bulan Juni {data.start_year}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Siswa akan tercatat lulus pada bulan Juni {data.start_year}</p>
                                 </div>
                             )}
                         </div>
 
-                        <div className="pt-4 flex items-center justify-end border-t border-slate-200 dark:border-slate-800">
+                        <div className="pt-4 flex items-center justify-end border-t border-border dark:border-slate-800">
                             <button 
                                 type="submit" 
                                 disabled={processing} 
-                                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition disabled:opacity-50"
+                                className="flex items-center gap-2 bg-primary hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition disabled:opacity-50"
                             >
                                 <Check className="w-4 h-4" /> Proses Sekarang
                             </button>

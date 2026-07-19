@@ -107,21 +107,21 @@ export default function StudentForm({
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Bagian 1: Identitas Pribadi */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
-                <div className="mb-3 flex items-center gap-2 border-b border-slate-200/60 pb-2.5 dark:border-slate-700/60">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+                <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/50/10 text-primary dark:bg-primary/50/20 dark:text-primary">
                         <User className="h-4 w-4" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Identitas Pribadi Siswa</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Nomor induk, nama lengkap, dan jenis kelamin</p>
+                        <h3 className="text-sm font-semibold text-foreground dark:text-white">Identitas Pribadi Siswa</h3>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Nomor induk, nama lengkap, dan jenis kelamin</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="sm:col-span-2">
-                        <Label htmlFor="nisn" className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            <Hash className="h-3.5 w-3.5 text-slate-400" />
+                        <Label htmlFor="nisn" className="flex items-center gap-1.5 text-xs font-semibold text-foreground/90 dark:text-slate-300">
+                            <Hash className="h-3.5 w-3.5 text-muted-foreground" />
                             NISN <span className="text-rose-500">*</span>
                         </Label>
                         <Input
@@ -130,13 +130,13 @@ export default function StudentForm({
                             placeholder="Contoh: 0051234567"
                             value={data.nisn}
                             onChange={(e) => setData('nisn', e.target.value)}
-                            className="mt-1.5 font-mono text-sm shadow-xs bg-white dark:bg-slate-900"
+                            className="mt-1.5 font-mono text-sm shadow-xs bg-white dark:bg-card"
                         />
                         {errors.nisn && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.nisn}</p>}
                     </div>
 
                     <div className="sm:col-span-2">
-                        <Label htmlFor="name" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <Label htmlFor="name" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Nama Lengkap <span className="text-rose-500">*</span>
                         </Label>
                         <Input
@@ -145,17 +145,17 @@ export default function StudentForm({
                             placeholder="Contoh: Muhammad Al-Fatih"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
-                            className="mt-1.5 text-sm shadow-xs bg-white dark:bg-slate-900"
+                            className="mt-1.5 text-sm shadow-xs bg-white dark:bg-card"
                         />
                         {errors.name && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.name}</p>}
                     </div>
 
                     <div className="sm:col-span-2">
-                        <Label htmlFor="gender" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <Label htmlFor="gender" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Jenis Kelamin <span className="text-rose-500">*</span>
                         </Label>
                         <Select value={data.gender} onValueChange={(value) => setData('gender', value as 'L' | 'P')}>
-                            <SelectTrigger className="mt-1.5 bg-white dark:bg-slate-900">
+                            <SelectTrigger className="mt-1.5 bg-white dark:bg-card">
                                 <SelectValue placeholder="Pilih jenis kelamin" />
                             </SelectTrigger>
                             <SelectContent>
@@ -177,24 +177,24 @@ export default function StudentForm({
             </div>
 
             {/* Bagian 2: Penempatan & Kategori Akademik */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
-                <div className="mb-3 flex items-center gap-2 border-b border-slate-200/60 pb-2.5 dark:border-slate-700/60">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+                <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                         <School className="h-4 w-4" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Penempatan & Kategori Siswa</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Tentukan penempatan kelas dan tipe pendaftaran</p>
+                        <h3 className="text-sm font-semibold text-foreground dark:text-white">Penempatan & Kategori Siswa</h3>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Tentukan penempatan kelas dan tipe pendaftaran</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                        <Label htmlFor="class" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <Label htmlFor="class" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Kelas Saat Ini
                         </Label>
                         <Select value={data.class} onValueChange={(value) => setData('class', value === 'none' ? '' : value)}>
-                            <SelectTrigger className="mt-1.5 bg-white dark:bg-slate-900">
+                            <SelectTrigger className="mt-1.5 bg-white dark:bg-card">
                                 <SelectValue placeholder="Pilih kelas" />
                             </SelectTrigger>
                             <SelectContent>
@@ -206,15 +206,15 @@ export default function StudentForm({
                                 <SelectItem value="6">Kelas 6</SelectItem>
                             </SelectContent>
                         </Select>
-                        <p className="mt-1 text-[11px] text-slate-400">Kosongkan jika belum ditempatkan ke kelas tertentu.</p>
+                        <p className="mt-1 text-[11px] text-muted-foreground">Kosongkan jika belum ditempatkan ke kelas tertentu.</p>
                     </div>
 
                     <div>
-                        <Label htmlFor="student_type" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <Label htmlFor="student_type" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Jenis Siswa / Kategori
                         </Label>
                         <Select value={data.student_type} onValueChange={(value) => setData('student_type', value as 'umum' | 'yatim' | 'piatu' | 'yatim_piatu')}>
-                            <SelectTrigger className="mt-1.5 bg-white dark:bg-slate-900">
+                            <SelectTrigger className="mt-1.5 bg-white dark:bg-card">
                                 <SelectValue placeholder="Pilih jenis siswa" />
                             </SelectTrigger>
                             <SelectContent>
@@ -224,30 +224,30 @@ export default function StudentForm({
                                 <SelectItem value="yatim_piatu">Yatim Piatu</SelectItem>
                             </SelectContent>
                         </Select>
-                        <p className="mt-1 text-[11px] text-slate-400">Digunakan untuk penanda keringanan atau prioritas SPP.</p>
+                        <p className="mt-1 text-[11px] text-muted-foreground">Digunakan untuk penanda keringanan atau prioritas SPP.</p>
                     </div>
                 </div>
             </div>
 
             {/* Bagian 3: Periode Pendaftaran & Argo SPP */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
-                <div className="mb-3 flex items-center gap-2 border-b border-slate-200/60 pb-2.5 dark:border-slate-700/60">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+                <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
                         <Calendar className="h-4 w-4" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Periode Masuk & Tagihan SPP</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Titik awal dimulainya tagihan bulanan siswa</p>
+                        <h3 className="text-sm font-semibold text-foreground dark:text-white">Periode Masuk & Tagihan SPP</h3>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Titik awal dimulainya tagihan bulanan siswa</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                        <Label htmlFor="entry_month" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <Label htmlFor="entry_month" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Bulan Masuk <span className="text-rose-500">*</span>
                         </Label>
                         <Select value={data.entry_month} onValueChange={(value) => setData('entry_month', value)}>
-                            <SelectTrigger className="mt-1.5 bg-white dark:bg-slate-900">
+                            <SelectTrigger className="mt-1.5 bg-white dark:bg-card">
                                 <SelectValue placeholder="Pilih bulan" />
                             </SelectTrigger>
                             <SelectContent>
@@ -262,11 +262,11 @@ export default function StudentForm({
                     </div>
 
                     <div>
-                        <Label htmlFor="entry_year" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <Label htmlFor="entry_year" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Tahun Masuk <span className="text-rose-500">*</span>
                         </Label>
                         <Select value={data.entry_year} onValueChange={(value) => setData('entry_year', value)}>
-                            <SelectTrigger className="mt-1.5 bg-white dark:bg-slate-900">
+                            <SelectTrigger className="mt-1.5 bg-white dark:bg-card">
                                 <SelectValue placeholder="Pilih tahun" />
                             </SelectTrigger>
                             <SelectContent>
@@ -281,8 +281,8 @@ export default function StudentForm({
                     </div>
                 </div>
 
-                <div className="mt-3 flex items-start gap-2 rounded-lg border border-indigo-200/60 bg-indigo-50/50 p-2.5 text-xs text-indigo-900 dark:border-indigo-900/40 dark:bg-indigo-950/20 dark:text-indigo-300">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
+                <div className="mt-3 flex items-start gap-2 rounded-lg border border-primary/30/60 bg-primary/5/50 p-2.5 text-xs text-indigo-900 dark:border-indigo-900/40 dark:bg-primary/10 dark:text-primary/80">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary dark:text-primary" />
                     <span>
                         Sistem Virtual Ledger akan otomatis mulai membuat tagihan SPP siswa secara berkala terhitung sejak bulan dan tahun yang dipilih di atas.
                     </span>
@@ -290,23 +290,23 @@ export default function StudentForm({
             </div>
 
             {/* Bagian 4: Status Kesiswaan */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
-                <div className="mb-3 flex items-center gap-2 border-b border-slate-200/60 pb-2.5 dark:border-slate-700/60">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+                <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
                         <GraduationCap className="h-4 w-4" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Status Kesiswaan</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Status keaktifan santri di dayah</p>
+                        <h3 className="text-sm font-semibold text-foreground dark:text-white">Status Kesiswaan</h3>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Status keaktifan santri di dayah</p>
                     </div>
                 </div>
 
                 <div>
-                    <Label htmlFor="status" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <Label htmlFor="status" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                         Status Saat Ini <span className="text-rose-500">*</span>
                     </Label>
                     <Select value={data.status} onValueChange={(value) => setData('status', value)}>
-                        <SelectTrigger className="mt-1.5 bg-white dark:bg-slate-900">
+                        <SelectTrigger className="mt-1.5 bg-white dark:bg-card">
                             <SelectValue placeholder="Pilih status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -344,11 +344,11 @@ export default function StudentForm({
                         </p>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="exit_month" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="exit_month" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                                     Bulan Keluar <span className="text-rose-500">*</span>
                                 </Label>
                                 <Select value={data.exit_month} onValueChange={(value) => setData('exit_month', value === 'none' ? '' : value)}>
-                                    <SelectTrigger className="mt-1 bg-white dark:bg-slate-900">
+                                    <SelectTrigger className="mt-1 bg-white dark:bg-card">
                                         <SelectValue placeholder="Pilih bulan keluar" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -368,7 +368,7 @@ export default function StudentForm({
                             </div>
 
                             <div>
-                                <Label htmlFor="exit_year" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="exit_year" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                                     Tahun Keluar <span className="text-rose-500">*</span>
                                 </Label>
                                 <Select
@@ -384,7 +384,7 @@ export default function StudentForm({
                                         });
                                     }}
                                 >
-                                    <SelectTrigger className="mt-1 bg-white dark:bg-slate-900">
+                                    <SelectTrigger className="mt-1 bg-white dark:bg-card">
                                         <SelectValue placeholder="Pilih tahun keluar" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -407,7 +407,7 @@ export default function StudentForm({
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex items-center justify-end gap-3 pt-2 ${isSheet ? 'border-t border-slate-200/80 pt-4 dark:border-slate-800' : ''}`}>
+            <div className={`flex items-center justify-end gap-3 pt-2 ${isSheet ? 'border-t border-border/80 pt-4 dark:border-slate-800' : ''}`}>
                 <Button type="submit" disabled={processing} className="w-full sm:w-auto shadow-sm">
                     <Save className="mr-2 h-4 w-4" />
                     {processing ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan Siswa' : 'Simpan Siswa Baru'}
