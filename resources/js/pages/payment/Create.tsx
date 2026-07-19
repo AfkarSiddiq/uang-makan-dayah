@@ -69,15 +69,15 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                 {/* TODO: replaces every hardcoded back button with BackButton component */}
                 <BackButton href={route('payment.index')}>Transaksi</BackButton>
 
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="border-b border-slate-200 p-6 dark:border-slate-800">
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Form Transaksi Baru</h2>
-                        <p className="mt-1 text-sm text-slate-500">Catat pemasukan atau pengeluaran baru</p>
+                <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm dark:border-slate-800 dark:bg-card">
+                    <div className="border-b border-border p-6 dark:border-slate-800">
+                        <h2 className="text-lg font-semibold text-foreground dark:text-white">Form Transaksi Baru</h2>
+                        <p className="mt-1 text-sm text-muted-foreground">Catat pemasukan atau pengeluaran baru</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 p-6">
                         <div>
-                            <Label className="mb-3 block text-slate-700 dark:text-slate-300">Tipe Transaksi</Label>
+                            <Label className="mb-3 block text-foreground/90 dark:text-slate-300">Tipe Transaksi</Label>
                             <div className="flex gap-4">
                                 <button
                                     type="button"
@@ -85,10 +85,10 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     disabled={allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in')}
                                     className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
                                         allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in')
-                                            ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
+                                            ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-muted-foreground dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
                                             : type === 'in'
                                             ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
-                                            : 'border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'
+                                            : 'border-border text-slate-600 hover:border-slate-300 dark:border-border dark:text-muted-foreground'
                                     }`}
                                 >
                                     ↓ Pemasukan {allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in') && '(Tidak Ada Izin)'}
@@ -99,10 +99,10 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     disabled={allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out')}
                                     className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
                                         allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out')
-                                            ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
+                                            ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-muted-foreground dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
                                             : type === 'out'
                                             ? 'border-rose-500 bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400'
-                                            : 'border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'
+                                            : 'border-border text-slate-600 hover:border-slate-300 dark:border-border dark:text-muted-foreground'
                                     }`}
                                 >
                                     ↑ Pengeluaran {allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out') && '(Tidak Ada Izin)'}
@@ -113,7 +113,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <Label htmlFor="category" className="text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="category" className="text-foreground/90 dark:text-slate-300">
                                     Kategori <span className="text-rose-500">*</span>
                                 </Label>
                                 <Select value={data.category} onValueChange={(value) => {
@@ -139,7 +139,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                             </div>
 
                             <div>
-                                <Label htmlFor="amount" className="text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="amount" className="text-foreground/90 dark:text-slate-300">
                                     Jumlah (Rp) <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -159,7 +159,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                             <>
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
-                                        <Label htmlFor="gender" className="text-slate-700 dark:text-slate-300">
+                                        <Label htmlFor="gender" className="text-foreground/90 dark:text-slate-300">
                                             Jenis Kelamin
                                         </Label>
                                         <Select value={selectedGender} onValueChange={(value) => {
@@ -178,7 +178,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="class" className="text-slate-700 dark:text-slate-300">
+                                        <Label htmlFor="class" className="text-foreground/90 dark:text-slate-300">
                                             Filter Kelas
                                         </Label>
                                         <Select value={selectedClass} onValueChange={(value) => {
@@ -200,7 +200,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     </div>
                                 </div>
 
-                                <Label htmlFor="student_id" className="text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="student_id" className="text-foreground/90 dark:text-slate-300">
                                     Pilih Siswa <span className="text-rose-500">*</span>
                                 </Label>
                                 <Select
@@ -230,7 +230,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                 </Select>
                                 {errors.student_id && <p className="mt-1 text-sm text-rose-600">{errors.student_id}</p>}
                                 {data.student_id && (
-                                    <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">
+                                    <p className="mt-1 text-xs text-primary dark:text-primary">
                                         Pembayaran SPP akan otomatis dialokasikan ke tagihan tertunda siswa.
                                     </p>
                                 )}
@@ -239,7 +239,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <Label htmlFor="transaction_date" className="text-slate-700 dark:text-slate-300">
+                                <Label htmlFor="transaction_date" className="text-foreground/90 dark:text-slate-300">
                                     Tanggal <span className="text-rose-500">*</span>
                                 </Label>
                                 <Popover>
@@ -247,7 +247,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                         <Button
                                             variant="outline"
                                             className={`mt-1 w-full justify-start text-left font-normal ${
-                                                !data.transaction_date && 'text-slate-400'
+                                                !data.transaction_date && 'text-muted-foreground'
                                             }`}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
@@ -278,7 +278,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                         </div>
 
                         <div>
-                            <Label htmlFor="note" className="text-slate-700 dark:text-slate-300">
+                            <Label htmlFor="note" className="text-foreground/90 dark:text-slate-300">
                                 Catatan
                             </Label>
                             <Input
@@ -292,7 +292,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                             {errors.note && <p className="mt-1 text-sm text-rose-600">{errors.note}</p>}
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+                        <div className="flex justify-end gap-3 border-t border-border pt-4 dark:border-slate-800">
                             <Link href={route('payment.index')}>
                                 <Button variant="outline" type="button">
                                     Batal

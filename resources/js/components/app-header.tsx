@@ -36,7 +36,7 @@ const rightNavItems: NavItem[] = [
     },
 ];
 
-const activeItemStyles = 'text-emerald-800 font-semibold dark:bg-emerald-950/60 dark:text-emerald-200';
+const activeItemStyles = 'bg-sidebar-primary/20 text-sidebar-foreground font-semibold shadow-xs dark:bg-sidebar-primary/30';
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -48,7 +48,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     return (
         <>
-            <div className="border-sidebar-border/80 border-b">
+            <div className="border-sidebar-border/20 border-b bg-sidebar text-sidebar-foreground transition-all duration-300">
                 <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
@@ -116,7 +116,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             {item.title}
                                         </Link>
                                         {page.url === item.url && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-emerald-700 dark:bg-emerald-400"></div>
+                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-sidebar-primary-foreground"></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
@@ -138,7 +138,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     href={item.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group text-accent-foreground ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                    className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                                                 >
                                                     <span className="sr-only">{item.title}</span>
                                                     {item.icon && <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />}

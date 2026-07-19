@@ -13,11 +13,11 @@ import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ChevronRight } from "lucide-react"
 
-export function NavMain({ items = [] }: { items: NavItem[] }) {
+export function NavMain({ items = [], title = "Menu Utama" }: { items: NavItem[], title?: string }) {
     const page = usePage();
     return (
         <SidebarGroup className="px-2 py-1">
-            <SidebarGroupLabel className="text-xs font-semibold tracking-wider text-emerald-800/70 uppercase dark:text-emerald-400/70">Menu Utama</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-xs font-semibold tracking-wider text-sidebar-foreground/70 uppercase">{title}</SidebarGroupLabel>
             <SidebarMenu className="space-y-1">
                 {items.map((item) => {
                     const isMainActive = item.url !== '#' && (page.url === item.url || page.url.startsWith(item.url + '/'));
@@ -32,16 +32,16 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                         tooltip={item.title}
                                         isActive={false}
                                         className={isSubActiveGroup
-                                            ? 'bg-emerald-100/70 font-semibold text-emerald-900! data-[active=true]:text-emerald-900! border-l-4 border-amber-500 shadow-xs dark:bg-emerald-950/80 dark:text-emerald-200! dark:data-[active=true]:text-emerald-200!'
-                                            : 'transition-all duration-200 hover:bg-emerald-500/10 hover:text-emerald-900 dark:hover:text-emerald-300'}
+                                            ? 'bg-sidebar-primary/20 font-medium text-sidebar-primary-foreground shadow-xs'
+                                            : 'transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}
                                     >
-                                        {item.icon && <item.icon className={isSubActiveGroup ? 'text-emerald-700 dark:text-emerald-400' : ''} />}
+                                        {item.icon && <item.icon />}
                                         <span>{item.title}</span>
                                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                     </SidebarMenuButton>
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
-                                    <SidebarMenuSub className="border-l border-emerald-900/15 pl-3 mt-1 space-y-0.5 dark:border-emerald-800/30">
+                                    <SidebarMenuSub className="border-l border-sidebar-border/30 pl-3 mt-1 space-y-0.5">
                                         {item.items?.map((subItem) => {
                                             const isSubActive = subItem.url !== '#' && (page.url === subItem.url || page.url.startsWith(subItem.url + '/'));
                                             return (
@@ -50,8 +50,8 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                                         asChild
                                                         isActive={isSubActive}
                                                         className={isSubActive
-                                                            ? 'bg-emerald-600 font-semibold text-white! data-[active=true]:text-black! shadow-xs rounded-lg hover:bg-emerald-700 hover:text-white! dark:bg-emerald-700'
-                                                            : 'transition-all duration-200 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-900 dark:hover:text-emerald-300'}
+                                                            ? 'bg-sidebar-primary/30 font-semibold text-sidebar-primary-foreground shadow-xs rounded-lg'
+                                                            : 'transition-all duration-200 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}
                                                     >
                                                         <Link href={subItem.url}>
                                                             <span>{subItem.title}</span>
@@ -72,11 +72,11 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 tooltip={item.title}
                                 isActive={isMainActive}
                                 className={isMainActive
-                                    ? 'bg-gradient-to-r from-emerald-800 to-emerald-700 font-bold text-white! data-[active=true]:text-white! shadow-md shadow-emerald-900/20 hover:bg-emerald-800 hover:text-white! dark:from-emerald-700 dark:to-emerald-600 dark:data-[active=true]:text-white!'
-                                    : 'transition-all duration-200 hover:bg-emerald-500/10 hover:text-emerald-900 hover:translate-x-0.5 dark:hover:text-emerald-300'}
+                                    ? 'bg-sidebar-primary font-bold text-sidebar-primary-foreground shadow-md hover:bg-sidebar-primary/90'
+                                    : 'transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-0.5'}
                             >
                                 <Link href={item.url}>
-                                    {item.icon && <item.icon className={isMainActive ? 'text-amber-300' : ''} />}
+                                    {item.icon && <item.icon />}
                                     <span>{item.title}</span>
                                 </Link>
                             </SidebarMenuButton>

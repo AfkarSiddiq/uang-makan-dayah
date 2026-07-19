@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: Props) {
     return (
         <div className="flex min-h-screen bg-gray-100">
             {/* Sidebar Tetap di Kiri */}
-            <nav className="w-64 bg-slate-900 text-white flex flex-col fixed h-full">
+            <nav className="w-64 bg-card text-white flex flex-col fixed h-full">
                 <div className="p-6 text-xl font-bold border-b border-slate-800">
                     MY APP
                 </div>

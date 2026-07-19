@@ -62,26 +62,26 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
             
             <div className="p-6 max-w-7xl mx-auto space-y-6">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border dark:border-slate-800">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                            <FolderArchive className="w-7 h-7 text-indigo-600 dark:text-indigo-400" /> 
+                        <h1 className="text-2xl font-bold text-foreground dark:text-white flex items-center gap-2.5">
+                            <FolderArchive className="w-7 h-7 text-primary dark:text-primary" /> 
                             Arsip & Alumni
                         </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
                             Pusat riwayat santri yang telah lulus (alumni) dan santri mutasi non-aktif (pindah/berhenti).
                         </p>
                     </div>
 
                     {/* Navigation Tabs */}
-                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 self-start md:self-auto">
+                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-border/60 dark:border-border/60 self-start md:self-auto">
                         <button
                             type="button"
                             onClick={() => setActiveTab('lulus')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition ${
                                 activeTab === 'lulus'
-                                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                    ? 'bg-white dark:bg-card text-primary dark:text-primary shadow-sm'
+                                    : 'text-slate-600 dark:text-muted-foreground hover:text-foreground dark:hover:text-white'
                             }`}
                         >
                             <GraduationCap className="w-4 h-4" />
@@ -92,8 +92,8 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                             onClick={() => setActiveTab('pindah')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition ${
                                 activeTab === 'pindah'
-                                    ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                    ? 'bg-white dark:bg-card text-rose-600 dark:text-rose-400 shadow-sm'
+                                    : 'text-slate-600 dark:text-muted-foreground hover:text-foreground dark:hover:text-white'
                             }`}
                         >
                             <UserMinus className="w-4 h-4" />
@@ -111,10 +111,10 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                     <Link
                                         key={item.exit_year}
                                         href={`/alumni/${item.exit_year}`}
-                                        className="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition duration-200 flex flex-col justify-between"
+                                        className="group bg-card p-6 rounded-2xl border-transparent shadow-lg shadow-primary/5 ring-1 ring-black/5 hover:ring-primary/30 dark:ring-white/10 dark:hover:ring-primary/30 transition-all flex flex-col justify-between"
                                     >
                                         <div className="flex items-start justify-between">
-                                            <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition duration-200">
+                                            <div className="w-12 h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary dark:text-primary group-hover:scale-110 transition duration-200">
                                                 <GraduationCap className="w-6 h-6" />
                                             </div>
                                             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
@@ -123,16 +123,16 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                         </div>
 
                                         <div className="mt-6">
-                                            <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                                            <h3 className="text-xl font-bold text-foreground dark:text-white group-hover:text-primary dark:group-hover:text-primary transition">
                                                 Tahun Lulus {item.exit_year}
                                             </h3>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
-                                                <Users className="w-4 h-4 text-slate-400" />
-                                                Total <span className="font-semibold text-slate-700 dark:text-slate-200">{item.total_alumni} santri</span> terdaftar
+                                            <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1 flex items-center gap-1.5">
+                                                <Users className="w-4 h-4 text-muted-foreground" />
+                                                Total <span className="font-semibold text-foreground/90 dark:text-slate-200">{item.total_alumni} santri</span> terdaftar
                                             </p>
                                         </div>
 
-                                        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-border flex items-center justify-between text-sm font-semibold text-primary dark:text-primary">
                                             <span>Lihat Daftar Alumni</span>
                                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition duration-200" />
                                         </div>
@@ -140,10 +140,10 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-white dark:bg-slate-900 p-12 rounded-2xl border border-slate-200 dark:border-slate-800 text-center">
+                            <div className="bg-card p-12 rounded-2xl border-transparent shadow-lg shadow-primary/5 ring-1 ring-black/5 dark:ring-white/10 text-center">
                                 <GraduationCap className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
                                 <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">Belum Ada Data Alumni</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+                                <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1 max-w-md mx-auto">
                                     Siswa yang dinaikkan kelas hingga lulus akan otomatis tercatat dan terkelompokkan di dalam halaman ini.
                                 </p>
                             </div>
@@ -155,12 +155,12 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                 {activeTab === 'pindah' && (
                     <div className="space-y-6 animate-in fade-in duration-200">
                         {/* Filters & Search */}
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="bg-card p-4 rounded-2xl border-transparent shadow-lg shadow-primary/5 ring-1 ring-black/5 dark:ring-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                 <select
                                     value={statusFilter}
                                     onChange={e => setStatusFilter(e.target.value)}
-                                    className="w-full sm:w-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full sm:w-auto rounded-xl border border-slate-300 dark:border-border bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-medium text-foreground/90 dark:text-slate-200 focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="all">Semua Status Mutasi</option>
                                     {uniqueStatuses.length > 0 ? (
@@ -178,7 +178,7 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                 <select
                                     value={yearFilter}
                                     onChange={e => setYearFilter(e.target.value)}
-                                    className="w-full sm:w-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full sm:w-auto rounded-xl border border-slate-300 dark:border-border bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-medium text-foreground/90 dark:text-slate-200 focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="all">Semua Tahun Keluar</option>
                                     {uniqueExitYears.map(y => (
@@ -189,22 +189,22 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
 
                             <div className="relative w-full md:w-80">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                                    <Search className="h-4 w-4 text-slate-400" />
+                                    <Search className="h-4 w-4 text-muted-foreground" />
                                 </div>
                                 <input
                                     type="text"
                                     placeholder="Cari Nama atau NISN..."
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
-                                    className="block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-2 pl-10 pr-4 text-sm placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition"
+                                    className="block w-full rounded-xl border border-slate-300 dark:border-border bg-white dark:bg-slate-950 py-2 pl-10 pr-4 text-sm placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition"
                                 />
                             </div>
                         </div>
 
                         {/* Tampilan Desktop: Table */}
-                        <div className="hidden md:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
+                        <div className="hidden md:block bg-card rounded-2xl shadow-lg shadow-primary/5 ring-1 ring-black/5 dark:ring-white/10 overflow-hidden overflow-x-auto border-transparent">
                             <table className="w-full text-left text-sm whitespace-nowrap">
-                                <thead className="border-b border-slate-200 bg-slate-50/80 font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
+                                <thead className="border-b border-black/5 bg-slate-50/50 font-semibold text-slate-600 dark:border-white/5 dark:bg-slate-800/30 dark:text-slate-300">
                                     <tr>
                                         <th className="w-16 px-6 py-4">No</th>
                                         <th className="px-6 py-4">NISN</th>
@@ -220,9 +220,9 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                     {filteredSiswaPindah.length > 0 ? (
                                         filteredSiswaPindah.map((student, idx) => (
                                             <tr key={student.id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                                <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{idx + 1}</td>
+                                                <td className="px-6 py-4 text-muted-foreground dark:text-muted-foreground font-medium">{idx + 1}</td>
                                                 <td className="px-6 py-4 font-mono font-medium text-slate-800 dark:text-slate-300">{student.nisn}</td>
-                                                <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{student.name}</td>
+                                                <td className="px-6 py-4 font-bold text-foreground dark:text-white">{student.name}</td>
                                                 <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${
                                                         student.gender === 'L' 
@@ -232,10 +232,10 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                                         {student.gender === 'L' ? 'Putra' : 'Putri'}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300">
+                                                <td className="px-6 py-4 font-semibold text-foreground/90 dark:text-slate-300">
                                                     {student.class ? `Kelas ${student.class}` : '-'}
                                                 </td>
-                                                <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                                                <td className="px-6 py-4 text-slate-600 dark:text-muted-foreground">
                                                     {student.exit_year ? `${getMonthName(student.exit_month)} ${student.exit_year}` : '-'}
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -246,7 +246,7 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                                 <td className="px-6 py-4 text-right">
                                                     <Link
                                                         href={route(student.gender === 'L' ? 'santriwan.show' : 'santriwati.show', { id: student.id })}
-                                                        className="inline-flex items-center justify-center rounded-lg bg-indigo-50 px-3.5 py-1.5 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/70"
+                                                        className="inline-flex items-center justify-center rounded-lg bg-primary/5 px-3.5 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/10 dark:bg-primary/20 dark:text-primary/80 dark:hover:bg-primary/20"
                                                     >
                                                         Lihat Arsip →
                                                     </Link>
@@ -255,10 +255,10 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={8} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                                            <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground dark:text-muted-foreground">
                                                 <UserMinus className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                                                <p className="font-semibold text-base text-slate-700 dark:text-slate-300">Tidak ada data santri pindah/berhenti</p>
-                                                <p className="text-xs text-slate-400 mt-0.5">Coba sesuaikan filter atau kata kunci pencarian Anda.</p>
+                                                <p className="font-semibold text-base text-foreground/90 dark:text-slate-300">Tidak ada data santri pindah/berhenti</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Coba sesuaikan filter atau kata kunci pencarian Anda.</p>
                                             </td>
                                         </tr>
                                     )}
@@ -270,9 +270,9 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                         <div className="md:hidden space-y-3.5">
                             {filteredSiswaPindah.length > 0 ? (
                                 filteredSiswaPindah.map((student) => (
-                                    <div key={student.id} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-                                        <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-2.5">
-                                            <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg">
+                                    <div key={student.id} className="bg-card p-4 rounded-2xl border-transparent shadow-lg shadow-primary/5 ring-1 ring-black/5 dark:ring-white/10 space-y-3">
+                                        <div className="flex items-center justify-between gap-2 border-b border-black/5 dark:border-white/5 pb-2.5">
+                                            <span className="font-mono text-xs font-bold text-primary dark:text-primary bg-primary/5 dark:bg-primary/10 px-2.5 py-1 rounded-lg">
                                                 NISN: {student.nisn}
                                             </span>
                                             <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-extrabold ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-400/10 dark:text-rose-400 uppercase">
@@ -282,7 +282,7 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
 
                                         <div className="flex items-start justify-between gap-2">
                                             <div>
-                                                <h3 className="font-extrabold text-base text-slate-900 dark:text-white leading-snug">
+                                                <h3 className="font-extrabold text-base text-foreground dark:text-white leading-snug">
                                                     {student.name}
                                                 </h3>
                                                 <div className="flex items-center gap-2 mt-1">
@@ -293,20 +293,20 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                                     }`}>
                                                         {student.gender === 'L' ? 'Putra' : 'Putri'}
                                                     </span>
-                                                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                                    <span className="text-xs font-semibold text-slate-600 dark:text-muted-foreground">
                                                         {student.class ? `Kelas ${student.class}` : 'Tanpa Kelas'}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                                        <div className="pt-2 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground">
                                             <span>
-                                                Waktu Keluar: <strong className="text-slate-700 dark:text-slate-300">{student.exit_year ? `${getMonthName(student.exit_month)} ${student.exit_year}` : '-'}</strong>
+                                                Waktu Keluar: <strong className="text-foreground/90 dark:text-slate-300">{student.exit_year ? `${getMonthName(student.exit_month)} ${student.exit_year}` : '-'}</strong>
                                             </span>
                                             <Link
                                                 href={route(student.gender === 'L' ? 'santriwan.show' : 'santriwati.show', { id: student.id })}
-                                                className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-500 transition"
+                                                className="inline-flex items-center justify-center rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-primary/50 transition"
                                             >
                                                 Arsip →
                                             </Link>
@@ -314,10 +314,10 @@ export default function Index({ tahunLulus, siswaPindah = [] }: Props) {
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800">
+                                <div className="p-8 text-center bg-card rounded-2xl border border-dashed border-black/10 dark:border-white/10">
                                     <UserMinus className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                                    <p className="font-semibold text-sm text-slate-700 dark:text-slate-300">Tidak ada data santri pindah/berhenti</p>
-                                    <p className="text-xs text-slate-400 mt-0.5">Coba sesuaikan filter atau kata kunci pencarian Anda.</p>
+                                    <p className="font-semibold text-sm text-foreground/90 dark:text-slate-300">Tidak ada data santri pindah/berhenti</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">Coba sesuaikan filter atau kata kunci pencarian Anda.</p>
                                 </div>
                             )}
                         </div>

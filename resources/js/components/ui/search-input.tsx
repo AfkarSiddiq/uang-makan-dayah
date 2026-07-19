@@ -28,7 +28,7 @@ function SearchInput({
         <div className={cn('relative flex-1', className)}>
             <div className="relative flex items-center gap-2">
                 <div className="relative flex-1">
-                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder={placeholder}
                         className="pl-9 pr-8"
@@ -45,7 +45,7 @@ function SearchInput({
                         <button
                             type="button"
                             onClick={onClear}
-                            className="absolute top-1/2 right-2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-slate-600"
                         >
                             <X className="h-4 w-4" />
                         </button>

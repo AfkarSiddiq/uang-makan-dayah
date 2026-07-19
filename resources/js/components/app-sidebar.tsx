@@ -26,12 +26,6 @@ const mainNavItems: NavItemWithPermission[] = [
         permission: ['pembayaran.masuk.view', 'pembayaran.keluar.view'],
     },
     {
-        title: 'Tagihan bulan',
-        url: '/tuition-per-month',
-        icon: CalendarArrowUp,
-        permission: 'spp.view',
-    },
-    {
         title: 'Data Santri',
         url: '#',
         icon: BookText,
@@ -73,6 +67,15 @@ const mainNavItems: NavItemWithPermission[] = [
         url: '/alumni',
         icon: GraduationCap,
         permission: 'siswa.view',
+    },
+];
+
+const settingNavItems: NavItemWithPermission[] = [
+    {
+        title: 'Tagihan bulan',
+        url: '/tuition-per-month',
+        icon: CalendarArrowUp,
+        permission: 'spp.view',
     },
     {
         title: 'Kategori',
@@ -125,11 +128,11 @@ export function AppSidebar() {
     };
 
     return (
-        <Sidebar collapsible="icon" variant="inset" className="border-r border-emerald-900/10 shadow-sm dark:border-emerald-900/20">
-            <SidebarHeader className="border-b border-emerald-900/10 bg-gradient-to-b from-emerald-50/70 via-emerald-50/30 to-transparent pb-3 pt-3 dark:border-emerald-900/20 dark:from-emerald-950/40">
+        <Sidebar collapsible="icon" variant="inset" className="border-r border-sidebar-border shadow-sm">
+            <SidebarHeader className="border-b border-sidebar-border/20 bg-sidebar pb-3 pt-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="rounded-xl border border-transparent p-2 transition-all duration-300 hover:border-emerald-300/50 hover:bg-emerald-500/10 hover:shadow-xs dark:hover:border-emerald-700/50">
+                        <SidebarMenuButton size="lg" asChild className="rounded-xl border border-transparent p-2 transition-all duration-300 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
@@ -139,10 +142,11 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent className="px-1 py-2">
-                <NavMain items={filterNavItems(mainNavItems)} />
+                <NavMain items={filterNavItems(mainNavItems)} title="Menu Utama" />
+                <NavMain items={filterNavItems(settingNavItems)} title="Pengaturan & Konfigurasi" />
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-emerald-900/10 bg-gradient-to-t from-emerald-50/40 to-transparent p-2 dark:border-emerald-900/20 dark:from-emerald-950/20">
+            <SidebarFooter className="border-t border-sidebar-border/20 bg-sidebar p-2">
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>

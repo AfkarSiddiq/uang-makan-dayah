@@ -13,7 +13,7 @@ function BackButton({ href = route('payment.index'), children = 'Transaksi', cla
         <Link
             href={href}
             className={cn(
-                'inline-flex items-center text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:hover:text-white',
+                'inline-flex items-center text-sm font-medium text-muted-foreground transition hover:text-foreground dark:hover:text-white',
                 className,
             )}
         >

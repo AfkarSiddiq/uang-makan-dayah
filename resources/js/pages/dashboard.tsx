@@ -1,8 +1,9 @@
 import AppLayout from '@/layouts/app-layout';
 import { Transaction, TransactionSummary } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight, BarChart3, Clock, GraduationCap, PieChart, UserCheck, Users } from 'lucide-react';
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight, BarChart3, Clock, GraduationCap, PieChart as PieChartIcon, UserCheck, Users } from 'lucide-react';
 import { useState } from 'react';
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface Props {
     latest_transactions?: Transaction[];
@@ -40,110 +41,110 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
             <div className="space-y-6 p-6">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard Utama</h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Pantau populasi santri dayah serta arus kas keuangan secara realtime.</p>
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-white">Dashboard Utama</h1>
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">Pantau populasi santri dayah serta arus kas keuangan secara realtime.</p>
                     </div>
                 </div>
 
                 {/* RINGKASAN POPULASI SISWA & SANTRI DAYAH */}
                 <div className="space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2 dark:border-slate-800">
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                            <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-border/80 pb-2 dark:border-slate-800">
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-foreground/90 dark:text-slate-300 flex items-center gap-2">
+                            <Users className="h-4 w-4 text-primary dark:text-primary" />
                             Statistik Santri & Siswa Dayah
                         </h2>
-                        <Link href="/siswa" className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400 self-start sm:self-auto">
-                            Kelola Pusat Data Siswa →
+                        <Link href="/siswa" className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20 dark:bg-primary/20 dark:text-primary-foreground dark:hover:bg-primary/30 self-start sm:self-auto">
+                            Kelola Pusat Data Siswa &rarr;
                         </Link>
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <Link
                             href="/siswa?status=aktif"
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-indigo-50/20 to-indigo-50/50 p-4 shadow-xs transition-all hover:border-indigo-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30"
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-indigo-50/20 to-indigo-50/50 p-4 shadow-xs transition-all hover:border-indigo-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30"
                         >
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Total Santri Aktif</span>
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 transition group-hover:scale-110 dark:bg-indigo-500/20 dark:text-indigo-400">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Total Santri Aktif</span>
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/50/10 text-primary transition group-hover:scale-110 dark:bg-primary/50/20 dark:text-primary">
                                     <Users className="h-4.5 w-4.5" />
                                 </div>
                             </div>
                             <div className="mt-2 flex items-baseline gap-1.5 min-w-0">
-                                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white truncate">{student_stats?.total_aktif || 0}</span>
-                                <span className="text-xs font-medium text-slate-500 shrink-0">Siswa</span>
+                                <span className="text-2xl sm:text-3xl font-extrabold text-foreground dark:text-white truncate">{student_stats?.total_aktif || 0}</span>
+                                <span className="text-xs font-medium text-muted-foreground shrink-0">Siswa</span>
                             </div>
-                            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 truncate">Total santri aktif menimba ilmu</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground truncate">Total santri aktif menimba ilmu</p>
                         </Link>
 
                         <Link
                             href="/santriwan"
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-blue-50/20 to-blue-50/50 p-4 shadow-xs transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-blue-950/30"
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-blue-50/20 to-blue-50/50 p-4 shadow-xs transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-blue-950/30"
                         >
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Santriwan (Putra)</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Santriwan (Putra)</span>
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 transition group-hover:scale-110 dark:bg-blue-500/20 dark:text-blue-400">
                                     <UserCheck className="h-4.5 w-4.5" />
                                 </div>
                             </div>
                             <div className="mt-2 flex items-baseline gap-1.5 min-w-0">
                                 <span className="text-2xl sm:text-3xl font-extrabold text-blue-600 dark:text-blue-400 truncate">{student_stats?.santriwan_aktif || 0}</span>
-                                <span className="text-xs font-medium text-slate-500 shrink-0">Siswa</span>
+                                <span className="text-xs font-medium text-muted-foreground shrink-0">Siswa</span>
                             </div>
-                            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 truncate">Remaja putra berstatus aktif</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground truncate">Remaja putra berstatus aktif</p>
                         </Link>
 
                         <Link
                             href="/santriwati"
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-pink-50/20 to-pink-50/50 p-4 shadow-xs transition-all hover:border-pink-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-pink-950/30"
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-pink-50/20 to-pink-50/50 p-4 shadow-xs transition-all hover:border-pink-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-pink-950/30"
                         >
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Santriwati (Putri)</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Santriwati (Putri)</span>
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-pink-500/10 text-pink-600 transition group-hover:scale-110 dark:bg-pink-500/20 dark:text-pink-400">
                                     <Users className="h-4.5 w-4.5" />
                                 </div>
                             </div>
                             <div className="mt-2 flex items-baseline gap-1.5 min-w-0">
                                 <span className="text-2xl sm:text-3xl font-extrabold text-pink-600 dark:text-pink-400 truncate">{student_stats?.santriwati_aktif || 0}</span>
-                                <span className="text-xs font-medium text-slate-500 shrink-0">Siswa</span>
+                                <span className="text-xs font-medium text-muted-foreground shrink-0">Siswa</span>
                             </div>
-                            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 truncate">Remaja putri berstatus aktif</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground truncate">Remaja putri berstatus aktif</p>
                         </Link>
 
                         <Link
                             href="/siswa?status=lulus"
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/20 to-amber-50/50 p-4 shadow-xs transition-all hover:border-amber-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30"
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-white via-amber-50/20 to-amber-50/50 p-4 shadow-xs transition-all hover:border-amber-400 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30"
                         >
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Alumni & Non-Aktif</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Alumni & Non-Aktif</span>
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 transition group-hover:scale-110 dark:bg-amber-500/20 dark:text-amber-400">
                                     <GraduationCap className="h-4.5 w-4.5" />
                                 </div>
                             </div>
                             <div className="mt-2 flex items-baseline gap-1.5 min-w-0">
-                                <span className="text-2xl sm:text-3xl font-extrabold text-slate-700 dark:text-slate-300 truncate">{student_stats?.total_non_aktif || 0}</span>
-                                <span className="text-xs font-medium text-slate-500 shrink-0">Siswa</span>
+                                <span className="text-2xl sm:text-3xl font-extrabold text-foreground/90 dark:text-slate-300 truncate">{student_stats?.total_non_aktif || 0}</span>
+                                <span className="text-xs font-medium text-muted-foreground shrink-0">Siswa</span>
                             </div>
-                            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 truncate">Lulus, pindah, atau keluar</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground truncate">Lulus, pindah, atau keluar</p>
                         </Link>
                     </div>
                 </div>
 
                 {/* RINGKASAN DATA KEUANGAN */}
                 <div className="space-y-3 pt-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2 dark:border-slate-800">
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-border/80 pb-2 dark:border-slate-800">
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-foreground/90 dark:text-slate-300 flex items-center gap-2">
                             <ArrowUpDown className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                             Ringkasan Arus Kas Keuangan
                         </h2>
-                        <Link href="/payment" className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400 self-start sm:self-auto">
-                            Buka Buku Transaksi →
+                        <Link href="/payment" className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-300 dark:hover:bg-emerald-500/30 self-start sm:self-auto">
+                            Buka Buku Transaksi &rarr;
                         </Link>
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         <div className="flex flex-col justify-between rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/30 to-emerald-50 p-4 sm:p-5 shadow-xs transition-all hover:shadow-md dark:border-emerald-900/60 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/30">
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Total Pemasukan</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Total Pemasukan</span>
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                                     <ArrowDownRight className="h-5 w-5" />
                                 </div>
@@ -157,7 +158,7 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
 
                         <div className="flex flex-col justify-between rounded-2xl border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/30 to-rose-50 p-4 sm:p-5 shadow-xs transition-all hover:shadow-md dark:border-rose-900/60 dark:from-slate-900 dark:via-slate-900 dark:to-rose-950/30">
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Total Pengeluaran</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Total Pengeluaran</span>
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400">
                                     <ArrowUpRight className="h-5 w-5" />
                                 </div>
@@ -171,7 +172,7 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
 
                         <div className="flex flex-col justify-between rounded-2xl border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/30 to-amber-50 p-4 sm:p-5 shadow-xs sm:col-span-2 lg:col-span-1 transition-all hover:shadow-md dark:border-amber-900/60 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30">
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">Saldo Kas Bersih</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground truncate">Saldo Kas Bersih</span>
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
                                     <ArrowUpDown className="h-5 w-5" />
                                 </div>
@@ -188,11 +189,11 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
                 {/* BAGIAN VISUALISASI DATA & 5 TRANSAKSI TERBARU */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* GRAFIK TREN 6 BULAN */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div className="rounded-xl border border-border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-card">
                         <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                             <div className="flex items-center gap-2">
                                 <BarChart3 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Tren Arus Kas (6 Bulan Terakhir)</h2>
+                                <h2 className="font-semibold text-foreground dark:text-white">Tren Arus Kas (6 Bulan Terakhir)</h2>
                             </div>
                             <div className="flex items-center gap-3 text-xs font-medium">
                                 <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
@@ -204,109 +205,125 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
                             </div>
                         </div>
 
-                        <div className="mt-4 space-y-4">
-                            {(() => {
-                                const maxVal = Math.max(...(chart_data?.monthly_trend || []).flatMap((m) => [m.in, m.out]), 1);
-                                return (chart_data?.monthly_trend || []).map((m, idx) => {
-                                    const dateObj = new Date(2000, m.month - 1, 1);
-                                    const monthLabel = `${dateObj.toLocaleString('id-ID', { month: 'short' })} ${m.year}`;
-                                    const inPct = Math.round((m.in / maxVal) * 100);
-                                    const outPct = Math.round((m.out / maxVal) * 100);
-
-                                    return (
-                                        <div key={idx} className="space-y-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-800/50">
-                                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{monthLabel}</span>
-                                            <div className="space-y-1.5 pt-0.5">
-                                                <div className="flex items-center gap-2 text-xs">
-                                                    <span className="w-12 text-[11px] text-slate-500">Masuk</span>
-                                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                                        <div style={{ width: `${inPct}%` }} className="h-full bg-emerald-500 transition-all duration-500" />
-                                                    </div>
-                                                    <span className="w-24 text-right font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(m.in)}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2 text-xs">
-                                                    <span className="w-12 text-[11px] text-slate-500">Keluar</span>
-                                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                                        <div style={{ width: `${outPct}%` }} className="h-full bg-rose-500 transition-all duration-500" />
-                                                    </div>
-                                                    <span className="w-24 text-right font-medium text-rose-600 dark:text-rose-400">{formatRupiah(m.out)}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                });
-                            })()}
+                        <div className="mt-4 pt-4 h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={(chart_data?.monthly_trend || []).map(m => ({
+                                    name: `${new Date(2000, m.month - 1, 1).toLocaleString('id-ID', { month: 'short' })} ${m.year}`,
+                                    Masuk: m.in,
+                                    Keluar: m.out
+                                }))} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-slate-800/80" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} stroke="currentColor" className="text-slate-500" dy={10} />
+                                    <YAxis 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tick={{ fontSize: 12 }} 
+                                        tickFormatter={(val) => {
+                                            if (val >= 1000000) return `Rp ${(val / 1000000).toFixed(0)}M`;
+                                            if (val >= 1000) return `Rp ${(val / 1000).toFixed(0)}K`;
+                                            return val;
+                                        }} 
+                                        stroke="currentColor" 
+                                        className="text-slate-500" 
+                                        width={60}
+                                    />
+                                    <Tooltip 
+                                        cursor={{ fill: 'currentColor', opacity: 0.05 }} 
+                                        contentStyle={{ borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--color-card)' }} 
+                                        formatter={(value: number) => formatRupiah(value)} 
+                                    />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
+                                    <Bar dataKey="Masuk" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    <Bar dataKey="Keluar" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
                     {/* BREAKDOWN KATEGORI */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div className="rounded-xl border border-border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-card">
                         <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                             <div className="flex items-center gap-2">
-                                <PieChart className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Proporsi Kategori</h2>
+                                <PieChartIcon className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                                <h2 className="font-semibold text-foreground dark:text-white">Proporsi Kategori</h2>
                             </div>
                             <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-medium dark:bg-slate-800">
                                 <button
                                     onClick={() => setCatTab('in')}
-                                    className={`rounded-md px-2.5 py-1 transition-all ${catTab === 'in' ? 'bg-white text-emerald-600 shadow-sm dark:bg-slate-700 dark:text-emerald-400 font-semibold' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                                    className={`rounded-md px-2.5 py-1 transition-all ${catTab === 'in' ? 'bg-white text-emerald-600 shadow-sm dark:bg-slate-700 dark:text-emerald-400 font-semibold' : 'text-muted-foreground hover:text-foreground/90 dark:text-muted-foreground'}`}
                                 >
                                     Pemasukan
                                 </button>
                                 <button
                                     onClick={() => setCatTab('out')}
-                                    className={`rounded-md px-2.5 py-1 transition-all ${catTab === 'out' ? 'bg-white text-rose-600 shadow-sm dark:bg-slate-700 dark:text-rose-400 font-semibold' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                                    className={`rounded-md px-2.5 py-1 transition-all ${catTab === 'out' ? 'bg-white text-rose-600 shadow-sm dark:bg-slate-700 dark:text-rose-400 font-semibold' : 'text-muted-foreground hover:text-foreground/90 dark:text-muted-foreground'}`}
                                 >
                                     Pengeluaran
                                 </button>
                             </div>
                         </div>
 
-                        <div className="mt-4 space-y-4">
+                        <div className="mt-4 pt-4 h-[300px] w-full">
                             {(() => {
                                 const activeList = catTab === 'in' ? chart_data?.in_categories || [] : chart_data?.out_categories || [];
-                                const totalSum = activeList.reduce((acc, curr) => acc + Number(curr.total), 0);
-
+                                
                                 if (activeList.length === 0) {
-                                    return <p className="py-12 text-center text-sm text-slate-400">Belum ada data kategori untuk filter ini.</p>;
+                                    return <div className="flex h-full items-center justify-center"><p className="text-sm text-muted-foreground">Belum ada data kategori.</p></div>;
                                 }
 
-                                return activeList.slice(0, 6).map((cat, idx) => {
-                                    const pct = totalSum > 0 ? Math.round((Number(cat.total) / totalSum) * 100) : 0;
-                                    const barColor = catTab === 'in' ? 'bg-emerald-500' : 'bg-rose-500';
+                                const pieData = activeList.slice(0, 6).map(c => ({
+                                    name: c.category,
+                                    value: Number(c.total)
+                                }));
+                                
+                                // Beautiful modern color palettes for donut charts
+                                const IN_COLORS = ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'];
+                                const OUT_COLORS = ['#e11d48', '#f43f5e', '#fb7185', '#fda4af', '#fecdd3', '#ffe4e6'];
+                                const COLORS = catTab === 'in' ? IN_COLORS : OUT_COLORS;
 
-                                    return (
-                                        <div key={idx} className="space-y-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-slate-800/50">
-                                            <div className="flex justify-between text-xs">
-                                                <span className="font-medium text-slate-700 dark:text-slate-300">{cat.category}</span>
-                                                <span className="font-semibold text-slate-900 dark:text-white">
-                                                    {formatRupiah(Number(cat.total))} <span className="text-slate-400 font-normal">({pct}%)</span>
-                                                </span>
-                                            </div>
-                                            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                                <div style={{ width: `${pct}%` }} className={`h-full ${barColor} transition-all duration-500`} />
-                                            </div>
-                                        </div>
-                                    );
-                                });
+                                return (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={pieData}
+                                                cx="50%"
+                                                cy="45%"
+                                                innerRadius={70}
+                                                outerRadius={100}
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                                stroke="none"
+                                            >
+                                                {pieData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip 
+                                                contentStyle={{ borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--color-card)' }} 
+                                                formatter={(value: number) => formatRupiah(value)} 
+                                            />
+                                            <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                );
                             })()}
                         </div>
                     </div>
                 </div>
 
                 {/* 5 TRANSAKSI TERBARU */}
-                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="rounded-xl border border-border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-card">
                     <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                         <div className="flex items-center gap-2">
                             <Clock className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                            <h2 className="font-semibold text-slate-900 dark:text-white">5 Transaksi Terbaru</h2>
+                            <h2 className="font-semibold text-foreground dark:text-white">5 Transaksi Terbaru</h2>
                         </div>
-                        <span className="text-xs text-slate-500">Aktivitas transaksi terakhir yang dicatat</span>
+                        <span className="text-xs text-muted-foreground">Aktivitas transaksi terakhir yang dicatat</span>
                     </div>
 
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
                         {(!latest_transactions || latest_transactions.length === 0) ? (
-                            <p className="py-8 text-center text-sm text-slate-400">Belum ada transaksi.</p>
+                            <p className="py-8 text-center text-sm text-muted-foreground">Belum ada transaksi.</p>
                         ) : (
                             latest_transactions.map((t) => (
                                 <div key={t.id} className="flex flex-col justify-between py-3.5 sm:flex-row sm:items-center">
@@ -316,12 +333,12 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <p className="font-medium text-sm text-slate-900 dark:text-white">{t.category}</p>
-                                                <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                <p className="font-medium text-sm text-foreground dark:text-white">{t.category}</p>
+                                                <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600 dark:bg-slate-800 dark:text-muted-foreground">
                                                     {t.transaction_id}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-xs text-muted-foreground">
                                                 {t.student ? t.student.name : (t.note || 'Tidak ada catatan')} • {formatDate(t.transaction_date)}
                                             </p>
                                         </div>

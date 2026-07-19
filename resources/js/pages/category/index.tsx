@@ -64,16 +64,16 @@ export default function Index({ categories }: Props) {
     };
 
     const renderCategoryList = (title: string, list: Category[]) => (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>
+        <div className="rounded-xl border border-border bg-white p-6 dark:border-slate-800 dark:bg-card">
+            <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-white">{title}</h2>
             {list.length === 0 ? (
-                <p className="text-sm text-slate-500">Belum ada kategori</p>
+                <p className="text-sm text-muted-foreground">Belum ada kategori</p>
             ) : (
                 <ul className="space-y-2">
                     {list.map((category) => (
                         <li
                             key={category.id}
-                            className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
+                            className="flex items-center justify-between rounded-lg border border-border bg-slate-50 p-3 dark:border-border dark:bg-slate-800"
                         >
                             {editingId === category.id ? (
                                 <div className="flex flex-1 gap-2">
@@ -102,7 +102,7 @@ export default function Index({ categories }: Props) {
                                 </div>
                             ) : (
                                 <>
-                                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                                    <span className="font-medium text-foreground/90 dark:text-slate-200">
                                         {category.name}
                                     </span>
                                     <div className="flex gap-1">
@@ -141,13 +141,13 @@ export default function Index({ categories }: Props) {
 
             <div className="space-y-6 p-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kategori Transaksi</h1>
-                    <p className="text-sm text-slate-500">Kelola kategori pemasukan dan pengeluaran</p>
+                    <h1 className="text-2xl font-bold text-foreground dark:text-white">Kategori Transaksi</h1>
+                    <p className="text-sm text-muted-foreground">Kelola kategori pemasukan dan pengeluaran</p>
                 </div>
 
                 {can('kategori.create') && (
-                    <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+                    <div className="rounded-xl border border-border bg-white p-6 dark:border-slate-800 dark:bg-card">
+                        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-white">
                             Tambah Kategori Baru
                         </h2>
                         <form onSubmit={handleSubmit} className="flex gap-3">
