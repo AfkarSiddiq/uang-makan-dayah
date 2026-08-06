@@ -65,25 +65,25 @@ export default function Create({ studentsByGender, classes, categories, allowedC
         >
             <Head title="Tambah Transaksi" />
 
-            <div className="mx-auto max-w-2xl space-y-6 p-6">
+            <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:space-y-6 sm:px-6 sm:py-6">
                 {/* TODO: replaces every hardcoded back button with BackButton component */}
                 <BackButton href={route('payment.index')}>Transaksi</BackButton>
 
                 <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm dark:border-slate-800 dark:bg-card">
-                    <div className="border-b border-border p-6 dark:border-slate-800">
-                        <h2 className="text-lg font-semibold text-foreground dark:text-white">Form Transaksi Baru</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">Catat pemasukan atau pengeluaran baru</p>
+                    <div className="border-b border-border p-4 sm:p-6 dark:border-slate-800">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground dark:text-white">Form Transaksi Baru</h2>
+                        <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">Catat pemasukan atau pengeluaran baru</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6 p-6">
+                    <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:space-y-6 sm:p-6">
                         <div>
-                            <Label className="mb-3 block text-foreground/90 dark:text-slate-300">Tipe Transaksi</Label>
-                            <div className="flex gap-4">
+                            <Label className="mb-2 block text-xs sm:text-sm text-foreground/90 dark:text-slate-300">Tipe Transaksi</Label>
+                            <div className="flex flex-col gap-2.5 sm:flex-row sm:gap-4">
                                 <button
                                     type="button"
                                     onClick={() => handleTypeChange('in')}
                                     disabled={allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in')}
-                                    className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
+                                    className={`flex-1 rounded-lg border-2 px-3 py-2.5 text-xs font-semibold sm:px-4 sm:py-3 sm:text-sm transition flex items-center justify-center gap-1.5 ${
                                         allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('in')
                                             ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-muted-foreground dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
                                             : type === 'in'
@@ -97,7 +97,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     type="button"
                                     onClick={() => handleTypeChange('out')}
                                     disabled={allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out')}
-                                    className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
+                                    className={`flex-1 rounded-lg border-2 px-3 py-2.5 text-xs font-semibold sm:px-4 sm:py-3 sm:text-sm transition flex items-center justify-center gap-1.5 ${
                                         allowedCreateTypes && allowedCreateTypes.length > 0 && !allowedCreateTypes.includes('out')
                                             ? 'cursor-not-allowed border-slate-100 bg-slate-100 text-muted-foreground dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
                                             : type === 'out'
@@ -111,9 +111,9 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                             {errors.type && <p className="mt-1 text-sm text-rose-600">{errors.type}</p>}
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="category" className="text-foreground/90 dark:text-slate-300">
+                                <Label htmlFor="category" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                     Kategori <span className="text-rose-500">*</span>
                                 </Label>
                                 <Select value={data.category} onValueChange={(value) => {
@@ -124,7 +124,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                         setSelectedClass('');
                                     }
                                 }}>
-                                    <SelectTrigger className="mt-1">
+                                    <SelectTrigger className="mt-1 h-11 w-full sm:h-10">
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -139,7 +139,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                             </div>
 
                             <div>
-                                <Label htmlFor="amount" className="text-foreground/90 dark:text-slate-300">
+                                <Label htmlFor="amount" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                     Jumlah (Rp) <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -149,17 +149,17 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     placeholder="0"
                                     value={formatNumberToRupiah(data.amount)}
                                     onChange={(e) => setData('amount', parseRupiahToString(e.target.value))}
-                                    className="mt-1"
+                                    className="mt-1 h-11 sm:h-10"
                                 />
                                 {errors.amount && <p className="mt-1 text-sm text-rose-600">{errors.amount}</p>}
                             </div>
                         </div>
 
-{type === 'in' && data.category === 'SPP' && (
+                        {type === 'in' && data.category === 'SPP' && (
                             <>
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
-                                        <Label htmlFor="gender" className="text-foreground/90 dark:text-slate-300">
+                                        <Label htmlFor="gender" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                             Jenis Kelamin
                                         </Label>
                                         <Select value={selectedGender} onValueChange={(value) => {
@@ -167,7 +167,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                             setSelectedClass('');
                                             setData('student_id', '');
                                         }}>
-                                            <SelectTrigger className="mt-1">
+                                            <SelectTrigger className="mt-1 h-11 w-full sm:h-10">
                                                 <SelectValue placeholder="Pilih Jenis Kelamin" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -178,14 +178,14 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="class" className="text-foreground/90 dark:text-slate-300">
+                                        <Label htmlFor="class" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                             Filter Kelas
                                         </Label>
                                         <Select value={selectedClass} onValueChange={(value) => {
                                             setSelectedClass(value === 'all' ? '' : value);
                                             setData('student_id', '');
                                         }}>
-                                            <SelectTrigger className="mt-1">
+                                            <SelectTrigger className="mt-1 h-11 w-full sm:h-10">
                                                 <SelectValue placeholder="Pilih kelas" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -200,53 +200,55 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                     </div>
                                 </div>
 
-                                <Label htmlFor="student_id" className="text-foreground/90 dark:text-slate-300">
-                                    Pilih Siswa <span className="text-rose-500">*</span>
-                                </Label>
-                                <Select
-                                    value={data.student_id}
-                                    onValueChange={(value) => setData('student_id', value)}
-                                    disabled={!selectedGender}
-                                >
-                                    <SelectTrigger className="mt-1">
-                                        <SelectValue placeholder={!selectedGender ? "Pilih jenis kelamin terlebih dahulu" : "Pilih siswa"} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {(() => {
-                                            const genderKey = selectedGender || Object.keys(studentsByGender)[0];
-                                            if (genderKey && studentsByGender[genderKey]) {
-                                                const filteredStudents = selectedClass
-                                                    ? studentsByGender[genderKey][selectedClass] || []
-                                                    : Object.values(studentsByGender[genderKey] || {}).flat();
-                                                return filteredStudents.map((student: Student) => (
-                                                    <SelectItem key={student.id} value={String(student.id)}>
-                                                        {student.name} - {student.nisn} (Kelas {student.class})
-                                                    </SelectItem>
-                                                ));
-                                            }
-                                            return [];
-                                        })()}
-                                    </SelectContent>
-                                </Select>
-                                {errors.student_id && <p className="mt-1 text-sm text-rose-600">{errors.student_id}</p>}
-                                {data.student_id && (
-                                    <p className="mt-1 text-xs text-primary dark:text-primary">
-                                        Pembayaran SPP akan otomatis dialokasikan ke tagihan tertunda siswa.
-                                    </p>
-                                )}
+                                <div>
+                                    <Label htmlFor="student_id" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
+                                        Pilih Siswa <span className="text-rose-500">*</span>
+                                    </Label>
+                                    <Select
+                                        value={data.student_id}
+                                        onValueChange={(value) => setData('student_id', value)}
+                                        disabled={!selectedGender}
+                                    >
+                                        <SelectTrigger className="mt-1 h-11 w-full sm:h-10">
+                                            <SelectValue placeholder={!selectedGender ? "Pilih jenis kelamin terlebih dahulu" : "Pilih siswa"} />
+                                        </SelectTrigger>
+                                        <SelectContent className="max-w-[90vw] sm:max-w-md">
+                                            {(() => {
+                                                const genderKey = selectedGender || Object.keys(studentsByGender)[0];
+                                                if (genderKey && studentsByGender[genderKey]) {
+                                                    const filteredStudents = selectedClass
+                                                        ? studentsByGender[genderKey][selectedClass] || []
+                                                        : Object.values(studentsByGender[genderKey] || {}).flat();
+                                                    return filteredStudents.map((student: Student) => (
+                                                        <SelectItem key={student.id} value={String(student.id)} className="text-xs sm:text-sm">
+                                                            {student.name} - {student.nisn} (Kelas {student.class})
+                                                        </SelectItem>
+                                                    ));
+                                                }
+                                                return [];
+                                            })()}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.student_id && <p className="mt-1 text-sm text-rose-600">{errors.student_id}</p>}
+                                    {data.student_id && (
+                                        <p className="mt-1 text-xs text-primary dark:text-primary">
+                                            Pembayaran SPP akan otomatis dialokasikan ke tagihan tertunda siswa.
+                                        </p>
+                                    )}
+                                </div>
                             </>
                         )}
 
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="transaction_date" className="text-foreground/90 dark:text-slate-300">
+                                <Label htmlFor="transaction_date" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                     Tanggal <span className="text-rose-500">*</span>
                                 </Label>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
                                             variant="outline"
-                                            className={`mt-1 w-full justify-start text-left font-normal ${
+                                            className={`mt-1 h-11 sm:h-10 w-full justify-start text-left font-normal ${
                                                 !data.transaction_date && 'text-muted-foreground'
                                             }`}
                                         >
@@ -278,7 +280,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                         </div>
 
                         <div>
-                            <Label htmlFor="note" className="text-foreground/90 dark:text-slate-300">
+                            <Label htmlFor="note" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                 Catatan
                             </Label>
                             <Input
@@ -287,18 +289,18 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                                 placeholder="Contoh: Terima dari Budi, bayar spp bulan maret"
                                 value={data.note}
                                 onChange={(e) => setData('note', e.target.value)}
-                                className="mt-1"
+                                className="mt-1 h-11 sm:h-10"
                             />
                             {errors.note && <p className="mt-1 text-sm text-rose-600">{errors.note}</p>}
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-border pt-4 dark:border-slate-800">
-                            <Link href={route('payment.index')}>
-                                <Button variant="outline" type="button">
+                        <div className="flex flex-col-reverse gap-2.5 pt-4 sm:flex-row sm:justify-end sm:gap-3 border-t border-border dark:border-slate-800">
+                            <Link href={route('payment.index')} className="w-full sm:w-auto">
+                                <Button variant="outline" type="button" className="w-full sm:w-auto h-11 sm:h-10">
                                     Batal
                                 </Button>
                             </Link>
-                            <Button type="submit" disabled={processing}>
+                            <Button type="submit" disabled={processing} className="w-full sm:w-auto h-11 sm:h-10">
                                 <Save className="mr-2 h-4 w-4" />
                                 Simpan Transaksi
                             </Button>

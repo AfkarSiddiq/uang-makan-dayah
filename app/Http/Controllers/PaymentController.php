@@ -187,7 +187,13 @@ class PaymentController extends Controller
             $transaction = Transaction::create($validated);
 
             if ($validated['type'] === 'in' && $validated['category'] === 'SPP' && ! empty($validated['student_id'])) {
-                $this->allocateSppPayment($validated['student_id'], $validated['amount'], $transaction->id);
+                $monthNotes = $this->allocateSppPayment($validated['student_id'], $validated['amount'], $transaction->id);
+                if (! empty($monthNotes)) {
+                    $notePrefix = ! empty($validated['note']) ? $validated['note'].' | ' : '';
+                    $transaction->update([
+                        'note' => $notePrefix.'Rincian SPP: '.implode(', ', $monthNotes),
+                    ]);
+                }
             }
         });
 
@@ -236,7 +242,7 @@ class PaymentController extends Controller
 
     public function print(Transaction $payment)
     {
-        $payment->load(['student', 'user']);
+        $payment->load(['student', 'user', 'sppPayments.sppMonth']);
 
         $typeLabel = $payment->type === 'in' ? 'Pemasukan' : 'Pengeluaran';
         $formattedAmount = number_format($payment->amount, 0, ',', '.');
@@ -253,22 +259,32 @@ class PaymentController extends Controller
         return $pdf->download($filename);
     }
 
-    private function generateTransactionNumber(): string
+    public function generateTransactionNumber(): string
     {
         $year = date('Y');
-        $lastTransaction = Transaction::whereYear('transaction_date', $year)
-            ->orderBy('id', 'desc')
-            ->first();
+        $prefix = 'TRX-'.$year.'-';
 
-        $sequence = 1;
-        if ($lastTransaction && preg_match('/TRX-'.$year.'-(\d+)/', $lastTransaction->transaction_id, $matches)) {
-            $sequence = (int) $matches[1] + 1;
+        $maxSequence = Transaction::where('transaction_id', 'like', $prefix.'%')
+            ->get()
+            ->map(function ($t) use ($prefix) {
+                $numStr = str_replace($prefix, '', $t->transaction_id);
+
+                return is_numeric($numStr) ? (int) $numStr : 0;
+            })
+            ->max() ?? 0;
+
+        $sequence = $maxSequence + 1;
+        $transactionId = sprintf('%s%04d', $prefix, $sequence);
+
+        while (Transaction::where('transaction_id', $transactionId)->exists()) {
+            $sequence++;
+            $transactionId = sprintf('%s%04d', $prefix, $sequence);
         }
 
-        return sprintf('TRX-%s-%04d', $year, $sequence);
+        return $transactionId;
     }
 
-    private function allocateSppPayment($studentId, $paymentAmount, $transactionId)
+    public function allocateSppPayment($studentId, $paymentAmount, $transactionId)
     {
         $student = Student::findOrFail($studentId);
         $sisaUang = $paymentAmount;
@@ -278,11 +294,25 @@ class PaymentController extends Controller
 
         // 2. Filter: Hanya ambil bulan yang relevan (mulai dari bulan masuk santri)
         $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
-            $bulanMasterSkor = ($master->year * 12) + $master->month;
-            $bulanMasukSkor = ($student->entry_year * 12) + $student->entry_month;
+            $bulanMasterSkor = ((int) $master->year * 12) + (int) $master->month;
+            $bulanMasukSkor = ((int) $student->entry_year * 12) + (int) $student->entry_month;
 
-            return $bulanMasterSkor >= $bulanMasukSkor;
+            if ($bulanMasterSkor < $bulanMasukSkor) {
+                return false;
+            }
+
+            // REM OTOMATIS WATERFALL (jika santri sudah keluar/alumni)
+            if ($student->exit_year && $student->exit_month) {
+                $bulanKeluarSkor = ((int) $student->exit_year * 12) + (int) $student->exit_month;
+                if ($bulanMasterSkor > $bulanKeluarSkor) {
+                    return false;
+                }
+            }
+
+            return true;
         });
+
+        $monthNotes = [];
 
         // 3. Looping: Telusuri satu per satu dari bulan tertua
         foreach ($bulanValid as $master) {
@@ -323,9 +353,7 @@ class PaymentController extends Controller
                 $sisaUang = 0; // Uang habis
             }
 
-            // 4. THE MAGIC: UPDATE OR CREATE
-            // Jika data belum ada, buat baris baru (Create).
-            // Jika data sudah ada (partial), perbarui datanya (Update).
+            // 4. UPDATE OR CREATE dengan transaction_id
             SppPayment::updateOrCreate(
                 [
                     'student_id' => $student->id,
@@ -335,9 +363,18 @@ class PaymentController extends Controller
                     'paid_amount' => $bayarSekarang,
                     'status' => $statusBaru,
                     'paid_at' => now(),
+                    'transaction_id' => $transactionId,
                 ]
             );
+
+            $sisaBulanIni = $master->amount - $bayarSekarang;
+            if ($statusBaru === 'paid') {
+                $monthNotes[] = "{$master->name} {$master->year} (Lunas)";
+            } else {
+                $monthNotes[] = "{$master->name} {$master->year} (Kurang - Sisa Rp ".number_format($sisaBulanIni, 0, ',', '.').')';
+            }
         }
 
+        return $monthNotes;
     }
 }

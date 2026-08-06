@@ -159,8 +159,46 @@
         </div>
     </div>
 
+    @if($transaction->sppPayments && $transaction->sppPayments->count() > 0)
+    <div style="margin-top: 20px; margin-bottom: 20px;">
+        <h3 style="font-size: 14px; margin-bottom: 8px; color: #17803d; border-bottom: 2px solid #17803d; padding-bottom: 4px; text-transform: uppercase;">
+            Rincian Alokasi Bulan SPP / Uang Makan
+        </h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 5px;" cellpadding="6" cellspacing="0" border="1">
+            <thead>
+                <tr style="background-color: #f2f2f2; text-align: left;">
+                    <th>Periode Bulan</th>
+                    <th>Tagihan Bulan</th>
+                    <th>Total Terbayar</th>
+                    <th>Status Bulan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($transaction->sppPayments as $p)
+                <tr>
+                    <td>{{ $p->sppMonth->name ?? '-' }} {{ $p->sppMonth->year ?? '' }}</td>
+                    <td>Rp {{ number_format($p->sppMonth->amount ?? 0, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($p->paid_amount, 0, ',', '.') }}</td>
+                    <td>
+                        @if($p->status === 'paid')
+                            <span style="color: #155724; font-weight: bold;">LUNAS</span>
+                        @elseif($p->status === 'partial')
+                            <span style="color: #856404; font-weight: bold;">
+                                KURANG (Sisa Rp {{ number_format(($p->sppMonth->amount ?? 0) - $p->paid_amount, 0, ',', '.') }})
+                            </span>
+                        @else
+                            <span style="color: #721c24;">BELUM DIBAYAR</span>
+                        @endif
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @endif
+
     <div class="amount-box">
-        <div class="amount-label">JUMLAH</div>
+        <div class="amount-label">JUMLAH TRANSAKSI</div>
         <div class="amount-value">Rp {{ $formattedAmount }}</div>
     </div>
 
