@@ -4,6 +4,7 @@ import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -12,6 +13,7 @@ interface LoginForm {
     email: string;
     password: string;
     remember: boolean;
+    [key: string]: any;
 }
 
 interface LoginProps {
@@ -115,6 +117,21 @@ export default function Login({ status }: LoginProps) {
                                     className="h-11 bg-zinc-50 dark:bg-zinc-900/50"
                                 />
                                 <InputError message={errors.password} />
+                            </div>
+
+                            {/* Remember Me */}
+                            <div className="flex items-center space-x-2 pt-1">
+                                <Checkbox
+                                    id="remember"
+                                    checked={data.remember}
+                                    onCheckedChange={(checked) => setData('remember', checked === true)}
+                                />
+                                <Label
+                                    htmlFor="remember"
+                                    className="cursor-pointer text-sm font-medium text-zinc-700 select-none dark:text-zinc-300"
+                                >
+                                    Ingat saya
+                                </Label>
                             </div>
                         </div>
 
