@@ -553,93 +553,26 @@ class StudentController extends Controller
         $paymentAmount = $request->amount;
 
         DB::transaction(function () use ($student, $paymentAmount) {
+            $paymentController = new PaymentController();
+            $trxId = $paymentController->generateTransactionNumber();
 
-            // 1. Catat ke tabel Buku Kas Utama (Transactions)
-            // Ini sudah berhasil berjalan di sistem Anda
-            Transaction::create([
-                'transaction_id' => 'TRX-'.strtoupper(uniqid()),
+            $transaction = Transaction::create([
+                'transaction_id' => $trxId,
                 'type' => 'in',
                 'category' => 'SPP',
                 'amount' => $paymentAmount,
                 'student_id' => $student->id,
                 'user_id' => Auth::id(),
                 'transaction_date' => now(),
-                'note' => 'Pembayaran SPP Otomatis via Profil Siswa',
+                'note' => 'Pembayaran SPP Otomatis',
             ]);
 
-            // 2. LOGIKA BARU: Ambil Buku Menu untuk menghitung Virtual Waterfall
-            $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
+            $monthNotes = $paymentController->allocateSppPayment($student->id, $paymentAmount, $transaction->id);
 
-            $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
-                $bulanMasterSkor = ((int) $master->year * 12) + (int) $master->month;
-                $bulanMasukSkor = ((int) $student->entry_year * 12) + (int) $student->entry_month;
-
-                if ($bulanMasterSkor < $bulanMasukSkor) {
-                    return false;
-                }
-
-                // REM OTOMATIS WATERFALL
-                if ($student->exit_year && $student->exit_month) {
-                    $bulanKeluarSkor = ((int) $student->exit_year * 12) + (int) $student->exit_month;
-                    if ($bulanMasterSkor > $bulanKeluarSkor) {
-                        return false;
-                    }
-                }
-
-                return true;
-            });
-
-            $sisaUang = $paymentAmount;
-
-            // 3. Looping dari bulan paling lama
-            foreach ($bulanValid as $master) {
-                // Jika dompet kasir sudah kosong, hentikan perulangan
-                if ($sisaUang <= 0) {
-                    break;
-                }
-
-                // Cek apakah bulan ini sudah pernah diangsur/dibayar di tabel spp_payments?
-                $tagihan = SppPayment::where('student_id', $student->id)
-                    ->where('spp_month_id', $master->id)
-                    ->first();
-
-                $terbayarSebelumnya = $tagihan ? $tagihan->paid_amount : 0;
-
-                // Jika bulan ini sudah lunas dari dulu, skip ke bulan depan
-                if ($terbayarSebelumnya >= $master->amount) {
-                    continue;
-                }
-
-                // Berapa butuh uang untuk melunasi bulan ini?
-                $kekurangan = $master->amount - $terbayarSebelumnya;
-                $bayarSekarang = 0;
-                $statusBaru = 'unpaid';
-
-                // Skenario A: Uang cukup untuk melunasi
-                if ($sisaUang >= $kekurangan) {
-                    $bayarSekarang = $terbayarSebelumnya + $kekurangan;
-                    $statusBaru = 'paid';
-                    $sisaUang -= $kekurangan;
-                }
-                // Skenario B: Uang kurang, jadi dicicil (Partial)
-                else {
-                    $bayarSekarang = $terbayarSebelumnya + $sisaUang;
-                    $statusBaru = 'partial';
-                    $sisaUang = 0;
-                }
-
-                // 4. THE MAGIC: Buat Baris Baru atau Perbarui jika sudah ada
-                SppPayment::updateOrCreate(
-                    [
-                        'student_id' => $student->id,
-                        'spp_month_id' => $master->id,
-                    ],
-                    [
-                        'paid_amount' => $bayarSekarang,
-                        'status' => $statusBaru,
-                        'paid_at' => now(),
-                    ]
-                );
+            if (! empty($monthNotes)) {
+                $transaction->update([
+                    'note' => 'Pembayaran SPP: '.implode(', ', $monthNotes),
+                ]);
             }
         });
 
