@@ -105,11 +105,11 @@ export default function StudentForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Bagian 1: Identitas Pribadi */}
-            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-3.5 sm:p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
                 <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/50/10 text-primary dark:bg-primary/50/20 dark:text-primary">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                         <User className="h-4 w-4" />
                     </div>
                     <div>
@@ -118,8 +118,8 @@ export default function StudentForm({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
+                <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-1">
                         <Label htmlFor="nisn" className="flex items-center gap-1.5 text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             <Hash className="h-3.5 w-3.5 text-muted-foreground" />
                             NISN <span className="text-rose-500">*</span>
@@ -135,22 +135,7 @@ export default function StudentForm({
                         {errors.nisn && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.nisn}</p>}
                     </div>
 
-                    <div className="sm:col-span-2">
-                        <Label htmlFor="name" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
-                            Nama Lengkap <span className="text-rose-500">*</span>
-                        </Label>
-                        <Input
-                            id="name"
-                            type="text"
-                            placeholder="Contoh: Muhammad Al-Fatih"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            className="mt-1.5 text-sm shadow-xs bg-white dark:bg-card"
-                        />
-                        {errors.name && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.name}</p>}
-                    </div>
-
-                    <div className="sm:col-span-2">
+                    <div className="sm:col-span-1">
                         <Label htmlFor="gender" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Jenis Kelamin <span className="text-rose-500">*</span>
                         </Label>
@@ -173,11 +158,26 @@ export default function StudentForm({
                         </Select>
                         {errors.gender && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.gender}</p>}
                     </div>
+
+                    <div className="sm:col-span-2">
+                        <Label htmlFor="name" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
+                            Nama Lengkap <span className="text-rose-500">*</span>
+                        </Label>
+                        <Input
+                            id="name"
+                            type="text"
+                            placeholder="Contoh: Muhammad Al-Fatih"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            className="mt-1.5 text-sm shadow-xs bg-white dark:bg-card"
+                        />
+                        {errors.name && <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.name}</p>}
+                    </div>
                 </div>
             </div>
 
             {/* Bagian 2: Penempatan & Kategori Akademik */}
-            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-3.5 sm:p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
                 <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                         <School className="h-4 w-4" />
@@ -188,7 +188,7 @@ export default function StudentForm({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-2">
                     <div>
                         <Label htmlFor="class" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Kelas Saat Ini
@@ -230,7 +230,7 @@ export default function StudentForm({
             </div>
 
             {/* Bagian 3: Periode Pendaftaran & Argo SPP */}
-            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-3.5 sm:p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
                 <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
                         <Calendar className="h-4 w-4" />
@@ -241,7 +241,7 @@ export default function StudentForm({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-2">
                     <div>
                         <Label htmlFor="entry_month" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                             Bulan Masuk <span className="text-rose-500">*</span>
@@ -290,7 +290,7 @@ export default function StudentForm({
             </div>
 
             {/* Bagian 4: Status Kesiswaan */}
-            <div className="rounded-xl border border-border bg-slate-50/50 p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="rounded-xl border border-border bg-slate-50/50 p-3.5 sm:p-4 transition-all dark:border-slate-800 dark:bg-slate-800/40">
                 <div className="mb-3 flex items-center gap-2 border-b border-border/60 pb-2.5 dark:border-border/60">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
                         <GraduationCap className="h-4 w-4" />
@@ -335,14 +335,14 @@ export default function StudentForm({
                 </div>
 
                 {(data.status === 'lulus' || data.status === 'pindah' || data.status === 'berhenti') && (
-                    <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 shadow-2xs dark:border-amber-900/60 dark:bg-amber-950/30">
-                        <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
-                            <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 sm:p-4 shadow-2xs dark:border-amber-900/60 dark:bg-amber-950/30">
+                        <p className="mb-3 flex items-start sm:items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
+                            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 sm:mt-0 text-amber-600 dark:text-amber-400" />
                             <span>
                                 Siswa berstatus <span className="uppercase font-bold">{data.status}</span>. Wajib menentukan bulan dan tahun keluar agar sistem otomatis menghentikan penagihan SPP selanjutnya.
                             </span>
                         </p>
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-2">
                             <div>
                                 <Label htmlFor="exit_month" className="text-xs font-semibold text-foreground/90 dark:text-slate-300">
                                     Bulan Keluar <span className="text-rose-500">*</span>
@@ -358,7 +358,7 @@ export default function StudentForm({
                                             const isBeforeEntry = isSameYear && Number(month.value) < Number(data.entry_month || 0);
                                             return (
                                                 <SelectItem key={month.value} value={month.value} disabled={isBeforeEntry}>
-                                                    {month.label} {isBeforeEntry ? '(Sebelum Bulan Masuk)' : ''}
+                                                    {month.label} {isBeforeEntry ? <span className="text-rose-500 text-[11px] ml-1">(Sebelum Masuk)</span> : ''}
                                                 </SelectItem>
                                             );
                                         })}
@@ -393,7 +393,7 @@ export default function StudentForm({
                                             const isBeforeEntryYear = Number(year) < Number(data.entry_year || 0);
                                             return (
                                                 <SelectItem key={year} value={year} disabled={isBeforeEntryYear}>
-                                                    {year} {isBeforeEntryYear ? '(Sebelum Tahun Masuk)' : ''}
+                                                    {year} {isBeforeEntryYear ? <span className="text-rose-500 text-[11px] ml-1">(Sebelum Masuk)</span> : ''}
                                                 </SelectItem>
                                             );
                                         })}
@@ -407,10 +407,15 @@ export default function StudentForm({
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex items-center justify-end gap-3 pt-2 ${isSheet ? 'border-t border-border/80 pt-4 dark:border-slate-800' : ''}`}>
+            <div className={`flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 pt-2 ${isSheet ? 'border-t border-border/80 pt-4 dark:border-slate-800 pb-12 sm:pb-2' : ''}`}>
+                {onSuccess && isSheet && (
+                    <Button type="button" variant="outline" onClick={onSuccess} className="w-full sm:w-auto">
+                        Batal
+                    </Button>
+                )}
                 <Button type="submit" disabled={processing} className="w-full sm:w-auto shadow-sm">
                     <Save className="mr-2 h-4 w-4" />
-                    {processing ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan Siswa' : 'Simpan Siswa Baru'}
+                    {processing ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Simpan Siswa Baru'}
                 </Button>
             </div>
         </form>

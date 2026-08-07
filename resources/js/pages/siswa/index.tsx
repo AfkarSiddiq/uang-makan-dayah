@@ -219,18 +219,18 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                 </div>
 
                 {/* Main Content Card */}
-                <div className="rounded-2xl border border-border/80 bg-white shadow-xs dark:border-border dark:bg-card">
+                <div className="overflow-hidden rounded-2xl border border-border/80 bg-white shadow-xs dark:border-border dark:bg-card">
                     {/* Class Navigation Tabs */}
-                    <div className="border-b border-border/80 px-4 pt-4 dark:border-border">
-                        <div className="flex items-center justify-between pb-3">
-                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    <div className="w-full min-w-0 border-b border-border/80 px-3 sm:px-4 pt-3 sm:pt-4 dark:border-border">
+                        <div className="flex w-full min-w-0 items-center justify-between pb-3">
+                            <div className="flex w-full min-w-0 items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                                 {classTabs.map((tab) => {
                                     const isActive = currentClassTab === tab.id;
                                     return (
                                         <button
                                             key={tab.id}
                                             onClick={() => applyFilters({ class: tab.id, page: '1' })}
-                                            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+                                            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold transition-all ${
                                                 isActive
                                                     ? 'bg-primary text-white shadow-sm dark:bg-primary/50'
                                                     : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 dark:bg-slate-800/60 dark:text-muted-foreground dark:hover:bg-slate-800'
@@ -254,13 +254,13 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                     </div>
 
                     {/* Filter & View Control Bar */}
-                    <div className="flex flex-col gap-3 border-b border-border/80 bg-slate-50/50 p-4 dark:border-border dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex flex-1 flex-wrap items-center gap-2.5">
-                            <div className="relative min-w-[240px] flex-1 max-w-sm">
+                    <div className="flex w-full min-w-0 flex-col gap-3 border-b border-border/80 bg-slate-50/50 p-3.5 sm:p-4 dark:border-border dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex w-full min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
+                            <div className="relative w-full sm:w-auto sm:min-w-[200px] sm:flex-1 sm:max-w-sm">
                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     placeholder="Cari nama siswa atau NISN..."
-                                    className="pl-9 h-9 text-sm bg-white dark:bg-card"
+                                    className="pl-9 h-9 text-xs sm:text-sm bg-white dark:bg-card w-full"
                                     defaultValue={filters.search}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
@@ -270,13 +270,13 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                 />
                             </div>
 
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                                 <Filter className="h-3.5 w-3.5 text-muted-foreground hidden sm:inline" />
                                 <Select
                                     value={currentStatusFilter}
                                     onValueChange={(value) => applyFilters({ status: value, page: '1' })}
                                 >
-                                    <SelectTrigger className="h-9 w-[135px] bg-white text-xs dark:bg-card">
+                                    <SelectTrigger className="h-9 min-w-[110px] flex-1 sm:flex-none sm:w-[135px] bg-white text-xs dark:bg-card">
                                         <SelectValue placeholder="Status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -292,7 +292,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                     value={filters.gender || 'all'}
                                     onValueChange={(value) => applyFilters({ gender: value, page: '1' })}
                                 >
-                                    <SelectTrigger className="h-9 w-[140px] bg-white text-xs dark:bg-card">
+                                    <SelectTrigger className="h-9 min-w-[110px] flex-1 sm:flex-none sm:w-[135px] bg-white text-xs dark:bg-card">
                                         <SelectValue placeholder="Gender" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -306,7 +306,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                                     value={filters.student_type || 'all'}
                                     onValueChange={(value) => applyFilters({ student_type: value, page: '1' })}
                                 >
-                                    <SelectTrigger className="h-9 w-[140px] bg-white text-xs dark:bg-card">
+                                    <SelectTrigger className="h-9 min-w-[110px] flex-1 sm:flex-none sm:w-[135px] bg-white text-xs dark:bg-card">
                                         <SelectValue placeholder="Kategori" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -587,11 +587,11 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
 
             {/* Quick Add Slide-Over Drawer */}
             <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
-                <SheetContent className="w-full sm:max-w-xl overflow-y-auto max-h-screen p-6 shadow-2xl">
+                <SheetContent className="w-full sm:max-w-xl overflow-y-auto max-h-screen p-4 sm:p-6 shadow-2xl">
                     <SheetHeader className="pb-4 border-b border-border/80 dark:border-slate-800">
                         <div className="flex items-center gap-2 text-primary dark:text-primary">
                             <UserPlus className="h-5 w-5" />
-                            <SheetTitle className="text-xl font-bold">Tambah Siswa & Santri Baru</SheetTitle>
+                            <SheetTitle className="text-lg sm:text-xl font-bold">Tambah Siswa & Santri Baru</SheetTitle>
                         </div>
                         <SheetDescription className="text-xs text-muted-foreground">
                             {currentClassTab !== 'all' && currentClassTab !== 'none'
@@ -600,7 +600,7 @@ export default function Index({ students, stats, classBreakdown, filters }: Prop
                         </SheetDescription>
                     </SheetHeader>
 
-                    <div className="mt-6">
+                    <div className="mt-4 sm:mt-6">
                         <StudentForm
                             defaultClass={currentClassTab}
                             defaultStatus={currentStatusFilter === 'all' ? 'aktif' : currentStatusFilter}

@@ -25,22 +25,22 @@ export default function Edit({ student }: Props) {
         >
             <Head title={`Edit ${student.name}`} />
 
-            <div className="mx-auto max-w-2xl space-y-6 p-6">
+            <div className="mx-auto max-w-3xl space-y-4 sm:space-y-6 p-4 sm:p-6">
                 <Link
                     href={backUrl}
-                    className="inline-flex items-center text-sm font-medium text-muted-foreground transition hover:text-foreground dark:hover:text-white"
+                    className="inline-flex items-center text-xs sm:text-sm font-medium text-muted-foreground transition hover:text-foreground dark:hover:text-white"
                 >
                     <ArrowLeft className="mr-1 h-4 w-4" />
                     Kembali ke Profil Siswa
                 </Link>
 
                 <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm dark:border-slate-800 dark:bg-card">
-                    <div className="border-b border-border p-6 dark:border-slate-800">
-                        <h2 className="text-lg font-semibold text-foreground dark:text-white">Edit Siswa</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">Edit data siswa</p>
+                    <div className="border-b border-border p-4 sm:p-6 dark:border-slate-800">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground dark:text-white">Edit Data Siswa</h2>
+                        <p className="mt-1 text-xs sm:text-sm text-muted-foreground">Perbarui identitas, penempatan kelas, atau status kesiswaan</p>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                         <StudentForm student={student} onSuccess={handleSuccess} />
                     </div>
                 </div>

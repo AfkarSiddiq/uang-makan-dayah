@@ -1,1 +1,0 @@
-import{K as e}from"./app-BwzyjaxJ.js";function u(){var r;const n=((r=e().props.auth)==null?void 0:r.permissions)??[];return{can:s=>n.includes(s),canAny:(...s)=>s.some(o=>n.includes(o)),permissions:n}}export{u};
