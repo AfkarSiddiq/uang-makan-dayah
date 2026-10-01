@@ -13,10 +13,12 @@ interface RouterOptions {
     onFinish?: () => void;
 }
 
-interface InertiaContextType {
+export interface InertiaContextType {
     url: string;
     component: string;
     props: any;
+    Component: React.ComponentType<any> | null;
+    loading: boolean;
     navigate: (url: string, options?: RouterOptions) => void;
 }
 
@@ -559,21 +561,91 @@ function handleMutation(url: string, method: string, data: any): string | null {
     return null;
 }
 
-export function InertiaProvider({ children }: { children: ReactNode }) {
-    const [currentLocation, setCurrentLocation] = useState(() => window.location.pathname + window.location.search);
-    const [tick, setTick] = useState(0);
+export function InertiaProvider({
+    children,
+    resolveComponent,
+}: {
+    children: ReactNode;
+    resolveComponent?: (componentName: string) => Promise<React.ComponentType<any>>;
+}) {
+    const initialUrl = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/';
+    const initialResolved = resolvePageForUrl(initialUrl);
 
+    const [pageState, setPageState] = useState<{
+        url: string;
+        component: string;
+        Component: React.ComponentType<any> | null;
+        props: any;
+        loading: boolean;
+    }>({
+        url: initialUrl,
+        component: initialResolved.component,
+        Component: null,
+        props: initialResolved.props,
+        loading: true,
+    });
+
+    // Load initial component
     useEffect(() => {
-        const handlePopState = () => {
-            setCurrentLocation(window.location.pathname + window.location.search);
+        let isMounted = true;
+        if (resolveComponent) {
+            resolveComponent(initialResolved.component)
+                .then((Comp) => {
+                    if (isMounted) {
+                        setPageState((prev) => ({
+                            ...prev,
+                            Component: Comp,
+                            loading: false,
+                        }));
+                    }
+                })
+                .catch((err) => {
+                    console.error('Failed to load initial component:', err);
+                    if (isMounted) {
+                        setPageState((prev) => ({ ...prev, loading: false }));
+                    }
+                });
+        }
+        return () => {
+            isMounted = false;
         };
+    }, []);
+
+    // Subscribe to DB changes
+    useEffect(() => {
+        return subscribeDb(() => {
+            setPageState((prev) => {
+                const fresh = resolvePageForUrl(prev.url);
+                return {
+                    ...prev,
+                    props: fresh.props,
+                };
+            });
+        });
+    }, []);
+
+    // Popstate (Back/Forward)
+    useEffect(() => {
+        const handlePopState = async () => {
+            const url = window.location.pathname + window.location.search;
+            const fresh = resolvePageForUrl(url);
+            try {
+                const Comp = resolveComponent ? await resolveComponent(fresh.component) : null;
+                setPageState({
+                    url,
+                    component: fresh.component,
+                    Component: Comp,
+                    props: fresh.props,
+                    loading: false,
+                });
+            } catch (err) {
+                console.error('Failed to load component on popstate:', err);
+            }
+        };
+
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
-    }, []);
-
-    useEffect(() => {
-        return subscribeDb(() => setTick((t) => t + 1));
-    }, []);
+    }, [resolveComponent]);
 
     // Intercept native <a> clicks for client-side routing & Excel exports
     useEffect(() => {
@@ -635,70 +707,106 @@ export function InertiaProvider({ children }: { children: ReactNode }) {
         };
     }, []);
 
-    const pageData = useMemo(() => {
-        return resolvePageForUrl(currentLocation);
-    }, [currentLocation, tick]);
-
-    const navigate = (url: string, options: RouterOptions = {}) => {
+    const navigate = async (url: string, options: RouterOptions = {}) => {
         const method = options.method || 'get';
 
         if (method !== 'get') {
             const redirectUrl = handleMutation(url, method, options.data);
-            const targetUrl = redirectUrl || currentLocation;
+            const targetUrl = redirectUrl || pageState.url;
+            const resolved = resolvePageForUrl(targetUrl);
 
-            if (redirectUrl && redirectUrl !== currentLocation) {
-                if (options.replace) {
-                    window.history.replaceState({}, '', targetUrl);
-                } else {
-                    window.history.pushState({}, '', targetUrl);
+            try {
+                const Comp = resolveComponent ? await resolveComponent(resolved.component) : null;
+
+                if (redirectUrl && redirectUrl !== pageState.url) {
+                    if (options.replace) {
+                        window.history.replaceState({}, '', targetUrl);
+                    } else {
+                        window.history.pushState({}, '', targetUrl);
+                    }
                 }
-                setCurrentLocation(targetUrl);
+
+                setPageState({
+                    url: targetUrl,
+                    component: resolved.component,
+                    Component: Comp,
+                    props: resolved.props,
+                    loading: false,
+                });
+
                 if (!options.preserveScroll) {
                     window.scrollTo(0, 0);
                 }
-            } else {
-                setTick((t) => t + 1);
-            }
 
-            setTimeout(() => {
-                const freshProps = resolvePageForUrl(targetUrl).props;
-                options.onSuccess?.({ props: freshProps });
+                setTimeout(() => {
+                    options.onSuccess?.({ props: resolved.props });
+                    options.onFinish?.();
+                }, 40);
+            } catch (err) {
+                console.error('Error during mutation navigation:', err);
+                options.onError?.(err);
                 options.onFinish?.();
-            }, 60);
+            }
             return;
         }
 
-        if (url !== currentLocation) {
-            if (options.replace) {
-                window.history.replaceState({}, '', url);
-            } else {
-                window.history.pushState({}, '', url);
+        // GET request
+        const resolved = resolvePageForUrl(url);
+        try {
+            const Comp = resolveComponent ? await resolveComponent(resolved.component) : null;
+
+            if (url !== pageState.url) {
+                if (options.replace) {
+                    window.history.replaceState({}, '', url);
+                } else {
+                    window.history.pushState({}, '', url);
+                }
             }
-            setCurrentLocation(url);
+
+            setPageState({
+                url,
+                component: resolved.component,
+                Component: Comp,
+                props: resolved.props,
+                loading: false,
+            });
+
             if (!options.preserveScroll) {
                 window.scrollTo(0, 0);
             }
-        } else {
-            setTick((t) => t + 1);
-        }
 
-        setTimeout(() => {
-            const freshProps = resolvePageForUrl(url).props;
-            options.onSuccess?.({ props: freshProps });
+            setTimeout(() => {
+                options.onSuccess?.({ props: resolved.props });
+                options.onFinish?.();
+            }, 40);
+        } catch (err) {
+            console.error('Error during navigation to', url, err);
+            options.onError?.(err);
             options.onFinish?.();
-        }, 50);
+        }
     };
 
     globalNavigate = navigate;
 
-    const contextValue = {
-        url: currentLocation,
-        component: pageData.component,
-        props: pageData.props,
+    const contextValue: InertiaContextType = {
+        url: pageState.url,
+        component: pageState.component,
+        props: pageState.props,
+        Component: pageState.Component,
+        loading: pageState.loading,
         navigate,
     };
 
     return <InertiaContext.Provider value={contextValue}>{children}</InertiaContext.Provider>;
+}
+
+// useInertia Hook
+export function useInertia(): InertiaContextType {
+    const ctx = useContext(InertiaContext);
+    if (!ctx) {
+        throw new Error('useInertia must be used within InertiaProvider');
+    }
+    return ctx;
 }
 
 // usePage Hook
@@ -706,10 +814,10 @@ export function usePage<T = any>(): { props: T; url: string; component: string; 
     const ctx = useContext(InertiaContext);
     if (!ctx) {
         // Fallback for initial render before provider attaches
-        const fallback = resolvePageForUrl(window.location.pathname + window.location.search);
+        const fallback = resolvePageForUrl(typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/');
         return {
             props: fallback.props as T,
-            url: window.location.pathname + window.location.search,
+            url: typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/',
             component: fallback.component,
         };
     }
