@@ -101,7 +101,7 @@ export default function Index({ transactions, summary, filters, categories, allo
         <AppLayout breadcrumbs={[{ title: 'Transaksi', href: '/payment' }]}>
             <Head title="Transaksi" />
 
-            <div className="space-y-6 p-6">
+            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-foreground dark:text-white">Transaksi</h1>
@@ -138,44 +138,50 @@ export default function Index({ transactions, summary, filters, categories, allo
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {(allowedTypes.includes('in') || allowedTypes.length === 0) && (
-                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
-                            <div className="flex items-center gap-3">
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 sm:p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
+                            <div className="flex items-center gap-3 min-w-0">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
                                     <ArrowDownRight className="h-5 w-5 text-emerald-600" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Total Masuk</p>
-                                    <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{formatRupiah(summary.total_in)}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400 truncate">Total Masuk</p>
+                                    <p className="text-lg sm:text-xl font-bold text-emerald-700 dark:text-emerald-300 truncate" title={formatRupiah(summary.total_in)}>
+                                        {formatRupiah(summary.total_in)}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {(allowedTypes.includes('out') || allowedTypes.length === 0) && (
-                        <div className="rounded-xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-900 dark:bg-rose-950/30">
-                            <div className="flex items-center gap-3">
+                        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 sm:p-5 dark:border-rose-900 dark:bg-rose-950/30">
+                            <div className="flex items-center gap-3 min-w-0">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/50">
                                     <ArrowUpRight className="h-5 w-5 text-rose-600" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-rose-600 dark:text-rose-400">Total Keluar</p>
-                                    <p className="text-xl font-bold text-rose-700 dark:text-rose-300">{formatRupiah(summary.total_out)}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-medium text-rose-600 dark:text-rose-400 truncate">Total Keluar</p>
+                                    <p className="text-lg sm:text-xl font-bold text-rose-700 dark:text-rose-300 truncate" title={formatRupiah(summary.total_out)}>
+                                        {formatRupiah(summary.total_out)}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {allowedTypes.length !== 1 && (
-                        <div className="rounded-xl border border-primary/20 bg-primary p-5 shadow-lg shadow-primary/20 dark:border-primary/30 dark:bg-primary">
-                            <div className="flex items-center gap-3">
+                        <div className="rounded-xl border border-primary/20 bg-primary p-4 sm:p-5 shadow-lg shadow-primary/20 sm:col-span-2 xl:col-span-1 dark:border-primary/30 dark:bg-primary">
+                            <div className="flex items-center gap-3 min-w-0">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-foreground/20 dark:bg-primary-foreground/20">
                                     <ArrowUpDown className="h-5 w-5 text-primary-foreground" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-primary-foreground/90">Saldo</p>
-                                    <p className="text-xl font-bold text-primary-foreground">{formatRupiah(summary.balance)}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-medium text-primary-foreground/90 truncate">Saldo</p>
+                                    <p className="text-lg sm:text-xl font-bold text-primary-foreground truncate" title={formatRupiah(summary.balance)}>
+                                        {formatRupiah(summary.balance)}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -284,7 +290,7 @@ export default function Index({ transactions, summary, filters, categories, allo
 
                     {/* DESKTOP TABLE VIEW */}
                     <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full min-w-[680px]">
                             <thead>
                                 <tr className="border-b border-border bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">

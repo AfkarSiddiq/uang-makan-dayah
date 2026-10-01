@@ -5,7 +5,10 @@ import { Sparkles } from 'lucide-react';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     return (
-        <header className="sticky top-0 z-30 flex flex-col border-b border-emerald-900/10 bg-white/85 shadow-2xs backdrop-blur-md transition-[width,height] ease-linear dark:border-emerald-800/20 dark:bg-zinc-900/85">
+        <header
+            style={{ top: 'var(--demo-banner-height, 0px)' }}
+            className="sticky z-30 flex flex-col border-b border-emerald-900/10 bg-white/85 shadow-2xs backdrop-blur-md transition-[width,height] ease-linear dark:border-emerald-800/20 dark:bg-zinc-900/85"
+        >
             {/* Top decorative green & gold strip */}
             <div className="h-0.5 w-full bg-gradient-to-r from-emerald-700 via-amber-400 to-emerald-700" />
             <div className="flex h-15 shrink-0 items-center justify-between px-6 md:px-4">

@@ -130,9 +130,9 @@ function PageRenderer() {
 
     return (
         <ErrorBoundary key={url}>
-            <div className="min-h-screen flex flex-col bg-background text-foreground">
+            <div className="min-h-screen flex flex-col bg-background text-foreground w-full max-w-full overflow-x-hidden">
                 <DemoBanner />
-                <div className="flex-1">
+                <div className="flex-1 w-full min-w-0 max-w-full">
                     <Component {...props} />
                 </div>
             </div>

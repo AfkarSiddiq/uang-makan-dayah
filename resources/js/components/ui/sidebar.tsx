@@ -198,6 +198,9 @@ const Sidebar = React.forwardRef<
                         ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
                         : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
                 )}
+                style={{
+                    height: 'calc(100svh - var(--demo-banner-height, 0px))',
+                }}
             />
             <div
                 className={cn(
@@ -211,6 +214,11 @@ const Sidebar = React.forwardRef<
                         : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
                     className,
                 )}
+                style={{
+                    top: 'var(--demo-banner-height, 0px)',
+                    height: 'calc(100svh - var(--demo-banner-height, 0px))',
+                    ...props.style,
+                }}
                 {...props}
             >
                 <div

@@ -163,23 +163,23 @@ export default function Index({ transactions, summary, filters, categories, allo
                 </div>
 
                 {/* SUMMARY CARDS RINGKAS */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {(allowedTypes.includes('in') || allowedTypes.length === 0) && (
-                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card">
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Masuk (Tersaring)</span>
-                            <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.total_in)}</p>
+                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card min-w-0">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate block">Total Masuk (Tersaring)</span>
+                            <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400 truncate" title={formatRupiah(summary.total_in)}>{formatRupiah(summary.total_in)}</p>
                         </div>
                     )}
                     {(allowedTypes.includes('out') || allowedTypes.length === 0) && (
-                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card">
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Keluar (Tersaring)</span>
-                            <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400">{formatRupiah(summary.total_out)}</p>
+                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card min-w-0">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate block">Total Keluar (Tersaring)</span>
+                            <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400 truncate" title={formatRupiah(summary.total_out)}>{formatRupiah(summary.total_out)}</p>
                         </div>
                     )}
                     {allowedTypes.length !== 1 && (
-                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-card">
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Selisih Arus Kas</span>
-                            <p className="mt-1 text-lg font-bold text-primary dark:text-primary">{formatRupiah(summary.balance)}</p>
+                        <div className="rounded-xl border border-border bg-white p-4 shadow-sm sm:col-span-2 lg:col-span-1 dark:border-slate-800 dark:bg-card min-w-0">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate block">Selisih Arus Kas</span>
+                            <p className="mt-1 text-lg font-bold text-primary dark:text-primary truncate" title={formatRupiah(summary.balance)}>{formatRupiah(summary.balance)}</p>
                         </div>
                     )}
                 </div>
@@ -447,7 +447,7 @@ export default function Index({ transactions, summary, filters, categories, allo
 
                     {/* DESKTOP TABLE VIEW KHUSUS RIWAYAT */}
                     <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full min-w-[680px] text-sm">
                             <thead>
                                 <tr className="border-b border-border bg-slate-50/80 text-xs font-semibold tracking-wider text-muted-foreground uppercase dark:border-slate-800 dark:bg-slate-800/30">
                                     <th className="px-5 py-3.5 text-left">Waktu & Pencatat</th>

@@ -77,6 +77,7 @@
 }
 
 :root {
+    --demo-banner-height: 0px;
     --background: hsl(140, 20%, 98%);
     --foreground: hsl(140, 30%, 12%);
     --card: hsl(0, 0%, 100%);

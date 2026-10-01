@@ -16,7 +16,7 @@ export default function DataKelas({ kelasData }: Props) {
         <AppLayout breadcrumbs={[{ title: 'Data Santriwan', href: '/santriwan' }]}>
             <Head title="Pilih Kelas Santriwan" />
             
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 
                 {/* [DIPERBAIKI]: Mengubah div menjadi flex agar judul di kiri dan tombol di kanan */}
                 <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -37,7 +37,7 @@ export default function DataKelas({ kelasData }: Props) {
                 </div>
 
                 {/* Grid Kartu Kelas */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {kelasData.map((item) => (
                         <Link 
                             key={item.class} 
