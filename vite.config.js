@@ -1,20 +1,24 @@
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import laravel from 'laravel-vite-plugin';
-import {
-    defineConfig
-} from 'vite';
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
+import path from 'path';
 
 export default defineConfig({
     plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
-            ssr: 'resources/js/ssr.jsx',
-            refresh: true,
-        }),
         react(),
         tailwindcss(),
     ],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'resources/js'),
+            '@inertiajs/react': path.resolve(__dirname, 'resources/js/demo/mock-inertia.tsx'),
+            'ziggy-js': path.resolve(__dirname, 'resources/js/demo/mock-ziggy.ts'),
+        },
+    },
+    build: {
+        outDir: 'dist',
+        emptyOutDir: true,
+    },
     esbuild: {
         jsx: 'automatic',
     },
