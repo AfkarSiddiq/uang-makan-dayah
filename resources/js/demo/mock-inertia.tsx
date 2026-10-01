@@ -436,119 +436,132 @@ export function resolvePageForUrl(fullUrl: string) {
 }
 
 // Perform simulated mutations
-function handleMutation(url: string, method: string, data: any) {
+function handleMutation(url: string, method: string, data: any): string | null {
     const urlObj = new URL(url, 'http://localhost');
     const pathname = urlObj.pathname;
 
     // Payment store
     if (pathname === '/payment' && method === 'post') {
         DemoStore.addTransaction(data);
-        return;
+        return '/payment';
     }
     const paymentUpdateMatch = pathname.match(/^\/payment\/(\d+)$/);
     if (paymentUpdateMatch && (method === 'put' || method === 'patch')) {
         DemoStore.updateTransaction(Number(paymentUpdateMatch[1]), data);
-        return;
+        return '/payment';
     }
     const paymentDeleteMatch = pathname.match(/^\/payment\/(\d+)$/);
     if (paymentDeleteMatch && method === 'delete') {
         DemoStore.deleteTransaction(Number(paymentDeleteMatch[1]));
-        return;
+        return '/payment';
+    }
+
+    // Transaction Import
+    if (pathname === '/transaction/import' && method === 'post') {
+        return '/payment';
     }
 
     // Siswa store
     if (pathname === '/siswa' && method === 'post') {
         DemoStore.addStudent(data);
-        return;
+        return '/siswa';
     }
     const siswaPayMatch = pathname.match(/^\/siswa\/(\d+)\/pay$/);
     if (siswaPayMatch && method === 'post') {
-        DemoStore.paySpp(Number(siswaPayMatch[1]), data.spp_month_id, Number(data.amount));
-        return;
+        DemoStore.paySpp(Number(siswaPayMatch[1]), Number(data.amount), data.spp_month_id);
+        return null;
     }
     const siswaUpdateMatch = pathname.match(/^\/siswa\/(\d+)$/);
     if (siswaUpdateMatch && (method === 'put' || method === 'patch')) {
         DemoStore.updateStudent(Number(siswaUpdateMatch[1]), data);
-        return;
+        return '/siswa';
     }
     const siswaDeleteMatch = pathname.match(/^\/siswa\/(\d+)$/);
     if (siswaDeleteMatch && method === 'delete') {
         DemoStore.deleteStudent(Number(siswaDeleteMatch[1]));
-        return;
+        return '/siswa';
+    }
+
+    // Siswa Import
+    if (pathname === '/siswa/import' && method === 'post') {
+        return '/siswa';
     }
 
     // Santriwan / Santriwati kenaikan
     if (pathname === '/santriwan/kenaikan' && method === 'post') {
         DemoStore.processKenaikan('L', data);
-        return;
+        return '/santriwan';
     }
     if (pathname === '/santriwati/kenaikan' && method === 'post') {
         DemoStore.processKenaikan('P', data);
-        return;
+        return '/santriwati';
     }
 
     // SPP bulk / generate
     if (pathname === '/spp/bulk-update' && method === 'post') {
-        DemoStore.bulkUpdateSpp(data.month, data.year, data.amount);
-        return;
+        const amt = data.new_amount !== undefined ? data.new_amount : data.amount;
+        DemoStore.bulkUpdateSpp(data.month, data.year, amt);
+        return null;
     }
     if (pathname === '/spp/generate-tahun' && method === 'post') {
         DemoStore.generateTahunAjaran(data.start_year, data.base_amount);
-        return;
+        return null;
     }
 
     // Category store
     if (pathname === '/category' && method === 'post') {
         DemoStore.addCategory(data);
-        return;
+        return null;
     }
     const categoryUpdateMatch = pathname.match(/^\/category\/(\d+)$/);
     if (categoryUpdateMatch && (method === 'put' || method === 'patch')) {
         DemoStore.updateCategory(Number(categoryUpdateMatch[1]), data);
-        return;
+        return null;
     }
     const categoryDeleteMatch = pathname.match(/^\/category\/(\d+)$/);
     if (categoryDeleteMatch && method === 'delete') {
         DemoStore.deleteCategory(Number(categoryDeleteMatch[1]));
-        return;
+        return null;
     }
 
     // User store
     if (pathname === '/users' && method === 'post') {
         DemoStore.addUser(data);
-        return;
+        return '/users';
     }
     const userUpdateMatch = pathname.match(/^\/users\/(\d+)$/);
     if (userUpdateMatch && (method === 'put' || method === 'patch')) {
         DemoStore.updateUser(Number(userUpdateMatch[1]), data);
-        return;
+        return '/users';
     }
     const userDeleteMatch = pathname.match(/^\/users\/(\d+)$/);
     if (userDeleteMatch && method === 'delete') {
         DemoStore.deleteUser(Number(userDeleteMatch[1]));
-        return;
+        return '/users';
     }
 
     // Role store
     if (pathname === '/role' && method === 'post') {
         DemoStore.addRole(data);
-        return;
+        return '/role';
     }
     const roleUpdateMatch = pathname.match(/^\/role\/(\d+)$/);
     if (roleUpdateMatch && (method === 'put' || method === 'patch')) {
         DemoStore.updateRole(Number(roleUpdateMatch[1]), data);
-        return;
+        return '/role';
     }
     const roleDeleteMatch = pathname.match(/^\/role\/(\d+)$/);
     if (roleDeleteMatch && method === 'delete') {
         DemoStore.deleteRole(Number(roleDeleteMatch[1]));
-        return;
+        return '/role';
     }
+
+    return null;
 }
 
 export function InertiaProvider({ children }: { children: ReactNode }) {
     const [currentLocation, setCurrentLocation] = useState(() => window.location.pathname + window.location.search);
-    const [, setTick] = useState(0);
+    const [tick, setTick] = useState(0);
 
     useEffect(() => {
         const handlePopState = () => {
@@ -562,19 +575,96 @@ export function InertiaProvider({ children }: { children: ReactNode }) {
         return subscribeDb(() => setTick((t) => t + 1));
     }, []);
 
+    // Intercept native <a> clicks for client-side routing & Excel exports
+    useEffect(() => {
+        const handleAnchorClick = (e: MouseEvent) => {
+            const target = (e.target as HTMLElement)?.closest('a');
+            if (!target) return;
+            const href = target.getAttribute('href');
+            if (!href) return;
+
+            // Handle Excel export triggers
+            if (href.startsWith('/siswa/export')) {
+                e.preventDefault();
+                DemoStore.exportSiswaToExcel();
+                return;
+            }
+            if (href.startsWith('/transaction/export')) {
+                e.preventDefault();
+                DemoStore.exportTransaksiToExcel();
+                return;
+            }
+
+            // If it's a relative internal link without download and without target="_blank"
+            if (href.startsWith('/') && !target.hasAttribute('download') && target.getAttribute('target') !== '_blank') {
+                if (!href.match(/\.(xlsx|pdf|png|jpg|jpeg|svg|ico)$/i)) {
+                    e.preventDefault();
+                    router.visit(href);
+                }
+            }
+        };
+
+        // Intercept window.open for tuition-arrears export
+        const originalOpen = window.open;
+        window.open = function (url?: string | URL, target?: string, features?: string) {
+            if (typeof url === 'string') {
+                if (url.startsWith('/tuition-arrears/export')) {
+                    const parsed = new URL(url, window.location.origin);
+                    const classParam = parsed.searchParams.get('class') || 'all';
+                    const statusParam = parsed.searchParams.get('status') || 'all';
+                    const monthIdParam = parsed.searchParams.get('spp_month_id') || undefined;
+                    DemoStore.exportTunggakanToExcel(classParam, statusParam, monthIdParam);
+                    return null;
+                }
+                if (url.startsWith('/siswa/export')) {
+                    DemoStore.exportSiswaToExcel();
+                    return null;
+                }
+                if (url.startsWith('/transaction/export')) {
+                    DemoStore.exportTransaksiToExcel();
+                    return null;
+                }
+            }
+            return originalOpen.call(window, url, target, features);
+        };
+
+        document.addEventListener('click', handleAnchorClick);
+        return () => {
+            document.removeEventListener('click', handleAnchorClick);
+            window.open = originalOpen;
+        };
+    }, []);
+
     const pageData = useMemo(() => {
         return resolvePageForUrl(currentLocation);
-    }, [currentLocation]);
+    }, [currentLocation, tick]);
 
     const navigate = (url: string, options: RouterOptions = {}) => {
         const method = options.method || 'get';
 
         if (method !== 'get') {
-            handleMutation(url, method, options.data);
+            const redirectUrl = handleMutation(url, method, options.data);
+            const targetUrl = redirectUrl || currentLocation;
+
+            if (redirectUrl && redirectUrl !== currentLocation) {
+                if (options.replace) {
+                    window.history.replaceState({}, '', targetUrl);
+                } else {
+                    window.history.pushState({}, '', targetUrl);
+                }
+                setCurrentLocation(targetUrl);
+                if (!options.preserveScroll) {
+                    window.scrollTo(0, 0);
+                }
+            } else {
+                setTick((t) => t + 1);
+            }
+
             setTimeout(() => {
-                options.onSuccess?.({ props: resolvePageForUrl(currentLocation).props });
+                const freshProps = resolvePageForUrl(targetUrl).props;
+                options.onSuccess?.({ props: freshProps });
                 options.onFinish?.();
-            }, 100);
+            }, 60);
             return;
         }
 
@@ -588,9 +678,13 @@ export function InertiaProvider({ children }: { children: ReactNode }) {
             if (!options.preserveScroll) {
                 window.scrollTo(0, 0);
             }
+        } else {
+            setTick((t) => t + 1);
         }
+
         setTimeout(() => {
-            options.onSuccess?.({ props: resolvePageForUrl(url).props });
+            const freshProps = resolvePageForUrl(url).props;
+            options.onSuccess?.({ props: freshProps });
             options.onFinish?.();
         }, 50);
     };

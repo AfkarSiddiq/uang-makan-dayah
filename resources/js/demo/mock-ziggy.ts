@@ -22,9 +22,9 @@ const ROUTE_MAP: Record<string, string> = {
 
     // Tuition Arrears
     'tuition-arrears.index': '/tuition-arrears',
-    'tuition-arrears.export-all': '/tuition-arrears',
-    'tuition-arrears.export-month': '/tuition-arrears',
-    'tuition-arrears.export-class': '/tuition-arrears',
+    'tuition-arrears.export-all': '/tuition-arrears/export-all',
+    'tuition-arrears.export-month': '/tuition-arrears/export-month',
+    'tuition-arrears.export-class': '/tuition-arrears/export-class',
 
     // SPP
     'spp.pengaturan': '/tuition-per-month',
@@ -41,8 +41,8 @@ const ROUTE_MAP: Record<string, string> = {
     'siswa.store': '/siswa',
     'siswa.import.create': '/siswa/import',
     'siswa.import.store': '/siswa/import',
-    'siswa.import.template': '#',
-    'siswa.export': '#',
+    'siswa.import.template': '/template_import_siswa.xlsx',
+    'siswa.export': '/siswa/export',
     'siswa.show': '/siswa/{id}',
     'siswa.edit': '/siswa/{id}/edit',
     'siswa.update': '/siswa/{id}',
@@ -61,8 +61,8 @@ const ROUTE_MAP: Record<string, string> = {
     // Transaction import/export
     'transaction.import.create': '/transaction/import',
     'transaction.import.store': '/transaction/import',
-    'transaction.import.template': '#',
-    'transaction.export': '#',
+    'transaction.import.template': '/template_import_transaksi.xlsx',
+    'transaction.export': '/transaction/export',
 
     // History
     'history': '/payment-history',

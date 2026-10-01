@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import {
     DemoCategory,
     DemoRole,
@@ -26,7 +27,7 @@ export interface DayahDatabase {
     roles: DemoRole[];
 }
 
-const STORAGE_KEY = 'DAYAH_DEMO_DB_V2';
+const STORAGE_KEY = 'DAYAH_DEMO_DB_V3';
 
 export function getInitialDb(): DayahDatabase {
     return {
@@ -138,7 +139,7 @@ export function getMonthName(monthNumber: number): string {
     return MONTH_NAMES[monthNumber] || '';
 }
 
-// Student virtual ledger calculation (matching StudentController.php)
+// Student virtual ledger calculation
 export function calculateStudentVirtualLedger(student: DemoStudent, db: DayahDatabase) {
     const sppMonths = [...db.sppMonths].sort((a, b) => a.year * 12 + a.month - (b.year * 12 + b.month));
     const paymentsMap = new Map<number, DemoSppPayment>();
@@ -177,13 +178,11 @@ export function calculateStudentVirtualLedger(student: DemoStudent, db: DayahDat
     };
 }
 
-// Arrears calculation for Tuition Arrears page (matching TuitionArrearsController.php)
+// Arrears calculation for Tuition Arrears page (matching TuitionArrearsController.php & interface)
 export function calculateArrears(db: DayahDatabase, selectedMonthId?: string | number | null) {
     const currentYear = 2026;
     const currentMonth = 3;
     const currentScore = currentYear * 12 + currentMonth;
-
-    const sppMonths = [...db.sppMonths].sort((a, b) => a.year * 12 + a.month - (b.year * 12 + b.month));
 
     const result: any[] = [];
 
@@ -194,7 +193,6 @@ export function calculateArrears(db: DayahDatabase, selectedMonthId?: string | n
 
         studentProfile.spp_payments.forEach((ledgerItem: any) => {
             const itemScore = ledgerItem.year * 12 + ledgerItem.month;
-            // Only count up to current score
             if (itemScore <= currentScore && ledgerItem.status !== 'paid') {
                 if (selectedMonthId) {
                     if (String(ledgerItem.spp_month_id) === String(selectedMonthId)) {
@@ -202,10 +200,10 @@ export function calculateArrears(db: DayahDatabase, selectedMonthId?: string | n
                         if (unpaidAmount > 0) {
                             totalArrears += unpaidAmount;
                             unpaidMonths.push({
-                                month_id: ledgerItem.spp_month_id,
+                                id: ledgerItem.spp_month_id,
                                 month: ledgerItem.month,
                                 year: ledgerItem.year,
-                                label: `${getMonthName(ledgerItem.month)} ${ledgerItem.year}`,
+                                month_name: `${getMonthName(ledgerItem.month)} ${ledgerItem.year}`,
                                 amount: unpaidAmount,
                             });
                         }
@@ -215,10 +213,10 @@ export function calculateArrears(db: DayahDatabase, selectedMonthId?: string | n
                     if (unpaidAmount > 0) {
                         totalArrears += unpaidAmount;
                         unpaidMonths.push({
-                            month_id: ledgerItem.spp_month_id,
+                            id: ledgerItem.spp_month_id,
                             month: ledgerItem.month,
                             year: ledgerItem.year,
-                            label: `${getMonthName(ledgerItem.month)} ${ledgerItem.year}`,
+                            month_name: `${getMonthName(ledgerItem.month)} ${ledgerItem.year}`,
                             amount: unpaidAmount,
                         });
                     }
@@ -235,8 +233,10 @@ export function calculateArrears(db: DayahDatabase, selectedMonthId?: string | n
                 class: student.class || '-',
                 status: student.status,
                 student_type: student.student_type,
+                entry_month: student.entry_month,
+                entry_year: student.entry_year,
+                arrears_count: unpaidMonths.length, // Matches interface Student.arrears_count!
                 total_arrears: totalArrears,
-                unpaid_count: unpaidMonths.length,
                 unpaid_months: unpaidMonths,
             });
         }
@@ -257,9 +257,8 @@ export const DemoStore = {
 
     getDashboardProps(params: Record<string, string> = {}) {
         const db = loadDb();
-        let txList = [...db.transactions].sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
+        const txList = [...db.transactions].sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
 
-        // Attach student & user
         const hydratedTx = txList.map((tx) => ({
             ...tx,
             student: tx.student_id ? db.students.find((s) => s.id === tx.student_id) : undefined,
@@ -335,7 +334,7 @@ export const DemoStore = {
             list = list.filter((t) => t.transaction_date <= params.date_to);
         }
         if (params.search) {
-            const q = params.search.toLowerCase();
+            const q = params.search.toLowerCase().trim();
             list = list.filter((t) => {
                 const s = t.student_id ? db.students.find((std) => std.id === t.student_id) : null;
                 return (
@@ -346,7 +345,6 @@ export const DemoStore = {
             });
         }
 
-        // Sorting
         const sortBy = params.sort_by || 'transaction_date';
         const sortDir = params.sort_dir || 'desc';
         list.sort((a, b) => {
@@ -404,7 +402,7 @@ export const DemoStore = {
 
     getPaymentEditProps(id: number) {
         const db = loadDb();
-        const payment = db.transactions.find((t) => t.id === Number(id));
+        const payment = db.transactions.find((t) => t.id === Number(id)) || db.transactions[0];
         const activeStudents = db.students.filter((s) => s.status === 'aktif');
         const classes = ['1', '2', '3', '4', '5', '6'];
 
@@ -419,7 +417,9 @@ export const DemoStore = {
         });
 
         return {
-            payment,
+            transaction: payment, // matches Edit({ transaction, students, categories })!
+            payment,             // fallback
+            students: activeStudents,
             studentsByGender,
             classes,
             categories: this.getCategoriesHelper(db),
@@ -452,10 +452,7 @@ export const DemoStore = {
 
     getSantriProfilProps(id: number, gender?: 'L' | 'P') {
         const db = loadDb();
-        const student = db.students.find((s) => s.id === Number(id));
-        if (!student) {
-            return { student: null };
-        }
+        const student = db.students.find((s) => s.id === Number(id)) || db.students[0];
         return {
             student: calculateStudentVirtualLedger(student, db),
         };
@@ -524,7 +521,7 @@ export const DemoStore = {
             list = list.filter((t) => t.transaction_date <= params.date_to);
         }
         if (params.search) {
-            const q = params.search.toLowerCase();
+            const q = params.search.toLowerCase().trim();
             list = list.filter((t) => {
                 const s = t.student_id ? db.students.find((std) => std.id === t.student_id) : null;
                 return (
@@ -549,7 +546,14 @@ export const DemoStore = {
             ...tx,
             student: tx.student_id ? db.students.find((s) => s.id === tx.student_id) : undefined,
             user: db.users.find((u) => u.id === tx.user_id),
-            logs: [],
+            logs: [
+                {
+                    id: 1,
+                    action: 'Dibuat',
+                    created_at: tx.created_at,
+                    user: db.users.find((u) => u.id === tx.user_id),
+                },
+            ],
             sppPayments: [],
         }));
 
@@ -598,7 +602,7 @@ export const DemoStore = {
         }
 
         if (params.search) {
-            const q = params.search.toLowerCase();
+            const q = params.search.toLowerCase().trim();
             list = list.filter((s) => s.name.toLowerCase().includes(q) || s.nisn.includes(q));
         }
 
@@ -612,7 +616,7 @@ export const DemoStore = {
             return 0;
         });
 
-        // Class breakdown counts for the current status/gender/type filter
+        // Class breakdown counts
         let countBase = [...db.students];
         if (statusFilter !== 'all' && statusFilter !== '') countBase = countBase.filter((s) => s.status === statusFilter);
         if (genderFilter !== 'all' && genderFilter !== '') countBase = countBase.filter((s) => s.gender === genderFilter);
@@ -655,15 +659,15 @@ export const DemoStore = {
 
     getSiswaShowProps(id: number) {
         const db = loadDb();
-        const student = db.students.find((s) => s.id === Number(id));
+        const student = db.students.find((s) => s.id === Number(id)) || db.students[0];
         return {
-            student: student ? calculateStudentVirtualLedger(student, db) : null,
+            student: calculateStudentVirtualLedger(student, db),
         };
     },
 
     getSiswaEditProps(id: number) {
         const db = loadDb();
-        const student = db.students.find((s) => s.id === Number(id));
+        const student = db.students.find((s) => s.id === Number(id)) || db.students[0];
         return {
             student,
         };
@@ -699,7 +703,7 @@ export const DemoStore = {
             .sort((a, b) => a.name.localeCompare(b.name));
 
         return {
-            tahun: String(year),
+            tahun: Number(year),
             alumni,
         };
     },
@@ -761,7 +765,7 @@ export const DemoStore = {
 
     getUserEditProps(id: number) {
         const db = loadDb();
-        const user = db.users.find((u) => u.id === Number(id));
+        const user = db.users.find((u) => u.id === Number(id)) || db.users[0];
         return {
             user,
             roles: db.roles,
@@ -788,7 +792,7 @@ export const DemoStore = {
 
     getRoleEditProps(id: number) {
         const db = loadDb();
-        const role = db.roles.find((r) => r.id === Number(id));
+        const role = db.roles.find((r) => r.id === Number(id)) || db.roles[0];
         const grouped: Record<string, typeof ALL_PERMISSIONS> = {};
         ALL_PERMISSIONS.forEach((p) => {
             if (!grouped[p.group]) grouped[p.group] = [];
@@ -801,7 +805,7 @@ export const DemoStore = {
     },
 
     // Mutations
-    addTransaction(data: Partial<DemoTransaction>) {
+    addTransaction(data: any) {
         const db = loadDb();
         const id = (Math.max(0, ...db.transactions.map((t) => t.id)) || 0) + 1;
         const now = new Date();
@@ -824,11 +828,17 @@ export const DemoStore = {
         };
 
         db.transactions.unshift(newTx);
+
+        // If SPP payment for a student, allocate to virtual ledger
+        if (newTx.type === 'in' && newTx.student_id && newTx.category.includes('SPP')) {
+            this.waterfallSppAllocation(db, newTx.student_id, newTx.amount, newTx.id);
+        }
+
         saveDb(db);
         return newTx;
     },
 
-    updateTransaction(id: number, data: Partial<DemoTransaction>) {
+    updateTransaction(id: number, data: any) {
         const db = loadDb();
         const idx = db.transactions.findIndex((t) => t.id === Number(id));
         if (idx !== -1) {
@@ -846,10 +856,12 @@ export const DemoStore = {
     deleteTransaction(id: number) {
         const db = loadDb();
         db.transactions = db.transactions.filter((t) => t.id !== Number(id));
+        // Remove linked SPP payments if any
+        db.sppPayments = db.sppPayments.filter((p) => p.transaction_id !== Number(id));
         saveDb(db);
     },
 
-    addStudent(data: Partial<DemoStudent>) {
+    addStudent(data: any) {
         const db = loadDb();
         const id = (Math.max(0, ...db.students.map((s) => s.id)) || 0) + 1;
         const newStudent: DemoStudent = {
@@ -857,30 +869,31 @@ export const DemoStore = {
             nisn: data.nisn || String(Date.now()).slice(-10),
             name: data.name || 'Santri Baru',
             gender: data.gender === 'P' ? 'P' : 'L',
-            class: data.class || '1',
+            class: data.class && data.class !== 'none' ? data.class : null,
             status: data.status || 'aktif',
             student_type: data.student_type || 'umum',
             entry_month: Number(data.entry_month) || 7,
             entry_year: Number(data.entry_year) || 2025,
-            exit_month: data.exit_month ? Number(data.exit_month) : null,
-            exit_year: data.exit_year ? Number(data.exit_year) : null,
+            exit_month: data.exit_month && data.exit_month !== 'none' ? Number(data.exit_month) : null,
+            exit_year: data.exit_year && data.exit_year !== 'none' ? Number(data.exit_year) : null,
         };
         db.students.push(newStudent);
         saveDb(db);
         return newStudent;
     },
 
-    updateStudent(id: number, data: Partial<DemoStudent>) {
+    updateStudent(id: number, data: any) {
         const db = loadDb();
         const idx = db.students.findIndex((s) => s.id === Number(id));
         if (idx !== -1) {
             db.students[idx] = {
                 ...db.students[idx],
                 ...data,
+                class: data.class !== undefined ? (data.class === 'none' || !data.class ? null : data.class) : db.students[idx].class,
                 entry_month: data.entry_month ? Number(data.entry_month) : db.students[idx].entry_month,
                 entry_year: data.entry_year ? Number(data.entry_year) : db.students[idx].entry_year,
-                exit_month: data.exit_month ? Number(data.exit_month) : (data.status === 'aktif' ? null : db.students[idx].exit_month),
-                exit_year: data.exit_year ? Number(data.exit_year) : (data.status === 'aktif' ? null : db.students[idx].exit_year),
+                exit_month: data.exit_month ? (data.exit_month === 'none' ? null : Number(data.exit_month)) : (data.status === 'aktif' ? null : db.students[idx].exit_month),
+                exit_year: data.exit_year ? (data.exit_year === 'none' ? null : Number(data.exit_year)) : (data.status === 'aktif' ? null : db.students[idx].exit_year),
             };
             saveDb(db);
         }
@@ -889,43 +902,124 @@ export const DemoStore = {
     deleteStudent(id: number) {
         const db = loadDb();
         db.students = db.students.filter((s) => s.id !== Number(id));
+        db.sppPayments = db.sppPayments.filter((p) => p.student_id !== Number(id));
         saveDb(db);
     },
 
-    paySpp(studentId: number, monthId: number, amount: number) {
+    // Waterfall allocation for SPP payment
+    waterfallSppAllocation(db: DayahDatabase, studentId: number, totalAmount: number, txId?: number | null) {
+        const student = db.students.find((s) => s.id === studentId);
+        if (!student) return;
+
+        const ledger = calculateStudentVirtualLedger(student, db);
+        const unpaidMonths = ledger.spp_payments.filter((p: any) => p.status !== 'paid');
+
+        let remainingMoney = totalAmount;
+
+        for (const item of unpaidMonths) {
+            if (remainingMoney <= 0) break;
+
+            const existingPayment = db.sppPayments.find((p) => p.student_id === studentId && p.spp_month_id === item.spp_month_id);
+            const needed = item.amount - (existingPayment ? existingPayment.paid_amount : 0);
+
+            if (needed <= 0) continue;
+
+            const payForThisMonth = Math.min(remainingMoney, needed);
+            const newPaidTotal = (existingPayment ? existingPayment.paid_amount : 0) + payForThisMonth;
+            const newStatus = newPaidTotal >= item.amount ? 'paid' : 'partial';
+
+            if (existingPayment) {
+                existingPayment.paid_amount = newPaidTotal;
+                existingPayment.status = newStatus;
+                if (txId) existingPayment.transaction_id = txId;
+            } else {
+                const paymentId = (Math.max(0, ...db.sppPayments.map((p) => p.id)) || 0) + 1;
+                db.sppPayments.push({
+                    id: paymentId,
+                    student_id: studentId,
+                    spp_month_id: item.spp_month_id,
+                    paid_amount: newPaidTotal,
+                    status: newStatus,
+                    transaction_id: txId || null,
+                    created_at: new Date().toISOString(),
+                });
+            }
+
+            remainingMoney -= payForThisMonth;
+        }
+    },
+
+    paySpp(studentId: number, arg2: any, arg3?: any) {
         const db = loadDb();
         const student = db.students.find((s) => s.id === Number(studentId));
-        const month = db.sppMonths.find((m) => m.id === Number(monthId));
-        if (!student || !month) return;
+        if (!student) return;
 
-        // Add payment record
-        const paymentId = (Math.max(0, ...db.sppPayments.map((p) => p.id)) || 0) + 1;
-        db.sppPayments.push({
-            id: paymentId,
-            student_id: student.id,
-            spp_month_id: month.id,
-            paid_amount: amount,
-            status: 'paid',
-            created_at: new Date().toISOString(),
-        });
+        let numAmount = 0;
+        let targetMonthId: number | undefined = undefined;
 
-        // Add transaction record
+        const val2 = Number(arg2);
+        const val3 = Number(arg3);
+
+        if (!isNaN(val2) && !isNaN(val3)) {
+            if (val2 > 500) {
+                numAmount = val2;
+                targetMonthId = val3;
+            } else {
+                targetMonthId = val2;
+                numAmount = val3;
+            }
+        } else if (!isNaN(val2)) {
+            numAmount = val2;
+            if (arg3) targetMonthId = Number(arg3);
+        } else if (!isNaN(val3)) {
+            numAmount = val3;
+            if (arg2) targetMonthId = Number(arg2);
+        }
+
+        if (numAmount <= 0) return;
+
         const txId = (Math.max(0, ...db.transactions.map((t) => t.id)) || 0) + 1;
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
+
+        // Create transaction
         db.transactions.unshift({
             id: txId,
             transaction_id: `TRX-${dateStr.replace(/-/g, '')}-${String(txId).padStart(4, '0')}`,
             student_id: student.id,
             type: 'in',
-            category: 'SPP Bulanan',
-            amount: amount,
-            note: `Pembayaran SPP Bulan ${getMonthName(month.month)} ${month.year} (${student.name})`,
+            category: 'SPP',
+            amount: numAmount,
+            note: `Pembayaran SPP (${student.name})`,
             transaction_date: dateStr,
             user_id: 1,
             created_at: now.toISOString().replace('T', ' ').substring(0, 19),
             updated_at: now.toISOString().replace('T', ' ').substring(0, 19),
         });
+
+        if (targetMonthId) {
+            const m = db.sppMonths.find((item) => item.id === Number(targetMonthId));
+            const existing = db.sppPayments.find((p) => p.student_id === student.id && p.spp_month_id === Number(targetMonthId));
+            if (existing) {
+                existing.paid_amount += numAmount;
+                existing.status = existing.paid_amount >= (m ? m.amount : 0) ? 'paid' : 'partial';
+                existing.transaction_id = txId;
+            } else {
+                const pid = (Math.max(0, ...db.sppPayments.map((p) => p.id)) || 0) + 1;
+                db.sppPayments.push({
+                    id: pid,
+                    student_id: student.id,
+                    spp_month_id: Number(targetMonthId),
+                    paid_amount: numAmount,
+                    status: m && numAmount >= m.amount ? 'paid' : 'partial',
+                    transaction_id: txId,
+                    created_at: now.toISOString(),
+                });
+            }
+        } else {
+            // Waterfall allocation to all unpaid months
+            this.waterfallSppAllocation(db, student.id, numAmount, txId);
+        }
 
         saveDb(db);
     },
@@ -948,7 +1042,7 @@ export const DemoStore = {
         saveDb(db);
     },
 
-    addCategory(data: Partial<DemoCategory>) {
+    addCategory(data: any) {
         const db = loadDb();
         const id = (Math.max(0, ...db.categories.map((c) => c.id)) || 0) + 1;
         db.categories.push({
@@ -960,7 +1054,7 @@ export const DemoStore = {
         saveDb(db);
     },
 
-    updateCategory(id: number, data: Partial<DemoCategory>) {
+    updateCategory(id: number, data: any) {
         const db = loadDb();
         const idx = db.categories.findIndex((c) => c.id === Number(id));
         if (idx !== -1) {
@@ -1081,5 +1175,79 @@ export const DemoStore = {
             }
         });
         saveDb(db);
+    },
+
+    // Excel Export Utilities for Live Demo
+    exportSiswaToExcel() {
+        const db = loadDb();
+        const data = db.students.map((s, idx) => ({
+            'No': idx + 1,
+            'NISN': s.nisn,
+            'Nama Lengkap': s.name,
+            'Jenis Kelamin': s.gender === 'L' ? 'Laki-laki' : 'Perempuan',
+            'Kelas': s.class ? `Kelas ${s.class}` : 'Belum Ada',
+            'Kategori': s.student_type,
+            'Status': s.status,
+            'Tahun Masuk': `${getMonthName(s.entry_month)} ${s.entry_year}`,
+            'Tahun Keluar': s.exit_year ? `${getMonthName(s.exit_month || 6)} ${s.exit_year}` : '-',
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
+        XLSX.writeFile(wb, 'Data_Siswa_Dayah_Minhajussalam.xlsx');
+    },
+
+    exportTransaksiToExcel() {
+        const db = loadDb();
+        const data = db.transactions.map((t, idx) => {
+            const student = t.student_id ? db.students.find((s) => s.id === t.student_id) : null;
+            return {
+                'No': idx + 1,
+                'ID Transaksi': t.transaction_id,
+                'Tanggal': t.transaction_date,
+                'Tipe': t.type === 'in' ? 'Pemasukan' : 'Pengeluaran',
+                'Kategori': t.category,
+                'Nominal (Rp)': t.amount,
+                'Nama Siswa': student ? student.name : '-',
+                'Keterangan': t.note || '-',
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Data Transaksi');
+        XLSX.writeFile(wb, 'Laporan_Transaksi_Dayah.xlsx');
+    },
+
+    exportTunggakanToExcel(classFilter = 'all', statusFilter = 'all', monthId?: string | number) {
+        const db = loadDb();
+        let arrears = calculateArrears(db, monthId);
+
+        if (classFilter !== 'all') {
+            arrears = arrears.filter((s) => String(s.class) === String(classFilter));
+        }
+        if (statusFilter === 'aktif' || statusFilter === 'active') {
+            arrears = arrears.filter((s) => s.status === 'aktif');
+        } else if (statusFilter === 'nonaktif' || statusFilter === 'inactive') {
+            arrears = arrears.filter((s) => s.status !== 'aktif');
+        }
+
+        const data = arrears.map((s, idx) => ({
+            'No': idx + 1,
+            'NISN': s.nisn,
+            'Nama Santri': s.name,
+            'Kelas': s.class,
+            'Gender': s.gender === 'L' ? 'Putra' : 'Putri',
+            'Status': s.status,
+            'Jumlah Bulan Tunggakan': s.arrears_count,
+            'Rincian Bulan': s.unpaid_months.map((m: any) => m.month_name).join(', '),
+            'Total Tunggakan (Rp)': s.total_arrears,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Tunggakan SPP');
+        XLSX.writeFile(wb, 'Data_Tunggakan_SPP_Dayah.xlsx');
     },
 };
