@@ -67,6 +67,10 @@ class StudentController extends Controller
         }
         $student = $query->findOrFail($id);
 
+        // Pastikan master SPP tersedia untuk rentang tahun ajaran santri
+        $entryYearStart = $student->getAcademicYearStart();
+        SppMonth::ensureAcademicYearsExist($entryYearStart);
+
         $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
         $pembayaranAsli = SppPayment::where('student_id', $student->id)
@@ -74,27 +78,7 @@ class StudentController extends Controller
             ->keyBy('spp_month_id');
 
         $virtualLedger = $semuaBulanMaster->filter(function ($master) use ($student) {
-            $bulanMasterSkor = ((int) $master->year * 12) + (int) $master->month;
-            $bulanMasukSkor = ((int) $student->entry_year * 12) + (int) $student->entry_month;
-
-            // 1. Pastikan tidak menagih sebelum bulan masuk
-            if ($bulanMasterSkor < $bulanMasukSkor) {
-                return false;
-            }
-
-            // 2. REM OTOMATIS: Jika siswa punya tanggal keluar (exit_year)
-            // (Opsional: Anda juga bisa menambahkan cek status seperti: $student->status !== 'aktif')
-            if ($student->exit_year && $student->exit_month) {
-                $bulanKeluarSkor = ((int) $student->exit_year * 12) + (int) $student->exit_month;
-
-                // Jika argo bulan master melebihi bulan dia keluar, HENTIKAN (false)
-                if ($bulanMasterSkor > $bulanKeluarSkor) {
-                    return false;
-                }
-            }
-
-            return true;
-
+            return $student->isMonthBillable((int) $master->year, (int) $master->month);
         })->map(function ($master) use ($pembayaranAsli) {
             $pembayaran = $pembayaranAsli->get($master->id);
 
@@ -515,7 +499,11 @@ class StudentController extends Controller
             $validated['exit_year'] = null;
         }
 
-        Student::create($validated);
+        $student = Student::create($validated);
+
+        // Pastikan master SPP untuk angkatan siswa ini tersedia
+        $academicStart = $student->getAcademicYearStart();
+        SppMonth::ensureAcademicYearsExist($academicStart);
 
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil ditambahkan!');
     }

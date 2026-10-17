@@ -308,7 +308,19 @@ export default function ProfilSiswa({ student }: Props) {
                                     );
                                 })
                             ) : (
-                                <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">Belum ada tagihan SPP untuk santriwati ini.</div>
+                                <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
+                                    {student.student_type && student.student_type !== 'umum' ? (
+                                        <div className="space-y-1">
+                                            <p className="font-semibold text-foreground dark:text-white">Santriwati Kategori Khusus ({student.student_type.toUpperCase()})</p>
+                                            <p className="text-sm">Santriwati ini dibebaskan dari tagihan SPP bulanan.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-1">
+                                            <p className="font-semibold text-foreground dark:text-white">Tidak Ada Tagihan Aktif</p>
+                                            <p className="text-sm">Belum ada periode tagihan yang berlaku untuk santriwati ini.</p>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>
@@ -326,17 +338,21 @@ export default function ProfilSiswa({ student }: Props) {
                                 <input
                                     type="text"
                                     inputMode="numeric"
+                                    disabled={sortedYears.length === 0}
                                     value={formatNumberToRupiah(payData.amount)}
                                     onChange={(e) => setPayData('amount', parseRupiahToString(e.target.value))}
-                                    className={`w-full rounded-md border bg-white px-3 py-2 text-sm transition focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-white ${payErrors.amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-primary dark:border-border'}`}
+                                    className={`w-full rounded-md border bg-white px-3 py-2 text-sm transition focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-white ${payErrors.amount ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-primary dark:border-border'} ${sortedYears.length === 0 ? 'cursor-not-allowed opacity-60' : ''}`}
                                     placeholder="Contoh: 1.500.000"
                                     required
                                 />
                                 {payErrors.amount && <p className="mt-1 text-xs text-red-500">{payErrors.amount}</p>}
+                                {sortedYears.length === 0 && (
+                                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">Tidak ada tagihan tertunggak untuk santriwati ini.</p>
+                                )}
                             </div>
                             <button
                                 type="submit"
-                                disabled={payProcessing || !payData.amount}
+                                disabled={payProcessing || !payData.amount || sortedYears.length === 0}
                                 className="flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {payProcessing ? 'Memproses...' : 'Terima Pembayaran'}
