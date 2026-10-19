@@ -73,6 +73,28 @@ export default function ProfilSiswa({ student }: Props) {
         return statusStyles[status] || 'bg-slate-100 text-foreground/90 dark:bg-slate-800 dark:text-slate-300';
     };
 
+    const getStudentTypeBadge = (type?: string) => {
+        const types: Record<string, { label: string; class: string }> = {
+            umum: {
+                label: 'Umum',
+                class: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+            },
+            yatim: {
+                label: 'Yatim',
+                class: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
+            },
+            piatu: {
+                label: 'Piatu',
+                class: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/60',
+            },
+            yatim_piatu: {
+                label: 'Yatim Piatu',
+                class: 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/60',
+            },
+        };
+        return types[type || 'umum'] || types.umum;
+    };
+
     const getMonthName = (monthNumber?: number) => {
         if (!monthNumber || monthNumber < 1 || monthNumber > 12) return '-';
         return months[monthNumber - 1];
@@ -154,9 +176,14 @@ export default function ProfilSiswa({ student }: Props) {
                             </div>
                             <h3 className="mt-4 text-xl font-bold text-foreground dark:text-white">{student.name}</h3>
                             <p className="text-sm text-muted-foreground">NISN: {student.nisn}</p>
-                            <span className={`mt-2 inline-flex rounded-full px-3 py-1 text-sm font-medium uppercase ${getStatusBadge(student.status)}`}>
-                                {student.status}
-                            </span>
+                            <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${getStatusBadge(student.status)}`}>
+                                    {student.status}
+                                </span>
+                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getStudentTypeBadge(student.student_type).class}`}>
+                                    {getStudentTypeBadge(student.student_type).label}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -183,6 +210,14 @@ export default function ProfilSiswa({ student }: Props) {
                                 <div>
                                     <p className="text-sm text-muted-foreground">Status</p>
                                     <p className="font-medium uppercase text-foreground dark:text-white">{student.status}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Jenis / Kategori Santri</p>
+                                    <div className="mt-0.5">
+                                        <span className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${getStudentTypeBadge(student.student_type).class}`}>
+                                            {getStudentTypeBadge(student.student_type).label}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div>
                                     <p className="text-sm text-muted-foreground">Tanggal Masuk</p>
