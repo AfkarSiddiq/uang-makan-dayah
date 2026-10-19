@@ -24,3 +24,5 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /dist
+/test-results/
+/playwright-report/
