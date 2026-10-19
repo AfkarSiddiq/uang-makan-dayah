@@ -11,7 +11,7 @@ export default function KenaikanKelas({ kelasAktif }: Props) {
 
     const { data, setData, post, processing, errors } = useForm({
         old_class: '',
-        is_graduating: false,
+        is_graduating: false as boolean,
         new_class: '',
         new_spp_amount: 500000, // Default 500rb
         start_year: currentYear,

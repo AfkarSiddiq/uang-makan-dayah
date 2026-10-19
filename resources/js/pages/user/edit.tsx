@@ -16,6 +16,7 @@ interface User {
 }
 
 interface PageProps {
+    [key: string]: any;
     user: User;
     roles: Role[];
 }

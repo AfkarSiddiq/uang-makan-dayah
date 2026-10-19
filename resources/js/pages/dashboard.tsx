@@ -230,7 +230,7 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
                                     <Tooltip 
                                         cursor={{ fill: 'currentColor', opacity: 0.05 }} 
                                         contentStyle={{ borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--color-card)' }} 
-                                        formatter={(value: number) => formatRupiah(value)} 
+                                        formatter={(value: any) => formatRupiah(Number(value || 0))} 
                                     />
                                     <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
                                     <Bar dataKey="Masuk" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
@@ -300,7 +300,7 @@ export default function Index({ latest_transactions = [], chart_data, summary, s
                                             </Pie>
                                             <Tooltip 
                                                 contentStyle={{ borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--color-card)' }} 
-                                                formatter={(value: number) => formatRupiah(value)} 
+                                                formatter={(value: any) => formatRupiah(Number(value || 0))} 
                                             />
                                             <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
                                         </PieChart>

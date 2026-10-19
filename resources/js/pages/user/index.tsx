@@ -27,6 +27,7 @@ interface User {
 }
 
 interface PageProps {
+    [key: string]: any;
     users: User[];
 }
 

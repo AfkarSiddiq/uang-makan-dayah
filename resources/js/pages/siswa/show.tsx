@@ -50,8 +50,12 @@ export default function Show({ student }: Props) {
 
     const submitPayment = (e: React.FormEvent) => {
         e.preventDefault();
+        if (payProcessing) return;
         payPost(route('siswa.pay', { id: student.id }), {
             preserveScroll: true,
+            headers: {
+                'X-Idempotency-Key': typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'pay-' + student.id + '-' + Date.now(),
+            },
             onSuccess: () => {
                 payReset();
                 alert('Pembayaran berhasil diproses!');

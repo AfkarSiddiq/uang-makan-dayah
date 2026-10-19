@@ -68,7 +68,12 @@ class TuitionArrearsController extends Controller
         $currentScore = ($currentYear * 12) + $currentMonth;
 
         $sppMonths = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
-        $allStudents = $studentsQuery->with('sppPayments')->get();
+        $allStudents = $studentsQuery->select([
+            'id', 'nisn', 'name', 'gender', 'class', 'status',
+            'entry_month', 'entry_year', 'exit_month', 'exit_year', 'updated_at',
+        ])->with(['sppPayments' => function ($q) {
+            $q->select(['id', 'student_id', 'spp_month_id', 'paid_amount', 'status']);
+        }])->get();
 
         $studentsWithArrears = [];
 

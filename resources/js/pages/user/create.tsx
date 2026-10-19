@@ -9,6 +9,7 @@ interface Role {
 }
 
 interface PageProps {
+    [key: string]: any;
     roles: Role[];
 }
 

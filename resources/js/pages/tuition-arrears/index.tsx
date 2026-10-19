@@ -719,7 +719,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                                                                         <div>
                                                                                             <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
-                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                                             </h4>
                                                                                             <p className="text-xs text-muted-foreground mt-0.5">Sistem memprioritaskan pelunasan pada bulan paling lama/tertua.</p>
                                                                                         </div>
@@ -740,7 +740,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     </div>
 
                                                                                     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                                                                                        {student.unpaid_months.map((month) => (
+                                                                                        {(student.unpaid_months || []).map((month) => (
                                                                                             <div
                                                                                                 key={month.id}
                                                                                                 className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
@@ -805,10 +805,10 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             {expandedStudent === student.id && (
                                                                 <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
                                                                     <h5 className="font-bold text-xs text-foreground dark:text-white flex items-center gap-1.5">
-                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                     </h5>
                                                                     <div className="grid grid-cols-2 gap-2">
-                                                                        {student.unpaid_months.map(month => (
+                                                                        {(student.unpaid_months || []).map(month => (
                                                                             <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-card px-2.5 py-1.5 text-xs flex justify-between items-center">
                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
                                                                                 <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
@@ -967,7 +967,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                                                                         <div>
                                                                                             <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
-                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                                             </h4>
                                                                                             <p className="text-xs text-muted-foreground mt-0.5">Meskipun siswa sudah non-aktif/lulus, tagihan masa lalu tetap dapat dilunasi di sini.</p>
                                                                                         </div>
@@ -988,7 +988,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     </div>
 
                                                                                     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                                                                                        {student.unpaid_months.map((month) => (
+                                                                                        {(student.unpaid_months || []).map((month) => (
                                                                                             <div
                                                                                                 key={month.id}
                                                                                                 className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
@@ -1061,10 +1061,10 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             {expandedStudent === student.id && (
                                                                 <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
                                                                     <h5 className="font-bold text-xs text-foreground dark:text-white flex items-center gap-1.5">
-                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                     </h5>
                                                                     <div className="grid grid-cols-2 gap-2">
-                                                                        {student.unpaid_months.map(month => (
+                                                                        {(student.unpaid_months || []).map(month => (
                                                                             <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-card px-2.5 py-1.5 text-xs flex justify-between items-center">
                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
                                                                                 <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>

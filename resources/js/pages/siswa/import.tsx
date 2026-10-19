@@ -48,12 +48,12 @@ export default function Import() {
                         
                         const validRows = json.filter((row: any) => Array.isArray(row) && row.length > 0);
                         setPreviewData(validRows.slice(0, 6));
-                    } catch (err) {
+                    } catch {
                         setPreviewError("Gagal membaca file Excel. Pastikan formatnya benar (.xlsx atau .xls).");
                     }
                 };
                 reader.readAsArrayBuffer(file);
-            } catch (err) {
+            } catch {
                 setPreviewError("Gagal memproses file.");
             }
         } else {

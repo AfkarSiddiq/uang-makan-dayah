@@ -50,8 +50,12 @@ export default function ProfilSiswa({ student }: Props) {
 
     const submitPayment = (e: React.FormEvent) => {
         e.preventDefault();
+        if (payProcessing) return;
         payPost(route('siswa.pay', { id: student.id }), {
             preserveScroll: true,
+            headers: {
+                'X-Idempotency-Key': typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'pay-' + student.id + '-' + Date.now(),
+            },
             onSuccess: () => {
                 payReset();
                 alert('Pembayaran berhasil diproses!');
@@ -108,7 +112,9 @@ export default function ProfilSiswa({ student }: Props) {
                 if (refUrl.pathname.startsWith('/alumni')) {
                     return { href: '/alumni', text: 'Kembali ke Arsip & Alumni', parentTitle: 'Arsip & Alumni', parentHref: '/alumni' };
                 }
-            } catch (e) {}
+            } catch {
+                // Ignore invalid referrer URL
+            }
         }
         const isNotActive = student.status !== 'aktif';
         if (isNotActive) {

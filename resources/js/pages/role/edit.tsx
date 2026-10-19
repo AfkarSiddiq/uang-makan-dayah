@@ -19,6 +19,7 @@ interface Role {
 }
 
 interface PageProps {
+    [key: string]: any;
     role: Role;
     permissions: Record<string, Permission[]>;
 }
