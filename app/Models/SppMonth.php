@@ -29,4 +29,42 @@ class SppMonth extends Model
     {
         return $this->hasMany(SppPayment::class);
     }
+
+    /**
+     * Pastikan master SPP untuk tahun ajaran tertentu (dari tahun $fromYear hingga $toYear)
+     * sudah terbuat di tabel spp_months.
+     */
+    public static function ensureAcademicYearsExist(int $fromYear, ?int $toYear = null): void
+    {
+        $currentMonth = (int) date('n');
+        $currentCalendarYear = (int) date('Y');
+        $currentAcademicYear = ($currentMonth >= 7) ? $currentCalendarYear : $currentCalendarYear - 1;
+
+        $targetEndYear = $toYear ?: max($fromYear, $currentAcademicYear);
+
+        // Ambil nominal dasar terakhir dari database (default Rp 500.000 jika belum ada sama sekali)
+        $latestAmount = static::orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->value('amount') ?? 500000;
+
+        $bulanAjaran = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
+
+        for ($year = $fromYear; $year <= $targetEndYear; $year++) {
+            $exists = static::where('month', 7)->where('year', $year)->exists();
+            if (! $exists) {
+                foreach ($bulanAjaran as $month) {
+                    $actualYear = ($month >= 7) ? $year : $year + 1;
+                    static::firstOrCreate(
+                        [
+                            'month' => $month,
+                            'year' => $actualYear,
+                        ],
+                        [
+                            'amount' => $latestAmount,
+                        ]
+                    );
+                }
+            }
+        }
+    }
 }

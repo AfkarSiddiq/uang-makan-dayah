@@ -289,27 +289,15 @@ class PaymentController extends Controller
         $student = Student::findOrFail($studentId);
         $sisaUang = $paymentAmount;
 
-        // 1. Ambil "Buku Menu" (Semua Bulan Master) dari yang paling lama ke baru
+        // 1. Pastikan master SPP tersedia untuk rentang tahun ajaran santri
+        $entryYearStart = $student->getAcademicYearStart();
+        SppMonth::ensureAcademicYearsExist($entryYearStart);
+
         $semuaBulanMaster = SppMonth::orderBy('year', 'asc')->orderBy('month', 'asc')->get();
 
-        // 2. Filter: Hanya ambil bulan yang relevan (mulai dari bulan masuk santri)
+        // 2. Filter: Hanya ambil bulan yang relevan (mulai dari bulan masuk hingga bulan keluar)
         $bulanValid = $semuaBulanMaster->filter(function ($master) use ($student) {
-            $bulanMasterSkor = ((int) $master->year * 12) + (int) $master->month;
-            $bulanMasukSkor = ((int) $student->entry_year * 12) + (int) $student->entry_month;
-
-            if ($bulanMasterSkor < $bulanMasukSkor) {
-                return false;
-            }
-
-            // REM OTOMATIS WATERFALL (jika santri sudah keluar/alumni)
-            if ($student->exit_year && $student->exit_month) {
-                $bulanKeluarSkor = ((int) $student->exit_year * 12) + (int) $student->exit_month;
-                if ($bulanMasterSkor > $bulanKeluarSkor) {
-                    return false;
-                }
-            }
-
-            return true;
+            return $student->isMonthBillable((int) $master->year, (int) $master->month);
         });
 
         $monthNotes = [];

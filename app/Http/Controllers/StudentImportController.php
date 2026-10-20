@@ -64,16 +64,33 @@ class StudentImportController extends Controller
                 continue;
             }
 
+            $status = isset($row[4]) ? strtolower(trim($row[4])) : 'aktif';
+            $entryMonth = isset($row[5]) && is_numeric($row[5]) ? (int) $row[5] : (int) date('n');
+            $entryYear = isset($row[6]) && is_numeric($row[6]) ? (int) $row[6] : (int) date('Y');
+
+            $exitMonth = null;
+            $exitYear = null;
+            if (in_array($status, ['lulus', 'pindah', 'berhenti'])) {
+                $exitMonth = (int) date('n');
+                $exitYear = (int) date('Y');
+            }
+
             $student = Student::create([
                 'nisn' => $nisn,
                 'name' => $name,
                 'gender' => $gender ?: 'L',
                 'class' => isset($row[3]) && is_numeric($row[3]) ? (int) $row[3] : null,
-                'status' => isset($row[4]) ? strtolower(trim($row[4])) : 'aktif',
+                'status' => $status,
                 'student_type' => isset($row[7]) ? strtolower(trim($row[7])) : 'umum',
-                'entry_month' => isset($row[5]) && is_numeric($row[5]) ? (int) $row[5] : date('n'),
-                'entry_year' => isset($row[6]) && is_numeric($row[6]) ? (int) $row[6] : date('Y'),
+                'entry_month' => $entryMonth,
+                'entry_year' => $entryYear,
+                'exit_month' => $exitMonth,
+                'exit_year' => $exitYear,
             ]);
+
+            // Pastikan master SPP untuk angkatan siswa ini tersedia
+            $academicStart = $entryMonth >= 7 ? $entryYear : $entryYear - 1;
+            SppMonth::ensureAcademicYearsExist($academicStart);
 
             $successCount++;
         }

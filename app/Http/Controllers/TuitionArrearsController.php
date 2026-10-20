@@ -73,32 +73,17 @@ class TuitionArrearsController extends Controller
         $studentsWithArrears = [];
 
         foreach ($allStudents as $student) {
-            $entryScore = ($student->entry_year * 12) + $student->entry_month;
-
-            // Hitung Exit Score jika anak ini sudah ada info lulus/keluar atau status non-aktif
-            $exitScore = null;
-            if ($student->exit_year && $student->exit_month) {
-                $exitScore = ($student->exit_year * 12) + $student->exit_month;
-            } elseif ($student->status !== 'aktif') {
-                $exitScore = ((int) $student->updated_at->format('Y') * 12) + (int) $student->updated_at->format('n');
-            }
-
             $totalArrearsAmount = 0;
             $unpaidMonthsList = [];
             $arrearsCount = 0;
 
             foreach ($sppMonths as $month) {
-                $monthScore = ($month->year * 12) + $month->month;
-
-                // 1. Abaikan bulan sebelum siswa masuk
-                if ($monthScore < $entryScore) {
+                // 1 & 2. Periksa apakah bulan ini wajib ditagih (antara bulan masuk dan keluar)
+                if (! $student->isMonthBillable((int) $month->year, (int) $month->month)) {
                     continue;
                 }
 
-                // 2. Abaikan bulan setelah siswa keluar (Rem Otomatis)
-                if ($exitScore && $monthScore > $exitScore) {
-                    continue;
-                }
+                $monthScore = ((int) $month->year * 12) + (int) $month->month;
 
                 // 3. Abaikan bulan masa depan (Tidak menagih melebihi bulan ini)
                 if ($monthScore > $currentScore) {
@@ -321,17 +306,8 @@ class TuitionArrearsController extends Controller
         }
 
         $students = $query->with('sppPayments')->get()->filter(function ($student) use ($sppMonth, $monthScore) {
-            // Jika siswa sudah keluar/lulus sebelum bulan ini, jangan ditagihkan
-            if ($student->exit_year && $student->exit_month) {
-                $exitScore = ($student->exit_year * 12) + $student->exit_month;
-                if ($monthScore > $exitScore) {
-                    return false;
-                }
-            } elseif ($student->status !== 'aktif') {
-                $exitScore = ((int) $student->updated_at->format('Y') * 12) + (int) $student->updated_at->format('n');
-                if ($monthScore > $exitScore) {
-                    return false;
-                }
+            if (! $student->isMonthBillable((int) $sppMonth->year, (int) $sppMonth->month)) {
+                return false;
             }
 
             return $student->sppPayments->where('spp_month_id', $sppMonth->id)->where('status', 'paid')->isEmpty();
