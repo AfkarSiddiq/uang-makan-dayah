@@ -71,7 +71,7 @@ export default function Edit({ transaction, students, categories }: Props) {
     const handleTypeChange = (newType: 'in' | 'out') => {
         setType(newType);
         setData('type', newType);
-        setData('category', newType === 'in' ? categories.in[0] : categories.out[0]);
+        setData('category', '');
         setData('student_id', '');
     };
 
@@ -145,14 +145,14 @@ export default function Edit({ transaction, students, categories }: Props) {
                                 <Label htmlFor="category" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                     Kategori <span className="text-rose-500">*</span>
                                 </Label>
-                                <Select value={data.category} onValueChange={(value) => {
+                                <Select value={data.category || undefined} onValueChange={(value) => {
                                     setData('category', value);
                                     if (value !== 'Uang Makan Bulanan') {
                                         setData('student_id', '');
                                     }
                                 }}>
                                     <SelectTrigger className="mt-1 h-11 w-full sm:h-10">
-                                        <SelectValue placeholder="Pilih kategori" />
+                                        <SelectValue placeholder="-- Pilih Kategori --" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {(type === 'in' ? categories.in : categories.out).map((cat) => (
