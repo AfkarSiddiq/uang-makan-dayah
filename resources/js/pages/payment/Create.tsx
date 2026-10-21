@@ -27,7 +27,10 @@ export default function Create({ studentsByGender, classes, categories, allowedC
         ? 'out'
         : 'in';
 
+    const [idempotencyKey] = useState(() => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'key-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9)));
+
     const { data, setData, post, processing, errors } = useForm({
+        idempotency_key: idempotencyKey,
         type: defaultType as 'in' | 'out',
         category: (defaultType === 'in' ? categories.in[0] : categories.out[0]) ?? undefined,
         amount: '',
@@ -49,7 +52,11 @@ export default function Create({ studentsByGender, classes, categories, allowedC
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (processing) return;
         post(route('payment.store'), {
+            headers: {
+                'X-Idempotency-Key': idempotencyKey,
+            },
             onSuccess: () => {
                 router.visit(route('payment.index'));
             },
@@ -302,7 +309,7 @@ export default function Create({ studentsByGender, classes, categories, allowedC
                             </Link>
                             <Button type="submit" disabled={processing} className="w-full sm:w-auto h-11 sm:h-10">
                                 <Save className="mr-2 h-4 w-4" />
-                                Simpan Transaksi
+                                {processing ? 'Menyimpan...' : 'Simpan Transaksi'}
                             </Button>
                         </div>
                     </form>

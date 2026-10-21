@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Student;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -73,19 +74,30 @@ class DashboardController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        // Tren 6 Bulan Terakhir
+        // Tren 6 Bulan Terakhir (Optimasi: 1 query agregasi tunggal)
+        $sixMonthsAgo = now()->subMonths(5)->startOfMonth()->format('Y-m-d');
+        $driver = DB::getDriverName();
+        $yearExpr = $driver === 'sqlite' ? "strftime('%Y', transaction_date)" : 'YEAR(transaction_date)';
+        $monthExpr = $driver === 'sqlite' ? "strftime('%m', transaction_date)" : 'MONTH(transaction_date)';
+
+        $rawTrends = (clone $baseQuery)
+            ->where('transaction_date', '>=', $sixMonthsAgo)
+            ->selectRaw("{$yearExpr} as yr, {$monthExpr} as mo, type, SUM(amount) as total")
+            ->groupBy('yr', 'mo', 'type')
+            ->get();
+
         $monthlyTrend = [];
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
-            $year = $date->year;
-            $month = $date->month;
-            $in = (clone $baseQuery)->where('type', 'in')->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month)->sum('amount');
-            $out = (clone $baseQuery)->where('type', 'out')->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month)->sum('amount');
+            $y = (int) $date->year;
+            $m = (int) $date->month;
+            $inItem = $rawTrends->first(fn ($item) => (int) $item->yr === $y && (int) $item->mo === $m && $item->type === 'in');
+            $outItem = $rawTrends->first(fn ($item) => (int) $item->yr === $y && (int) $item->mo === $m && $item->type === 'out');
             $monthlyTrend[] = [
-                'year' => $year,
-                'month' => $month,
-                'in' => (float) $in,
-                'out' => (float) $out,
+                'year' => $y,
+                'month' => $m,
+                'in' => (float) ($inItem ? $inItem->total : 0),
+                'out' => (float) ($outItem ? $outItem->total : 0),
             ];
         }
 

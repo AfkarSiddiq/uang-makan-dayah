@@ -537,10 +537,10 @@ class StudentController extends Controller
             'amount' => 'required|numeric|min:1',
         ]);
 
-        $student = Student::findOrFail($id);
         $paymentAmount = $request->amount;
 
-        DB::transaction(function () use ($student, $paymentAmount) {
+        DB::transaction(function () use ($id, $paymentAmount) {
+            $student = Student::where('id', $id)->lockForUpdate()->firstOrFail();
             $paymentController = new PaymentController();
             $trxId = $paymentController->generateTransactionNumber();
 

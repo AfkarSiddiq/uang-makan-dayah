@@ -22,20 +22,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
 
-    // Halaman Dashboard
-    Route::get('/dashboard', function () {
-        return Inertia::render('admin/dashboard', [
-            'status' => 'Sukses',
-        ]);
-    })->name('dashboard');
-
-    // Halaman List User
-    Route::get('/users', function () {
-        return Inertia::render('Admin/Users/Index');
-    })->name('users.index');
-});
 
 // Public template download
 Route::get('/siswa/import/template', [StudentImportController::class, 'template'])->name('siswa.import.template');
@@ -130,7 +117,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/siswa/export', [StudentImportController::class, 'export'])
         ->name('siswa.export')
         ->middleware(['permission:siswa.export']);
-    Route::get('/siswa/{id}', [StudentController::class, 'show'])->name('siswa.show');
+    Route::get('/siswa/{id}', [StudentController::class, 'show'])
+        ->name('siswa.show')
+        ->middleware(['permission:siswa.view']);
     Route::get('/siswa/{id}/edit', [StudentController::class, 'edit'])
         ->name('siswa.edit')
         ->middleware(['permission:siswa.edit']);
@@ -187,9 +176,18 @@ Route::middleware(['auth'])->group(function () {
         ->middleware(['permission:pembayaran.masuk.view|pembayaran.keluar.view']);
 
     // Category management
-    Route::resource('category', CategoryController::class)
-        ->only(['index', 'store', 'update', 'destroy'])
-        ->middleware(['permission:kategori.view|kategori.create|kategori.edit|kategori.delete']);
+    Route::get('/category', [CategoryController::class, 'index'])
+        ->name('category.index')
+        ->middleware(['permission:kategori.view']);
+    Route::post('/category', [CategoryController::class, 'store'])
+        ->name('category.store')
+        ->middleware(['permission:kategori.create']);
+    Route::match(['put', 'patch'], '/category/{category}', [CategoryController::class, 'update'])
+        ->name('category.update')
+        ->middleware(['permission:kategori.edit']);
+    Route::delete('/category/{category}', [CategoryController::class, 'destroy'])
+        ->name('category.destroy')
+        ->middleware(['permission:kategori.delete']);
 
     // Role management
     Route::middleware(['permission:users.roles'])->group(function () {
@@ -197,9 +195,27 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // User management
-    Route::middleware(['permission:users.view'])->group(function () {
-        Route::resource('users', UserController::class);
-    });
+    Route::get('/users', [UserController::class, 'index'])
+        ->name('users.index')
+        ->middleware(['permission:users.view']);
+    Route::get('/users/create', [UserController::class, 'create'])
+        ->name('users.create')
+        ->middleware(['permission:users.create']);
+    Route::post('/users', [UserController::class, 'store'])
+        ->name('users.store')
+        ->middleware(['permission:users.create']);
+    Route::get('/users/{user}', [UserController::class, 'show'])
+        ->name('users.show')
+        ->middleware(['permission:users.view']);
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+        ->name('users.edit')
+        ->middleware(['permission:users.edit']);
+    Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update'])
+        ->name('users.update')
+        ->middleware(['permission:users.edit']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->name('users.destroy')
+        ->middleware(['permission:users.delete']);
 
 });
 

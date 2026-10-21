@@ -21,6 +21,7 @@ export default [
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
             'react/no-unescaped-entities': 'off',
+            '@typescript-eslint/no-explicit-any': 'off',
         },
         settings: {
             react: {
@@ -35,10 +36,11 @@ export default [
         rules: {
             'react-hooks/rules-of-hooks': 'error',
             'react-hooks/exhaustive-deps': 'warn',
+            '@typescript-eslint/no-explicit-any': 'off',
         },
     },
     {
-        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js'],
+        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'dist', 'dist/**', 'resources/views/**', '.agents', '.agents/**'],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];

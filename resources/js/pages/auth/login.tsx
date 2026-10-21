@@ -136,7 +136,7 @@ export default function Login({ status }: LoginProps) {
                         </div>
 
                         {/* Tombol Login */}
-                        <Button disabled={processing} className="w-full h-11 text-base font-medium shadow-sm transition-all hover:shadow-md">
+                        <Button type="submit" disabled={processing} className="w-full h-11 text-base font-medium shadow-sm transition-all hover:shadow-md">
                             {processing && (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             )}

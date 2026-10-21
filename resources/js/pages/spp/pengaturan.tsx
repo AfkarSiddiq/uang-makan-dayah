@@ -180,7 +180,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                     <button
                         onClick={openGenerateModal}
                         type="button"
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-sm transition transform active:scale-95 flex-shrink-0"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold text-sm shadow-sm transition transform active:scale-95 flex-shrink-0"
                     >
                         <PlusCircle className="w-4 h-4" />
                         <span>Generate Tahun Ajaran</span>
@@ -197,7 +197,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                     <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
-                        className="w-full sm:w-auto rounded-md border-slate-300 dark:border-border bg-slate-50 dark:bg-slate-950 px-4 py-2 text-sm focus:ring-primary font-semibold text-indigo-700 dark:text-primary min-w-[200px]"
+                        className="w-full sm:w-auto rounded-md border-slate-300 dark:border-border bg-slate-50 dark:bg-slate-950 px-4 py-2 text-sm focus:ring-primary font-semibold text-primary min-w-[200px]"
                     >
                         {dbYears.map(year => (
                             <option key={`opt-${year}`} value={year}>Tahun Ajaran {year}/{year + 1}</option>
@@ -460,7 +460,7 @@ export default function Pengaturan({ ringkasanSPP }: Props) {
                                 <button 
                                     type="submit"
                                     disabled={genProcessing}
-                                    className="px-6 py-2.5 rounded-xl bg-primary hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition disabled:opacity-50 flex items-center gap-2"
+                                    className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold shadow-sm transition disabled:opacity-50 flex items-center gap-2"
                                 >
                                     {genProcessing ? (
                                         <>

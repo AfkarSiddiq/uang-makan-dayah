@@ -10,6 +10,7 @@ interface Permission {
 }
 
 interface PageProps {
+    [key: string]: any;
     permissions: Record<string, Permission[]>;
 }
 

@@ -29,6 +29,7 @@ class RolePermissionSeeder extends Seeder
             'pembayaran.edit' => ['Pembayaran', 'Mengedit transaksi'],
             'pembayaran.delete' => ['Pembayaran', 'Menghapus transaksi'],
             'pembayaran.export' => ['Pembayaran', 'Mengexport transaksi'],
+            'pembayaran.import' => ['Pembayaran', 'Mengimport transaksi'],
             'pembayaran.print' => ['Pembayaran', 'Mencetak struk transaksi'],
 
             'kategori.view' => ['Kategori', 'Melihat daftar kategori'],
@@ -97,6 +98,7 @@ class RolePermissionSeeder extends Seeder
             'pembayaran.edit',
             'pembayaran.delete',
             'pembayaran.export',
+            'pembayaran.import',
             'pembayaran.print',
             'kategori.view',
             'kategori.create',

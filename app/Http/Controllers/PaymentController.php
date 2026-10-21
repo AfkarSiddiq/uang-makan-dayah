@@ -58,6 +58,7 @@ class PaymentController extends Controller
 
         if ($sortBy === 'student_name') {
             $query->leftJoin('students', 'transactions.student_id', '=', 'students.id')
+                ->select('transactions.*')
                 ->orderBy('students.name', $sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
@@ -184,6 +185,10 @@ class PaymentController extends Controller
         $validated['user_id'] = Auth::id();
 
         DB::transaction(function () use ($validated) {
+            if (! empty($validated['student_id'])) {
+                Student::where('id', $validated['student_id'])->lockForUpdate()->first();
+            }
+
             $transaction = Transaction::create($validated);
 
             if ($validated['type'] === 'in' && $validated['category'] === 'SPP' && ! empty($validated['student_id'])) {
@@ -235,7 +240,20 @@ class PaymentController extends Controller
 
     public function destroy(Transaction $payment)
     {
-        $payment->delete();
+        DB::transaction(function () use ($payment) {
+            // Reversal SPP payments jika transaksi yang dihapus memiliki alokasi spp_payments
+            $sppPayments = SppPayment::where('transaction_id', $payment->id)->get();
+            foreach ($sppPayments as $sppPayment) {
+                $sppPayment->update([
+                    'paid_amount' => 0,
+                    'status' => 'unpaid',
+                    'paid_at' => null,
+                    'transaction_id' => null,
+                ]);
+            }
+
+            $payment->delete();
+        });
 
         return redirect()->route('payment.index')->with('success', 'Transaksi berhasil dihapus.');
     }

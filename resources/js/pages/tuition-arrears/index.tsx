@@ -330,7 +330,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setExportCategory('all')}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'all' ? 'border-indigo-600 bg-primary/5/80 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
+                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'all' ? 'border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/20 dark:text-primary' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
                                     >
                                         <Users className="w-5 h-5" />
                                         <span>Semua Siswa</span>
@@ -338,7 +338,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setExportCategory('class')}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'class' ? 'border-indigo-600 bg-primary/5/80 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
+                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'class' ? 'border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/20 dark:text-primary' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
                                     >
                                         <BookOpen className="w-5 h-5" />
                                         <span>Per Kelas</span>
@@ -346,7 +346,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setExportCategory('month')}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'month' ? 'border-indigo-600 bg-primary/5/80 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
+                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition flex flex-col items-center gap-1.5 ${exportCategory === 'month' ? 'border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/20 dark:text-primary' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-foreground/90 dark:text-slate-300'}`}
                                     >
                                         <Clock className="w-5 h-5" />
                                         <span>Per Bulan</span>
@@ -397,21 +397,21 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setExportStatus('all')}
-                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'all' ? 'border-indigo-600 bg-primary/5 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
+                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'all' ? 'border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/20 dark:text-primary' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
                                     >
                                         Semua Status
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setExportStatus('active')}
-                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'active' ? 'border-indigo-600 bg-primary/5 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
+                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'active' ? 'border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/20 dark:text-primary' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
                                     >
                                         Siswa Aktif Saja
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setExportStatus('inactive')}
-                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'inactive' ? 'border-indigo-600 bg-primary/5 text-indigo-700 dark:border-primary dark:bg-primary/10 dark:text-primary/80' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
+                                        className={`px-3 py-2 rounded-lg border text-xs font-semibold transition ${exportStatus === 'inactive' ? 'border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/20 dark:text-primary' : 'border-border hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 text-slate-600 dark:text-muted-foreground'}`}
                                     >
                                         Non-Aktif / Alumni
                                     </button>
@@ -705,7 +705,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                         <td className="px-6 py-4 text-center">
                                                                             <button
                                                                                 onClick={() => toggleExpand(student.id)}
-                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/60 shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                             >
                                                                                 <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
                                                                                 {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -719,7 +719,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                                                                         <div>
                                                                                             <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
-                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                                             </h4>
                                                                                             <p className="text-xs text-muted-foreground mt-0.5">Sistem memprioritaskan pelunasan pada bulan paling lama/tertua.</p>
                                                                                         </div>
@@ -740,7 +740,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     </div>
 
                                                                                     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                                                                                        {student.unpaid_months.map((month) => (
+                                                                                        {(student.unpaid_months || []).map((month) => (
                                                                                             <div
                                                                                                 key={month.id}
                                                                                                 className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
@@ -795,7 +795,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             <div className="pt-1">
                                                                 <button
                                                                     onClick={() => toggleExpand(student.id)}
-                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/60 shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                 >
                                                                     <span>{expandedStudent === student.id ? 'Tutup Rincian Tagihan' : 'Lihat Rincian Tagihan'}</span>
                                                                     {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -805,10 +805,10 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             {expandedStudent === student.id && (
                                                                 <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
                                                                     <h5 className="font-bold text-xs text-foreground dark:text-white flex items-center gap-1.5">
-                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                     </h5>
                                                                     <div className="grid grid-cols-2 gap-2">
-                                                                        {student.unpaid_months.map(month => (
+                                                                        {(student.unpaid_months || []).map(month => (
                                                                             <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-card px-2.5 py-1.5 text-xs flex justify-between items-center">
                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
                                                                                 <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
@@ -953,7 +953,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                         <td className="px-6 py-4 text-center">
                                                                             <button
                                                                                 onClick={() => toggleExpand(student.id)}
-                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 mx-auto ${expandedStudent === student.id ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60 shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                             >
                                                                                 <span>{expandedStudent === student.id ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
                                                                                 {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -967,7 +967,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                                                                         <div>
                                                                                             <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
-                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                                                <AlertTriangle className="w-4 h-4 text-rose-500" /> Rincian Bulan Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                                             </h4>
                                                                                             <p className="text-xs text-muted-foreground mt-0.5">Meskipun siswa sudah non-aktif/lulus, tagihan masa lalu tetap dapat dilunasi di sini.</p>
                                                                                         </div>
@@ -988,7 +988,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                                                     </div>
 
                                                                                     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                                                                                        {student.unpaid_months.map((month) => (
+                                                                                        {(student.unpaid_months || []).map((month) => (
                                                                                             <div
                                                                                                 key={month.id}
                                                                                                 className="rounded-xl border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs dark:border-rose-900/50 dark:bg-rose-950/30 flex justify-between items-center"
@@ -1051,7 +1051,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             <div className="pt-1">
                                                                 <button
                                                                     onClick={() => toggleExpand(student.id)}
-                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-foreground shadow-sm' : 'bg-slate-100 text-foreground/90 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                                                    className={`w-full rounded-xl py-2 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${expandedStudent === student.id ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60 shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                                                                 >
                                                                     <span>{expandedStudent === student.id ? 'Tutup Rincian Tagihan' : 'Lihat Rincian Tagihan'}</span>
                                                                     {expandedStudent === student.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1061,10 +1061,10 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                             {expandedStudent === student.id && (
                                                                 <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 dark:border-rose-900/50 dark:bg-rose-950/20 space-y-3">
                                                                     <h5 className="font-bold text-xs text-foreground dark:text-white flex items-center gap-1.5">
-                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months.length} Bulan):
+                                                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500 shrink-0" /> Rincian Belum Dibayar ({student.unpaid_months?.length ?? 0} Bulan):
                                                                     </h5>
                                                                     <div className="grid grid-cols-2 gap-2">
-                                                                        {student.unpaid_months.map(month => (
+                                                                        {(student.unpaid_months || []).map(month => (
                                                                             <div key={month.id} className="rounded-lg border border-rose-100 bg-white dark:border-rose-900/40 dark:bg-card px-2.5 py-1.5 text-xs flex justify-between items-center">
                                                                                 <span className="font-semibold text-rose-900 dark:text-rose-300 truncate">{month.month_name}</span>
                                                                                 <span className="text-rose-700 dark:text-rose-400 font-bold ml-1">{month.year}</span>
