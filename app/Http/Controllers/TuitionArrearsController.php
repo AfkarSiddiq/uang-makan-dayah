@@ -155,12 +155,12 @@ class TuitionArrearsController extends Controller
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
-        $title = 'Data Semua Tunggakan SPP';
+        $title = 'Data Semua Tunggakan Uang Makan Bulanan';
         if ($statusFilter === 'active') {
-            $title = 'Data Tunggakan SPP - Siswa Aktif';
+            $title = 'Data Tunggakan Uang Makan Bulanan - Siswa Aktif';
         }
         if ($statusFilter === 'inactive') {
-            $title = 'Data Tunggakan SPP - Siswa Non-Aktif / Alumni';
+            $title = 'Data Tunggakan Uang Makan Bulanan - Siswa Non-Aktif / Alumni';
         }
 
         $sheet->setCellValue('A1', strtoupper($title));
@@ -238,7 +238,7 @@ class TuitionArrearsController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         $className = ($class && $class !== 'all') ? 'Kelas '.$class : 'Semua Kelas';
-        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN SPP - '.strtoupper($className));
+        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN UANG MAKAN BULANAN - '.strtoupper($className));
         $sheet->mergeCells('A1:G1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 
@@ -322,7 +322,7 @@ class TuitionArrearsController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         $monthName = $this->getMonthName($sppMonth->month);
-        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN SPP BULAN '.$monthName.' '.$sppMonth->year);
+        $sheet->setCellValue('A1', 'DAFTAR TUNGGAKAN UANG MAKAN BULANAN - BULAN '.$monthName.' '.$sppMonth->year);
         $sheet->mergeCells('A1:F1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 

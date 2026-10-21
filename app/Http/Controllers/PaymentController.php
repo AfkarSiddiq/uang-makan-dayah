@@ -19,6 +19,12 @@ class PaymentController extends Controller
 {
     private function getCategories(): array
     {
+        // Pastikan kategori sistem 'Uang Makan Bulanan' selalu tersedia tanpa merusak database
+        Category::firstOrCreate(
+            ['name' => 'Uang Makan Bulanan'],
+            ['type' => 'in', 'is_active' => true]
+        );
+
         $categories = Category::where('is_active', true)->get();
 
         return [
@@ -174,7 +180,7 @@ class PaymentController extends Controller
             'amount' => ['required', 'integer', 'min:1'],
             'student_id' => [
                 'nullable',
-                Rule::requiredIf(fn () => $request->category === 'SPP'),
+                Rule::requiredIf(fn () => $request->category === 'Uang Makan Bulanan'),
                 'exists:students,id',
             ],
             'transaction_date' => ['required', 'date'],
@@ -191,12 +197,12 @@ class PaymentController extends Controller
 
             $transaction = Transaction::create($validated);
 
-            if ($validated['type'] === 'in' && $validated['category'] === 'SPP' && ! empty($validated['student_id'])) {
+            if ($validated['type'] === 'in' && $validated['category'] === 'Uang Makan Bulanan' && ! empty($validated['student_id'])) {
                 $monthNotes = $this->allocateSppPayment($validated['student_id'], $validated['amount'], $transaction->id);
                 if (! empty($monthNotes)) {
                     $notePrefix = ! empty($validated['note']) ? $validated['note'].' | ' : '';
                     $transaction->update([
-                        'note' => $notePrefix.'Rincian SPP: '.implode(', ', $monthNotes),
+                        'note' => $notePrefix.'Rincian Uang Makan Bulanan: '.implode(', ', $monthNotes),
                     ]);
                 }
             }
@@ -211,8 +217,13 @@ class PaymentController extends Controller
             ->orderBy('name')
             ->get(['id', 'nisn', 'name', 'class']);
 
+        $paymentData = $payment->toArray();
+        if ($payment->transaction_date) {
+            $paymentData['transaction_date'] = Carbon::parse($payment->transaction_date)->format('Y-m-d');
+        }
+
         return Inertia::render('payment/Edit', [
-            'transaction' => $payment,
+            'transaction' => $paymentData,
             'students' => $students,
             'categories' => $this->getCategories(),
         ]);
@@ -226,14 +237,41 @@ class PaymentController extends Controller
             'amount' => ['required', 'integer', 'min:1'],
             'student_id' => [
                 'nullable',
-                Rule::requiredIf(fn () => $request->category === 'SPP'),
+                Rule::requiredIf(fn () => $request->category === 'Uang Makan Bulanan'),
                 'exists:students,id',
             ],
             'transaction_date' => ['required', 'date'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $payment->update($validated);
+        DB::transaction(function () use ($payment, $validated) {
+            // 1. Reversal alokasi lama transaksi ini jika sebelumnya mengalokasikan spp_payments
+            $oldAllocations = SppPayment::where('transaction_id', $payment->id)->get();
+            foreach ($oldAllocations as $alloc) {
+                $alloc->update([
+                    'paid_amount' => 0,
+                    'status' => 'unpaid',
+                    'paid_at' => null,
+                    'transaction_id' => null,
+                ]);
+            }
+
+            // 2. Update data transaksi
+            $payment->update($validated);
+
+            // 3. Jika kategori Uang Makan Bulanan & ada santri, alokasikan ulang secara atomik
+            if ($validated['type'] === 'in' && $validated['category'] === 'Uang Makan Bulanan' && ! empty($validated['student_id'])) {
+                Student::where('id', $validated['student_id'])->lockForUpdate()->first();
+                $monthNotes = $this->allocateSppPayment($validated['student_id'], $validated['amount'], $payment->id);
+                if (! empty($monthNotes)) {
+                    $baseNote = preg_replace('/\s*\|\s*Rincian (?:Uang Makan Bulanan|SPP):.*$/', '', $validated['note'] ?? '');
+                    $notePrefix = ! empty($baseNote) ? $baseNote.' | ' : '';
+                    $payment->update([
+                        'note' => $notePrefix.'Rincian Uang Makan Bulanan: '.implode(', ', $monthNotes),
+                    ]);
+                }
+            }
+        });
 
         return redirect()->route('payment.index')->with('success', 'Transaksi berhasil diperbarui.');
     }

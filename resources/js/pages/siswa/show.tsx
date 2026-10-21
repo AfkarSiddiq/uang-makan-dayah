@@ -232,7 +232,7 @@ export default function Show({ student }: Props) {
                     <div className="h-fit overflow-hidden rounded-xl border border-border bg-white shadow-sm lg:col-span-2 dark:border-slate-800 dark:bg-card">
                         <div className="border-b border-border bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
                             <h2 className="flex items-center gap-2 font-bold text-foreground dark:text-white">
-                                <Wallet className="h-5 w-5 text-primary" /> Rincian Tagihan SPP
+                                <Wallet className="h-5 w-5 text-primary" /> Rincian Tagihan Uang Makan Bulanan
                             </h2>
                         </div>
 
@@ -332,7 +332,7 @@ export default function Show({ student }: Props) {
                                     {student.student_type && student.student_type !== 'umum' ? (
                                         <div className="space-y-1">
                                             <p className="font-semibold text-foreground dark:text-white">Siswa Kategori Khusus ({student.student_type.toUpperCase()})</p>
-                                            <p className="text-sm">Siswa ini dibebaskan dari tagihan SPP bulanan.</p>
+                                            <p className="text-sm">Siswa ini dibebaskan dari tagihan Uang Makan Bulanan.</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-1">

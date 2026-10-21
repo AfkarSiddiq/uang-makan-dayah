@@ -11,6 +11,12 @@ class CategoryController extends Controller
 {
     public function index()
     {
+        // Pastikan kategori sistem 'Uang Makan Bulanan' selalu tersedia tanpa merusak database
+        Category::firstOrCreate(
+            ['name' => 'Uang Makan Bulanan'],
+            ['type' => 'in', 'is_active' => true]
+        );
+
         $categories = Category::where('is_active', true)
             ->orderBy('type')
             ->orderBy('name')
@@ -36,6 +42,10 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
+        if ($category->name === 'Uang Makan Bulanan') {
+            return back()->with('error', 'Kategori "Uang Makan Bulanan" adalah kategori sistem dan tidak dapat diubah.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:50'],
             'type' => ['required', Rule::in(['in', 'out', 'both'])],
@@ -48,6 +58,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->name === 'Uang Makan Bulanan') {
+            return back()->with('error', 'Kategori "Uang Makan Bulanan" adalah kategori sistem dan tidak dapat dihapus.');
+        }
+
         $category->update(['is_active' => false]);
 
         return back()->with('success', 'Kategori berhasil dihapus.');

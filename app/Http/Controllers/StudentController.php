@@ -547,19 +547,19 @@ class StudentController extends Controller
             $transaction = Transaction::create([
                 'transaction_id' => $trxId,
                 'type' => 'in',
-                'category' => 'SPP',
+                'category' => 'Uang Makan Bulanan',
                 'amount' => $paymentAmount,
                 'student_id' => $student->id,
                 'user_id' => Auth::id(),
                 'transaction_date' => now(),
-                'note' => 'Pembayaran SPP Otomatis',
+                'note' => 'Pembayaran Uang Makan Bulanan Otomatis',
             ]);
 
             $monthNotes = $paymentController->allocateSppPayment($student->id, $paymentAmount, $transaction->id);
 
             if (! empty($monthNotes)) {
                 $transaction->update([
-                    'note' => 'Pembayaran SPP: '.implode(', ', $monthNotes),
+                    'note' => 'Pembayaran Uang Makan Bulanan: '.implode(', ', $monthNotes),
                 ]);
             }
         });

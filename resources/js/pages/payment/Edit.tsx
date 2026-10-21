@@ -20,17 +20,53 @@ interface Props {
     };
 }
 
+const getFormattedDate = (val: string | null | undefined): string => {
+    if (!val) return new Date().toISOString().split('T')[0];
+    if (val.includes('T')) return val.split('T')[0];
+    if (val.includes(' ')) return val.split(' ')[0];
+    return val;
+};
+
+const parseDateSafe = (val: string | null | undefined): Date | undefined => {
+    if (!val) return undefined;
+    const ymd = getFormattedDate(val);
+    const parts = ymd.split('-');
+    if (parts.length === 3) {
+        const y = Number(parts[0]);
+        const m = Number(parts[1]) - 1;
+        const d = Number(parts[2]);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+            return new Date(y, m, d);
+        }
+    }
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? undefined : d;
+};
+
+const formatDateIndonesian = (val: string | null | undefined): string => {
+    if (!val) return 'Pilih tanggal';
+    const d = parseDateSafe(val);
+    if (!d) return 'Pilih tanggal';
+    return d.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+};
+
 export default function Edit({ transaction, students, categories }: Props) {
+    const initialDate = getFormattedDate(transaction.transaction_date);
     const { data, setData, patch, processing, errors } = useForm({
         type: transaction.type,
         category: transaction.category,
         amount: String(transaction.amount),
         student_id: transaction.student_id ? String(transaction.student_id) : '',
-        transaction_date: transaction.transaction_date,
+        transaction_date: initialDate,
         note: transaction.note || '',
     });
 
     const [type, setType] = useState<'in' | 'out'>(transaction.type);
+    const [calendarOpen, setCalendarOpen] = useState(false);
 
     const handleTypeChange = (newType: 'in' | 'out') => {
         setType(newType);
@@ -111,7 +147,7 @@ export default function Edit({ transaction, students, categories }: Props) {
                                 </Label>
                                 <Select value={data.category} onValueChange={(value) => {
                                     setData('category', value);
-                                    if (value !== 'SPP') {
+                                    if (value !== 'Uang Makan Bulanan') {
                                         setData('student_id', '');
                                     }
                                 }}>
@@ -146,7 +182,7 @@ export default function Edit({ transaction, students, categories }: Props) {
                             </div>
                         </div>
 
-                        {type === 'in' && data.category === 'SPP' && (
+                        {type === 'in' && data.category === 'Uang Makan Bulanan' && (
                             <div>
                                 <Label htmlFor="student_id" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
                                     Pilih Siswa <span className="text-rose-500">*</span>
@@ -164,15 +200,20 @@ export default function Edit({ transaction, students, categories }: Props) {
                                     </SelectContent>
                                 </Select>
                                 {errors.student_id && <p className="mt-1 text-sm text-rose-600">{errors.student_id}</p>}
+                                {data.student_id && (
+                                    <p className="mt-1 text-xs text-primary dark:text-primary">
+                                        Pembayaran Uang Makan Bulanan akan otomatis dialokasikan ke tagihan tertunda siswa.
+                                    </p>
+                                )}
                             </div>
                         )}
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <Label htmlFor="transaction_date" className="text-xs sm:text-sm text-foreground/90 dark:text-slate-300">
-                                    Tanggal <span className="text-rose-500">*</span>
+                                    Tanggal Transaksi <span className="text-rose-500">*</span>
                                 </Label>
-                                <Popover>
+                                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                     <PopoverTrigger asChild>
                                         <Button
                                             variant="outline"
@@ -180,26 +221,31 @@ export default function Edit({ transaction, students, categories }: Props) {
                                                 !data.transaction_date && 'text-muted-foreground'
                                             }`}
                                         >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {data.transaction_date
-                                                ? new Date(data.transaction_date + 'T00:00:00').toLocaleDateString('id-ID', {
-                                                      day: 'numeric',
-                                                      month: 'long',
-                                                      year: 'numeric',
-                                                  })
-                                                : 'Pilih tanggal'}
+                                            <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                                            <span className="font-medium text-foreground dark:text-slate-200">
+                                                {formatDateIndonesian(data.transaction_date)}
+                                            </span>
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
                                         <Calendar
                                             mode="single"
-                                            selected={data.transaction_date ? new Date(data.transaction_date + 'T00:00:00') : undefined}
+                                            selected={parseDateSafe(data.transaction_date)}
+                                            defaultMonth={parseDateSafe(data.transaction_date) || new Date()}
                                             onSelect={(date) => {
                                                 if (date) {
-                                                    setData('transaction_date', date.toISOString().split('T')[0]);
+                                                    const year = date.getFullYear();
+                                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                    const day = String(date.getDate()).padStart(2, '0');
+                                                    setData('transaction_date', `${year}-${month}-${day}`);
+                                                    setCalendarOpen(false);
                                                 }
                                             }}
+                                            captionLayout="dropdown"
+                                            fromYear={2020}
+                                            toYear={2035}
                                             initialFocus
+                                            className="rounded-xl border border-border bg-white dark:bg-card p-3 shadow-lg"
                                         />
                                     </PopoverContent>
                                 </Popover>
@@ -214,7 +260,7 @@ export default function Edit({ transaction, students, categories }: Props) {
                             <Input
                                 id="note"
                                 type="text"
-                                placeholder="Contoh: Terima dari Budi, bayar spp bulan maret"
+                                placeholder="Contoh: Terima dari Budi, bayar uang makan bulan maret"
                                 value={data.note}
                                 onChange={(e) => setData('note', e.target.value)}
                                 className="mt-1 h-11 sm:h-10"

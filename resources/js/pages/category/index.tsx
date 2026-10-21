@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Lock, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { usePermissions } from '@/hooks/use-permissions';
 
@@ -104,11 +104,18 @@ export default function Index({ categories }: Props) {
                                 </div>
                             ) : (
                                 <>
-                                    <span className="font-medium text-foreground/90 dark:text-slate-200">
-                                        {category.name}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-medium text-foreground/90 dark:text-slate-200">
+                                            {category.name}
+                                        </span>
+                                        {category.name === 'Uang Makan Bulanan' && (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60">
+                                                <Lock className="h-3 w-3" /> Sistem (Terkunci)
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="flex gap-1 justify-end">
-                                        {can('kategori.edit') && (
+                                        {category.name !== 'Uang Makan Bulanan' && can('kategori.edit') && (
                                             <Button
                                                 size="sm"
                                                 variant="ghost"
@@ -117,7 +124,7 @@ export default function Index({ categories }: Props) {
                                                 Edit
                                             </Button>
                                         )}
-                                        {can('kategori.delete') && (
+                                        {category.name !== 'Uang Makan Bulanan' && can('kategori.delete') && (
                                             <Button
                                                 size="sm"
                                                 variant="ghost"

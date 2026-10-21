@@ -227,8 +227,8 @@ export default function Index({ students, summary, availableMonths }: Props) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Tunggakan SPP', href: '/tuition-arrears' }]}>
-            <Head title="Tunggakan SPP" />
+        <AppLayout breadcrumbs={[{ title: 'Tunggakan Uang Makan Bulanan', href: '/tuition-arrears' }]}>
+            <Head title="Tunggakan Uang Makan Bulanan" />
 
             {/* MODAL PEMBAYARAN */}
             {paymentModal.isOpen && paymentModal.student && (
@@ -236,7 +236,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                     <div className="w-full max-w-md max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-xl dark:bg-card overflow-hidden border border-border dark:border-slate-800">
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 sm:px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50 shrink-0">
                             <h3 className="text-lg font-bold text-foreground dark:text-white flex items-center gap-2">
-                                <Wallet className="w-5 h-5 text-primary dark:text-primary" /> Terima Pembayaran
+                                <Wallet className="w-5 h-5 text-primary dark:text-primary" /> Terima Pembayaran Uang Makan Bulanan
                             </h3>
                             <button onClick={closePaymentModal} className="text-muted-foreground hover:text-slate-600 dark:hover:text-slate-300">
                                 <X className="w-5 h-5" />
@@ -316,7 +316,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                     <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-xl dark:bg-card border border-border dark:border-slate-800">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
                             <h3 className="text-lg font-bold text-foreground dark:text-white flex items-center gap-2">
-                                <FileSpreadsheet className="w-5 h-5 text-primary dark:text-primary" /> Export Data Tunggakan SPP
+                                <FileSpreadsheet className="w-5 h-5 text-primary dark:text-primary" /> Export Data Tunggakan Uang Makan Bulanan
                             </h3>
                             <button onClick={() => setShowExportModal(false)} className="text-muted-foreground hover:text-slate-600 dark:hover:text-slate-300">
                                 <X className="w-5 h-5" />
@@ -375,7 +375,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
 
                             {exportCategory === 'month' && (
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-3">
-                                    <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300">Pilih Bulan Tagihan SPP</label>
+                                    <label className="block text-sm font-medium text-foreground/90 dark:text-slate-300">Pilih Bulan Tagihan Uang Makan Bulanan</label>
                                     <select
                                         className="w-full rounded-xl border border-slate-300 px-4 py-2.5 dark:border-border dark:bg-card dark:text-white"
                                         value={exportMonthId}
@@ -447,7 +447,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             </button>
                         </a>
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground dark:text-white tracking-tight">Tunggakan SPP</h1>
+                            <h1 className="text-2xl font-bold text-foreground dark:text-white tracking-tight">Tunggakan Uang Makan Bulanan</h1>
                             <p className="text-sm text-muted-foreground dark:text-muted-foreground">Monitoring & pengelolaan tunggakan siswa per kelas maupun non-aktif</p>
                         </div>
                     </div>
@@ -495,7 +495,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             </div>
                         </div>
                         <div className="mt-4 pt-3 border-t border-amber-100 dark:border-amber-900/40 text-xs font-medium text-slate-600 dark:text-muted-foreground">
-                            Akumulasi seluruh tagihan SPP dari siswa aktif maupun non-aktif
+                            Akumulasi seluruh tagihan Uang Makan Bulanan dari siswa aktif maupun non-aktif
                         </div>
                     </div>
                 </div>
@@ -633,7 +633,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                     </span>
                                                 </h3>
                                                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
-                                                    {classStudents.length > 0 ? `Total ${totalClassMonths} bulan tagihan belum terbayar di kelas ini` : 'Kelas ini bersih dari tunggakan SPP'}
+                                                    {classStudents.length > 0 ? `Total ${totalClassMonths} bulan tagihan belum terbayar di kelas ini` : 'Kelas ini bersih dari tunggakan Uang Makan Bulanan'}
                                                 </p>
                                             </div>
                                         </div>
@@ -656,7 +656,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                             <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-border/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
                                                 <p className="text-sm font-semibold text-foreground/90 dark:text-slate-300">Kelas Ini Bersih dari Tunggakan</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">Tidak ada siswa aktif di {`Kelas ${cls}`} yang memiliki tagihan SPP tertunggak.</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Tidak ada siswa aktif di {`Kelas ${cls}`} yang memiliki tagihan Uang Makan Bulanan tertunggak.</p>
                                             </div>
                                         ) : (
                                             <>
@@ -845,7 +845,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                             <div>
                                 <h4 className="font-bold text-amber-900 dark:text-amber-300 text-sm">Bagian Khusus Siswa Non-Aktif & Alumni Menunggak</h4>
                                 <p className="text-xs text-amber-800/80 dark:text-amber-400/80 mt-0.5">
-                                    Siswa di bawah ini sudah berstatus Lulus (Alumni), Pindah Sekolah, atau Berhenti namun masih menyisakan kewajiban tagihan SPP tertunggak yang belum diselesaikan.
+                                    Siswa di bawah ini sudah berstatus Lulus (Alumni), Pindah Sekolah, atau Berhenti namun masih menyisakan kewajiban tagihan Uang Makan Bulanan tertunggak yang belum diselesaikan.
                                 </p>
                             </div>
                         </div>
@@ -876,7 +876,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                                     </span>
                                                 </h3>
                                                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
-                                                    {statusStudents.length > 0 ? `Total ${totalStatusMonths} bulan tagihan belum diselesaikan oleh kategori ini` : 'Kategori ini bersih dari tunggakan SPP'}
+                                                    {statusStudents.length > 0 ? `Total ${totalStatusMonths} bulan tagihan belum diselesaikan oleh kategori ini` : 'Kategori ini bersih dari tunggakan Uang Makan Bulanan'}
                                                 </p>
                                             </div>
                                         </div>
@@ -899,7 +899,7 @@ export default function Index({ students, summary, availableMonths }: Props) {
                                             <div className="p-6 sm:p-8 text-center bg-slate-50/40 dark:bg-slate-800/20 border-t border-border/60 dark:border-slate-800/60">
                                                 <Check className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
                                                 <p className="text-sm font-semibold text-foreground/90 dark:text-slate-300">Kategori Ini Bersih dari Tunggakan</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">Alhamdulillah, tidak ada siswa dengan status {statusObj.label.toLowerCase()} yang menyisakan tagihan SPP.</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Alhamdulillah, tidak ada siswa dengan status {statusObj.label.toLowerCase()} yang menyisakan tagihan Uang Makan Bulanan.</p>
                                             </div>
                                         ) : (
                                             <>

@@ -205,4 +205,123 @@ class AuditRemediationTest extends TestCase
         $response->assertRedirect();
         $this->assertEquals($countBefore, Transaction::count());
     }
+
+    public function test_uang_makan_bulanan_category_is_protected_from_edit_and_delete()
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first());
+        $this->actingAs($admin);
+
+        $category = Category::firstOrCreate(['name' => 'Uang Makan Bulanan'], ['type' => 'in', 'is_active' => true]);
+
+        // Attempt to edit
+        $responseUpdate = $this->put("/category/{$category->id}", [
+            'name' => 'Uang Makan Bulanan Diedit',
+            'type' => 'in',
+        ]);
+        $responseUpdate->assertSessionHas('error');
+        $this->assertEquals('Uang Makan Bulanan', $category->fresh()->name);
+
+        // Attempt to delete
+        $responseDelete = $this->delete("/category/{$category->id}");
+        $responseDelete->assertSessionHas('error');
+        $this->assertTrue($category->fresh()->is_active);
+    }
+
+    public function test_transaction_uang_makan_bulanan_allocates_and_updates_spp_payments()
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first());
+        $this->actingAs($admin);
+
+        $student = Student::create([
+            'name' => 'Santri Remediasi',
+            'nisn' => '7778889991',
+            'gender' => 'L',
+            'class' => '1',
+            'status' => 'aktif',
+            'entry_year' => 2026,
+            'entry_month' => 7,
+        ]);
+
+        $month1 = SppMonth::create(['name' => 'Juli', 'month' => 7, 'year' => 2026, 'amount' => 500000]);
+        $month2 = SppMonth::create(['name' => 'Agustus', 'month' => 8, 'year' => 2026, 'amount' => 500000]);
+
+        // Create transaction Uang Makan Bulanan Rp 500.000
+        $responseStore = $this->post('/payment', [
+            'type' => 'in',
+            'category' => 'Uang Makan Bulanan',
+            'amount' => 500000,
+            'student_id' => $student->id,
+            'transaction_date' => '2026-07-15',
+            'note' => 'Pembayaran Uang Makan',
+        ]);
+        $responseStore->assertRedirect();
+
+        $transaction = Transaction::where('student_id', $student->id)->first();
+        $this->assertNotNull($transaction);
+        $this->assertEquals('Uang Makan Bulanan', $transaction->category);
+
+        // Verify spp_payments allocated
+        $spp1 = SppPayment::where('student_id', $student->id)->where('spp_month_id', $month1->id)->first();
+        $this->assertNotNull($spp1);
+        $this->assertEquals('paid', $spp1->status);
+        $this->assertEquals($transaction->id, $spp1->transaction_id);
+
+        // Edit transaction: increase amount to 1.000.000 (covers month 1 & month 2)
+        $responseUpdate = $this->patch("/payment/{$transaction->id}", [
+            'type' => 'in',
+            'category' => 'Uang Makan Bulanan',
+            'amount' => 1000000,
+            'student_id' => $student->id,
+            'transaction_date' => '2026-07-15',
+            'note' => 'Pembayaran Uang Makan Update',
+        ]);
+        $responseUpdate->assertRedirect();
+
+        $spp2 = SppPayment::where('student_id', $student->id)->where('spp_month_id', $month2->id)->first();
+        $this->assertNotNull($spp2);
+        $this->assertEquals('paid', $spp2->status);
+        $this->assertEquals($transaction->id, $spp2->transaction_id);
+    }
+
+    public function test_reconcile_artisan_command_allocates_unallocated_uang_makan_transactions()
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first());
+
+        $student = Student::create([
+            'name' => 'Santri Unallocated',
+            'nisn' => '7778889992',
+            'gender' => 'L',
+            'class' => '1',
+            'status' => 'aktif',
+            'entry_year' => 2026,
+            'entry_month' => 7,
+        ]);
+
+        $month = SppMonth::create(['name' => 'Juli', 'month' => 7, 'year' => 2026, 'amount' => 500000]);
+
+        // Manually create transaction without calling allocate (simulating unallocated state)
+        $transaction = Transaction::create([
+            'transaction_id' => 'TRX-UNALLOC-001',
+            'type' => 'in',
+            'category' => 'Uang Makan Bulanan',
+            'amount' => 500000,
+            'transaction_date' => '2026-07-10',
+            'student_id' => $student->id,
+            'user_id' => $admin->id,
+            'note' => 'Manual Entry',
+        ]);
+
+        $this->assertEquals(0, SppPayment::where('transaction_id', $transaction->id)->count());
+
+        // Run reconcile command
+        $this->artisan('uang-makan:reconcile', ['--student' => $student->id])
+            ->assertSuccessful();
+
+        $this->assertEquals(1, SppPayment::where('transaction_id', $transaction->id)->count());
+        $spp = SppPayment::where('transaction_id', $transaction->id)->first();
+        $this->assertEquals('paid', $spp->status);
+    }
 }
